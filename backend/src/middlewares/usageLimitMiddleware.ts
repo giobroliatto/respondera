@@ -1,0 +1,54 @@
+import { Response, NextFunction } from 'express';
+import { PrismaClient } from '@prisma/client';
+import { AuthRequest } from './authMiddleware';
+
+const prisma = new PrismaClient();
+
+const PLAN_LIMITS: Record<string, number> = {
+  FREE: 10,
+  PRO: 200,
+};
+
+export async function usageLimitMiddleware(
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  const user = await prisma.user.findUnique({
+    where: { id: req.user!.id },
+    select: { plan: true, usageCount: true, usageResetAt: true },
+  });
+
+  if (!user) {
+    res.status(401).json({ error: 'Usuário não encontrado.' });
+    return;
+  }
+
+  // Reinicia o contador se já passou um mês desde o último reset
+  const now = new Date();
+  const resetAt = new Date(user.usageResetAt);
+  const monthElapsed =
+    now.getFullYear() > resetAt.getFullYear() ||
+    now.getMonth() > resetAt.getMonth();
+
+  if (monthElapsed) {
+    await prisma.user.update({
+      where: { id: req.user!.id },
+      data: { usageCount: 0, usageResetAt: now },
+    });
+    user.usageCount = 0;
+  }
+
+  const limit = PLAN_LIMITS[user.plan] ?? PLAN_LIMITS['FREE'];
+
+  if (user.usageCount >= limit) {
+    res.status(403).json({
+      error: `Limite de ${limit} respostas por mês atingido para o plano ${user.plan}.`,
+      limit,
+      used: user.usageCount,
+    });
+    return;
+  }
+
+  next();
+}

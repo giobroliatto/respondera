@@ -1,0 +1,40 @@
+# Dependências
+node_modules/
+
+# Build
+dist/
+build/
+.next/
+out/
+
+# Ambiente — NUNCA commitar arquivos .env com secrets
+.env
+.env.local
+.env.*.local
+
+# Prisma — migrations geradas ficam no repo, client gerado não
+src/prisma/migrations/**/migration_lock.toml
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# SO
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Extensão Chrome — artefatos de build
+extension/dist/
+extension/build/
+
+# pnpm
+.pnpm-store/
