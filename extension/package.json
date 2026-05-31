@@ -1,0 +1,21 @@
+{
+  "name": "respondera-extension",
+  "version": "1.0.0",
+  "description": "Extensão Chrome Respondera — respostas de avaliações com IA",
+  "private": true,
+  "scripts": {
+    "dev": "webpack --watch --mode=development",
+    "build:dev": "webpack --mode=development",
+    "build": "webpack --mode=production",
+    "icons": "node scripts/generate-icons.js",
+    "mock": "npx serve mock -p 8080 --no-clipboard"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.300",
+    "copy-webpack-plugin": "^12.0.2",
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.7.2",
+    "webpack": "^5.98.0",
+    "webpack-cli": "^5.1.4"
+  }
+}

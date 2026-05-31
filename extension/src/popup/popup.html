@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Respondera</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div id="app">
+    <header class="header">
+      <img src="icons/icon48.png" alt="Respondera" class="logo" />
+      <h1 class="title">Respondera</h1>
+    </header>
+
+    <!-- Tela: não logado -->
+    <div id="screen-login" class="screen">
+      <p class="subtitle">Entre para começar a gerar respostas com IA.</p>
+      <form id="form-login">
+        <input type="email" id="input-email" placeholder="seu@email.com" required />
+        <input type="password" id="input-password" placeholder="Senha" required />
+        <button type="submit" id="btn-login">Entrar</button>
+      </form>
+      <p id="login-error" class="error hidden"></p>
+    </div>
+
+    <!-- Tela: logado -->
+    <div id="screen-home" class="screen hidden">
+      <p id="user-email" class="user-email"></p>
+      <div class="plan-badge">
+        <span id="plan-label"></span>
+        <span id="usage-label" class="usage"></span>
+      </div>
+      <p class="hint">Abra o Google Business e clique em<br/><strong>"Responder com IA"</strong> em uma avaliação.</p>
+      <button id="btn-logout" class="btn-secondary">Sair</button>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

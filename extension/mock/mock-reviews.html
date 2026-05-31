@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Mock — Avaliações Google Business</title>
+  <style>
+    body {
+      font-family: 'Google Sans', Arial, sans-serif;
+      background: #f1f3f4;
+      margin: 0;
+      padding: 24px;
+      color: #202124;
+    }
+
+    h2 {
+      font-size: 18px;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
+    .page-title {
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      color: #1a73e8;
+    }
+
+    .reviews-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      max-width: 720px;
+    }
+
+    /* Estrutura que imita o DOM real do Google Business */
+    .review-card {
+      background: #fff;
+      border-radius: 8px;
+      padding: 16px 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.12);
+    }
+
+    .reviewer-name {
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .star-rating {
+      color: #fbbc04;
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+
+    .review-text {
+      font-size: 14px;
+      line-height: 1.6;
+      color: #3c4043;
+      margin-bottom: 12px;
+    }
+
+    /* Área de resposta — imita o Google */
+    .reply-area {
+      border-top: 1px solid #e8eaed;
+      padding-top: 12px;
+      margin-top: 4px;
+    }
+
+    .reply-label {
+      font-size: 12px;
+      color: #5f6368;
+      margin-bottom: 6px;
+    }
+
+    /* textarea que o content.ts vai preencher */
+    .reply-input {
+      width: 100%;
+      min-height: 80px;
+      padding: 10px 12px;
+      border: 1px solid #dadce0;
+      border-radius: 4px;
+      font-size: 14px;
+      font-family: inherit;
+      resize: vertical;
+      outline: none;
+    }
+
+    .reply-input:focus {
+      border-color: #1a73e8;
+      box-shadow: 0 0 0 2px rgba(26,115,232,.2);
+    }
+
+    /* Tag de aviso de página mock */
+    .mock-banner {
+      background: #fef3cd;
+      border: 1px solid #ffc107;
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: #856404;
+      margin-bottom: 20px;
+      max-width: 720px;
+    }
+  </style>
+</head>
+<body>
+
+  <p class="page-title">📋 Avaliações — Mock de Teste</p>
+
+  <div class="mock-banner">
+    ⚠️ Esta é uma <strong>página de teste local</strong>. O content script da extensão Respondera
+    deve injetar um botão <em>"Responder com IA"</em> em cada avaliação abaixo.
+  </div>
+
+  <div class="reviews-list">
+
+    <!-- Avaliação 1: positiva -->
+    <div class="review-card" data-review-id="mock-001">
+      <div class="reviewer-name" data-reviewer-name>Carlos Silva</div>
+      <div class="star-rating" data-star-rating="5">★★★★★</div>
+      <div class="review-text" data-review-text>
+        Fui jantar ontem e foi incrível! Comida deliciosa, atendimento rápido e
+        ambiente super agradável. A pizza de calabresa estava perfeita, crocante
+        por fora e macia por dentro. Voltarei com certeza!
+      </div>
+      <div class="reply-area">
+        <div class="reply-label">Sua resposta pública</div>
+        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
+      </div>
+    </div>
+
+    <!-- Avaliação 2: negativa -->
+    <div class="review-card" data-review-id="mock-002">
+      <div class="reviewer-name" data-reviewer-name>Ana Lima</div>
+      <div class="star-rating" data-star-rating="2">★★☆☆☆</div>
+      <div class="review-text" data-review-text>
+        Esperamos mais de 40 minutos e a comida chegou fria e errada.
+        Pedi pizza de frango e veio margherita. O garçom foi grosseiro quando
+        reclamamos. Muito decepcionante para um lugar que cobra R$80 por pizza.
+      </div>
+      <div class="reply-area">
+        <div class="reply-label">Sua resposta pública</div>
+        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
+      </div>
+    </div>
+
+    <!-- Avaliação 3: neutra -->
+    <div class="review-card" data-review-id="mock-003">
+      <div class="reviewer-name" data-reviewer-name>Roberto Mendes</div>
+      <div class="star-rating" data-star-rating="3">★★★☆☆</div>
+      <div class="review-text" data-review-text>
+        Lugar ok. A comida é boa mas o preço é um pouco salgado para o tamanho
+        das porções. Atendimento foi tranquilo. Talvez volte em uma ocasião especial.
+      </div>
+      <div class="reply-area">
+        <div class="reply-label">Sua resposta pública</div>
+        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
+      </div>
+    </div>
+
+    <!-- Avaliação 4: só nota, sem texto -->
+    <div class="review-card" data-review-id="mock-004">
+      <div class="reviewer-name" data-reviewer-name>Maria Santos</div>
+      <div class="star-rating" data-star-rating="4">★★★★☆</div>
+      <div class="review-text" data-review-text></div>
+      <div class="reply-area">
+        <div class="reply-label">Sua resposta pública</div>
+        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>
