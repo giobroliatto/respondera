@@ -21,18 +21,23 @@ interface GenerateReplyMessage {
 
 type IncomingMessage = GenerateReplyMessage;
 
-chrome.runtime.onMessage.addListener(
-  (message: IncomingMessage, _sender, sendResponse) => {
-    if (message.type === 'GENERATE_REPLY') {
-      handleGenerateReply(message.data).then(sendResponse).catch((err) => {
-        console.error('[Respondera background]', err);
-        sendResponse({ error: 'Erro interno. Tente novamente.' });
-      });
-      // Retorna true para manter o canal aberto até sendResponse ser chamado
-      return true;
+// Usa long-lived port (connect) em vez de sendMessage/sendResponse
+// para evitar o bug do MV3 onde o service worker é morto antes de responder.
+chrome.runtime.onConnect.addListener((port) => {
+  if (port.name !== 'respondera-reply') return;
+
+  port.onMessage.addListener(async (message: IncomingMessage) => {
+    if (message.type !== 'GENERATE_REPLY') return;
+
+    try {
+      const result = await handleGenerateReply(message.data);
+      port.postMessage(result);
+    } catch (err) {
+      console.error('[Respondera background]', err);
+      port.postMessage({ error: 'Erro interno. Tente novamente.' });
     }
-  }
-);
+  });
+});
 
 async function handleGenerateReply(
   data: ReviewData
