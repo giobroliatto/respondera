@@ -9,6 +9,7 @@ export interface AuthUser {
 
 export interface AuthRequest extends Request {
   user?: AuthUser;
+  usageInfo?: { count: number; limit: number };
 }
 
 export function authMiddleware(

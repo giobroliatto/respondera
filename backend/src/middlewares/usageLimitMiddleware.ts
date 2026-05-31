@@ -4,6 +4,7 @@ import { AuthRequest } from './authMiddleware';
 
 const prisma = new PrismaClient();
 
+// Limites por plano — não expor esses valores nas respostas da API
 const PLAN_LIMITS: Record<string, number> = {
   FREE: 10,
   PRO: 200,
@@ -43,12 +44,14 @@ export async function usageLimitMiddleware(
 
   if (user.usageCount >= limit) {
     res.status(403).json({
-      error: `Limite de ${limit} respostas por mês atingido para o plano ${user.plan}.`,
-      limit,
-      used: user.usageCount,
+      error: 'USAGE_LIMIT_REACHED',
+      message: 'Você atingiu o limite de respostas deste mês.',
     });
     return;
   }
+
+  // Injeta info de uso no req para que a rota compute remainingUsage sem query extra
+  req.usageInfo = { count: user.usageCount, limit };
 
   next();
 }

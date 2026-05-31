@@ -4,61 +4,86 @@ const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
 
-interface GenerateReplyParams {
+export interface BusinessContext {
+  name: string;
+  segment: string;
+  avgTicket?: string | null;
+  highlights?: string | null;
+}
+
+export interface GenerateReplyParams {
   reviewText: string;
-  reviewerName: string;
-  starRating: number;
-  business: {
-    name: string;
-    segment: string;
-    tone?: string | null;
-    avgTicket?: string | null;
-    highlights?: string | null;
-  };
+  rating: number;
+  reviewerName?: string;
+  tone?: 'formal' | 'friendly' | 'empathetic';
+  businessContext: BusinessContext | null;
+}
+
+export interface GenerateReplyResult {
+  reply: string;
+  tokensUsed: number;
 }
 
 const TONE_INSTRUCTIONS: Record<string, string> = {
-  FORMAL: 'Use linguagem formal, tratamento respeitoso (Você/Sr./Sra.) e evite informalidades.',
-  NEUTRO: 'Use linguagem profissional e cordial, sem ser excessivamente formal nem informal.',
-  DESCONTRAÍDO: 'Use linguagem leve, amigável e próxima, com um toque descontraído mas ainda respeitosa.',
+  formal: 'Formal — linguagem respeitosa e profissional, tratamento em Você',
+  friendly: 'Amigável — linguagem leve, próxima e calorosa',
+  empathetic: 'Empático — priorize acolhimento, compreensão e suporte',
 };
 
-export async function generateReply(params: GenerateReplyParams): Promise<string> {
-  const { reviewText, reviewerName, starRating, business } = params;
+function buildSystemPrompt(businessContext: BusinessContext | null, tone: string): string {
+  const toneInstruction = TONE_INSTRUCTIONS[tone] ?? TONE_INSTRUCTIONS['friendly'];
 
-  const toneKey = business.tone ?? 'NEUTRO';
-  const toneInstruction = TONE_INSTRUCTIONS[toneKey] ?? TONE_INSTRUCTIONS['NEUTRO'];
+  const contextBlock = businessContext
+    ? `Nome: ${businessContext.name}
+Segmento: ${businessContext.segment}${
+        businessContext.highlights ? `\nDiferenciais: ${businessContext.highlights}` : ''
+      }`
+    : 'Contexto n\u00e3o dispon\u00edvel — gere a resposta baseada apenas nas informa\u00e7\u00f5es da avalia\u00e7\u00e3o.';
 
-  const systemPrompt = `Você é um especialista em atendimento ao cliente e gestão de reputação online.
-Seu papel é redigir respostas profissionais, empáticas e personalizadas para avaliações do Google Meu Negócio.
+  return `Voc\u00ea \u00e9 um assistente especializado em gest\u00e3o de reputa\u00e7\u00e3o online para pequenos neg\u00f3cios.
+Sua fun\u00e7\u00e3o \u00e9 gerar respostas profissionais, aut\u00eanticas e personalizadas para avalia\u00e7\u00f5es do Google.
 
-Estabelecimento: ${business.name}
-Segmento: ${business.segment}
-${business.avgTicket ? `Ticket médio: ${business.avgTicket}` : ''}
-${business.highlights ? `Diferenciais: ${business.highlights}` : ''}
+REGRAS:
+- A resposta deve ser em portugu\u00eas brasileiro
+- Nunca invente fatos sobre o estabelecimento
+- Nunca mencione valores, pre\u00e7os ou tickets m\u00e9dios que n\u00e3o foram fornecidos no contexto
+- Se a avalia\u00e7\u00e3o mencionar um valor que parece inconsistente com o contexto, aborde isso gentilmente na resposta
+- Para avalia\u00e7\u00f5es negativas (1-2 estrelas): reconhe\u00e7a o problema, pe\u00e7a desculpas, ofere\u00e7a solu\u00e7\u00e3o
+- Para avalia\u00e7\u00f5es positivas (4-5 estrelas): agrade\u00e7a com entusiasmo mas sem exagero
+- Para avalia\u00e7\u00f5es neutras (3 estrelas): agrade\u00e7a e pergunte o que pode melhorar
+- M\u00e1ximo de 150 palavras na resposta
+- Tom solicitado: ${toneInstruction}
 
-Tom de comunicação: ${toneInstruction}
+CONTEXTO DO ESTABELECIMENTO:
+${contextBlock}`;
+}
 
-Diretrizes para as respostas:
-- Mencione o nome do avaliador
-- Para avaliações positivas (4-5 estrelas): agradeça, reforce os pontos positivos e convide para voltar
-- Para avaliações neutras (3 estrelas): agradeça, reconheça o feedback e demonstre comprometimento com melhoria
-- Para avaliações negativas (1-2 estrelas): demonstre empatia, peça desculpas, ofereça solução e contato privado
-- Nunca seja defensivo ou agressivo
-- Máximo de 3 parágrafos curtos
-- Escreva em português do Brasil`;
-
-  const userMessage = `Escreva uma resposta para a seguinte avaliação:
-
+function buildUserPrompt(reviewText: string, rating: number, reviewerName: string): string {
+  return `Avalia\u00e7\u00e3o recebida:
+Nota: ${rating}/5 estrelas
 Avaliador: ${reviewerName}
-Nota: ${starRating}/5 estrelas
-Avaliação: "${reviewText}"`;
+Texto: ${reviewText || 'Sem texto, apenas nota'}
+
+Gere uma resposta adequada para esta avalia\u00e7\u00e3o.`;
+}
+
+export async function generateReply(params: GenerateReplyParams): Promise<GenerateReplyResult> {
+  const {
+    reviewText,
+    rating,
+    reviewerName = 'Cliente',
+    tone = 'friendly',
+    businessContext,
+  } = params;
+
+  const systemPrompt = buildSystemPrompt(businessContext, tone);
+  const userPrompt = buildUserPrompt(reviewText, rating, reviewerName);
 
   const message = await anthropic.messages.create({
     model: 'claude-haiku-4-5',
     max_tokens: 512,
     system: systemPrompt,
-    messages: [{ role: 'user', content: userMessage }],
+    messages: [{ role: 'user', content: userPrompt }],
   });
 
   const content = message.content[0];
@@ -66,5 +91,8 @@ Avaliação: "${reviewText}"`;
     throw new Error('Resposta inesperada da API da Anthropic.');
   }
 
-  return content.text;
+  return {
+    reply: content.text,
+    tokensUsed: message.usage.input_tokens + message.usage.output_tokens,
+  };
 }
