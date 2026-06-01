@@ -11,9 +11,10 @@ module.exports = (env, argv) => {
     devtool: isDev ? 'inline-source-map' : false,
 
     entry: {
-      content: './src/content.ts',
+      content:    './src/content.ts',
       background: './src/background.ts',
-      popup: './src/popup/popup.ts',
+      popup:      './src/popup/popup.ts',
+      panel:      './src/panel/panel.ts',
     },
 
     output: {
@@ -42,10 +43,12 @@ module.exports = (env, argv) => {
       }),
       new CopyPlugin({
         patterns: [
-          { from: 'manifest.json', to: '.' },
-          { from: 'src/popup/popup.html', to: '.' },
-          { from: 'src/popup/popup.css', to: '.' },
-          { from: 'public/icons', to: 'icons' },
+          { from: 'manifest.json',             to: '.' },
+          { from: 'src/popup/popup.html',       to: '.' },
+          { from: 'src/popup/popup.css',        to: '.' },
+          { from: 'src/panel/panel.html',       to: '.' },
+          { from: 'src/panel/panel.css',        to: '.' },
+          { from: 'public/icons',               to: 'icons' },
         ],
       }),
     ],

@@ -202,61 +202,86 @@ function injectButtons(): void {
     btn.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
-
-      // Indica loading
-      btn.textContent = '⏳ Gerando...';
-      btn.style.background = '#6B7280';
-      (btn as HTMLButtonElement).disabled = true;
-
-      // Usa long-lived port para evitar o bug do MV3 onde o service worker
-      // é morto antes de chamar sendResponse com return true.
-      const port = chrome.runtime.connect({ name: 'respondera-reply' });
-
-      const resetBtn = () => {
-        btn.textContent = '✨ Responder com IA';
-        btn.style.background = '#4F46E5';
-        (btn as HTMLButtonElement).disabled = false;
-      };
-
-      // Timeout de segurança: desbloqueia o botão se nenhuma resposta chegar
-      const timeoutId = setTimeout(() => {
-        resetBtn();
-        alert('Respondera: tempo esgotado. Tente novamente.');
-        port.disconnect();
-      }, 30_000);
-
-      port.onMessage.addListener((response: { reply?: string; error?: string }) => {
-        clearTimeout(timeoutId);
-        port.disconnect();
-        resetBtn();
-
-        if (response.error) {
-          alert(`Respondera: ${response.error}`);
-          return;
-        }
-
-        if (response.reply) {
-          const inserted = insertReplyIntoField(response.reply);
-          if (!inserted) {
-            alert('Respondera: não foi possível encontrar o campo de resposta.');
-          }
-        }
-      });
-
-      port.onDisconnect.addListener(() => {
-        clearTimeout(timeoutId);
-        resetBtn();
-        if (chrome.runtime.lastError) {
-          console.error('[Respondera] port desconectada:', chrome.runtime.lastError.message);
-        }
-      });
-
-      port.postMessage({ type: 'GENERATE_REPLY', data });
+      openPanel(data);
     });
 
     replyArea.appendChild(btn);
   }
 }
+
+// ─── Painel lateral (iframe overlay) ───────────────────────────────────────
+
+let panelIframe: HTMLIFrameElement | null = null;
+let pendingPanelData: ReviewData | null = null;
+
+function openPanel(data: ReviewData): void {
+  // Fecha painel anterior se estiver aberto
+  closePanel();
+
+  const iframe = document.createElement('iframe');
+  iframe.id = 'respondera-panel-frame';
+  iframe.src = chrome.runtime.getURL('panel.html');
+  iframe.style.cssText = [
+    'position:fixed',
+    'right:0',
+    'top:0',
+    'height:100vh',
+    'width:360px',
+    'z-index:999999',
+    'border:none',
+    'box-shadow:-6px 0 32px rgba(0,0,0,0.18)',
+  ].join(';');
+  iframe.setAttribute('title', 'Painel Respondera');
+
+  panelIframe = iframe;
+  pendingPanelData = data;
+  document.body.appendChild(iframe);
+}
+
+function closePanel(): void {
+  if (panelIframe) {
+    panelIframe.remove();
+    panelIframe = null;
+  }
+  pendingPanelData = null;
+}
+
+// Mensagens recebidas do iframe do painel
+window.addEventListener('message', (e) => {
+  if (!panelIframe || e.source !== panelIframe.contentWindow) return;
+
+  const msg = e.data as { type?: string; reply?: string };
+
+  switch (msg?.type) {
+    case 'RESPONDERA_READY':
+      // Painel carregado — envia os dados da avaliação
+      if (pendingPanelData) {
+        panelIframe.contentWindow?.postMessage(
+          { type: 'RESPONDERA_DATA', data: pendingPanelData },
+          '*'
+        );
+        pendingPanelData = null;
+      }
+      break;
+
+    case 'RESPONDERA_INSERT':
+      if (msg.reply) insertReplyIntoField(msg.reply);
+      closePanel();
+      break;
+
+    case 'RESPONDERA_CLOSE':
+      closePanel();
+      break;
+  }
+});
+
+// Notificação de login enviada pelo popup
+chrome.runtime.onMessage.addListener((message: { type?: string }) => {
+  if (message.type === 'RESPONDERA_LOGGED_IN' && panelIframe) {
+    panelIframe.contentWindow?.postMessage({ type: 'RESPONDERA_AUTH_UPDATE' }, '*');
+  }
+  return false;
+});
 
 // ─── MutationObserver — detecta novos cards em SPA ───────────────────────────
 

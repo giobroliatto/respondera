@@ -15,13 +15,27 @@
 
     <!-- Tela: não logado -->
     <div id="screen-login" class="screen">
-      <p class="subtitle">Entre para começar a gerar respostas com IA.</p>
-      <form id="form-login">
-        <input type="email" id="input-email" placeholder="seu@email.com" required />
-        <input type="password" id="input-password" placeholder="Senha" required />
+      <p class="subtitle">Entre para gerar respostas com IA.</p>
+      <form id="form-login" novalidate>
+        <input type="email" id="input-email" placeholder="seu@email.com" autocomplete="email" required />
+        <input type="password" id="input-password" placeholder="Senha" autocomplete="current-password" required />
         <button type="submit" id="btn-login">Entrar</button>
       </form>
       <p id="login-error" class="error hidden"></p>
+      <p class="switch-link">Não tem conta? <a href="#" id="link-to-register">Criar conta</a></p>
+    </div>
+
+    <!-- Tela: criar conta -->
+    <div id="screen-register" class="screen hidden">
+      <p class="subtitle">Crie sua conta gratuitamente.</p>
+      <form id="form-register" novalidate>
+        <input type="email" id="input-reg-email" placeholder="seu@email.com" autocomplete="email" required />
+        <input type="password" id="input-reg-password" placeholder="Senha" autocomplete="new-password" required />
+        <input type="password" id="input-reg-confirm" placeholder="Confirmar senha" autocomplete="new-password" required />
+        <button type="submit" id="btn-register">Criar conta</button>
+      </form>
+      <p id="register-error" class="error hidden"></p>
+      <p class="switch-link">Já tem conta? <a href="#" id="link-to-login">Fazer login</a></p>
     </div>
 
     <!-- Tela: logado -->
@@ -31,7 +45,7 @@
         <span id="plan-label"></span>
         <span id="usage-label" class="usage"></span>
       </div>
-      <p class="hint">Abra o Google Business e clique em<br/><strong>"Responder com IA"</strong> em uma avaliação.</p>
+      <p class="hint">Abra o Google Business e clique em<br/><strong>"✨ Responder com IA"</strong> em uma avaliação.</p>
       <button id="btn-logout" class="btn-secondary">Sair</button>
     </div>
   </div>

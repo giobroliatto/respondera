@@ -147,6 +147,47 @@ button {
   margin-top: 6px;
 }
 
+/* Switch screen link */
+.switch-link {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 10px;
+  text-align: center;
+}
+
+.switch-link a {
+  color: #1a56db;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.switch-link a:hover {
+  text-decoration: underline;
+}
+
+/* Register form — same style as login form */
+#form-register {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+#btn-register {
+  background: #1a56db;
+  color: #fff;
+  margin-top: 4px;
+}
+
+#btn-register:hover:not(:disabled) {
+  background: #1648c5;
+}
+
+#btn-register:disabled,
+#btn-login:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .hidden {
   display: none !important;
 }

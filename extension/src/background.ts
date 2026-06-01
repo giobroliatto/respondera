@@ -12,6 +12,7 @@ interface ReviewData {
   rating: number | null;
   reviewerName: string | null;
   hasExistingReply: boolean;
+  tone?: string;
 }
 
 interface GenerateReplyMessage {
@@ -58,7 +59,7 @@ async function handleGenerateReply(
       reviewText: data.text ?? '',
       rating: data.rating ?? 5,
       reviewerName: data.reviewerName ?? undefined,
-      tone: 'friendly',
+      tone: data.tone ?? 'friendly',
     }),
   });
 

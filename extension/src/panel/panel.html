@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Respondera</title>
+  <link rel="stylesheet" href="panel.css" />
+</head>
+<body>
+  <div id="panel">
+
+    <!-- Header -->
+    <div class="panel-header">
+      <span class="panel-title">✨ Respondera</span>
+      <button id="btn-close" class="btn-close" type="button" aria-label="Fechar painel" title="Fechar">✕</button>
+    </div>
+
+    <!-- Avaliação (readonly) -->
+    <div id="review-section" class="panel-section review-section">
+      <div class="review-meta">
+        <span id="reviewer-name" class="reviewer-name"></span>
+        <span id="rating-stars" class="rating-stars"></span>
+      </div>
+      <p id="review-text" class="review-text"></p>
+    </div>
+
+    <!-- Seletor de tom -->
+    <div class="panel-section">
+      <span class="section-label">Tom da resposta</span>
+      <div class="tone-group" role="group" aria-label="Selecionar tom da resposta">
+        <button class="tone-btn active" data-tone="friendly" type="button">Amigável</button>
+        <button class="tone-btn" data-tone="formal" type="button">Formal</button>
+        <button class="tone-btn" data-tone="empathetic" type="button">Empático</button>
+      </div>
+    </div>
+
+    <!-- Área dinâmica: cresce para preencher o espaço -->
+    <div class="panel-main">
+
+      <!-- Resposta gerada -->
+      <div id="reply-section" class="hidden">
+        <span class="section-label">Resposta gerada</span>
+        <textarea id="reply-textarea" aria-label="Resposta gerada" spellcheck="true"></textarea>
+      </div>
+
+      <!-- Carregando -->
+      <div id="loading-section" class="state-section hidden">
+        <span class="spinner" aria-hidden="true"></span>
+        <span>Gerando resposta...</span>
+      </div>
+
+      <!-- Erro -->
+      <div id="error-section" class="state-section hidden">
+        <p id="error-message" class="error-msg" role="alert"></p>
+      </div>
+
+      <!-- Não logado -->
+      <div id="not-logged-section" class="state-section hidden">
+        <p class="not-logged-msg">Você precisa fazer login para usar o Respondera.</p>
+        <p class="not-logged-hint">Clique no ícone da extensão na barra do Chrome para entrar.</p>
+        <button id="btn-recheck-auth" class="btn-secondary" type="button">Já fiz login — verificar</button>
+      </div>
+
+      <!-- Limite atingido -->
+      <div id="limit-section" class="state-section hidden">
+        <p class="limit-msg">⚠ Você atingiu o limite de respostas deste mês.</p>
+      </div>
+
+    </div><!-- /panel-main -->
+
+    <!-- Ações -->
+    <div class="panel-actions">
+      <button id="btn-generate" class="btn-primary" type="button">Gerar resposta</button>
+      <button id="btn-regenerate" class="btn-secondary hidden" type="button">↺ Regenerar</button>
+      <button id="btn-use" class="btn-success hidden" type="button">✓ Usar esta resposta</button>
+    </div>
+
+    <!-- Footer -->
+    <div class="panel-footer">
+      <span id="usage-info" class="usage-info"></span>
+    </div>
+
+  </div>
+  <script src="panel.js"></script>
+</body>
+</html>
