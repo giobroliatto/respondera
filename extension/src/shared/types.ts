@@ -14,6 +14,7 @@ export interface ReviewData {
   reviewerName: string | null;
   hasExistingReply: boolean;
   tone?: ToneOption;
+  detailRatings?: Record<string, string>; // ex: { "Comida": "5", "Serviço": "4", "Ambiente": "5", "Preço por pessoa": "R$40-60" }
 }
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
@@ -54,6 +55,7 @@ export interface GenerateReplyData {
   rating: number;
   reviewerName?: string;
   tone?: ToneOption;
+  detailRatings?: Record<string, string>;
 }
 
 export interface GenerateReplyResponse {

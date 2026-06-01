@@ -9,6 +9,8 @@ interface ReviewData {
   rating: number | null;
   reviewerName: string | null;
   hasExistingReply: boolean;
+  tone?: string;
+  detailRatings?: Record<string, string>;
 }
 
 // ─── Seletores ────────────────────────────────────────────────────────────────
@@ -119,15 +121,67 @@ function extractReviewData(card: Element): ReviewData {
     (sel) => card.querySelector(sel) !== null
   );
 
-  return { text, rating, reviewerName, hasExistingReply };
+  // ─── Sub-notas detalhadas (comida, serviço, ambiente etc.) ─────────────────
+  // Mock: atributo data-details com JSON diretamente no card
+  // Google Business: pares label+valor em contêineres de subtópico
+  const detailRatings: Record<string, string> = {};
+
+  // Mock
+  const rawDetails = card.getAttribute('data-details');
+  if (rawDetails) {
+    try {
+      const parsed = JSON.parse(rawDetails) as Record<string, unknown>;
+      for (const [k, v] of Object.entries(parsed)) {
+        if (typeof v === 'string' || typeof v === 'number') {
+          detailRatings[k] = String(v);
+        }
+      }
+    } catch { /* JSON inválido — ignora */ }
+  }
+
+  // Google Business Management (DOM real)
+  // Padrão 1: .UzThIf contém label + nota por aspecto
+  card.querySelectorAll('.UzThIf').forEach((el) => {
+    const label = el.querySelector('.KF1hCb')?.textContent?.trim();
+    const value = el.querySelector('.lTi8oc')?.getAttribute('aria-label')
+      ?? el.querySelector('.lTi8oc')?.textContent?.trim();
+    if (label && value) detailRatings[label] = value;
+  });
+
+  // Padrão 2: tabelas de detalhes (.hGLX6d rows com label + valor)
+  card.querySelectorAll('.hGLX6d').forEach((row) => {
+    const cells = row.querySelectorAll('td, th');
+    if (cells.length === 2) {
+      const label = cells[0]!.textContent?.trim();
+      const value = cells[1]!.textContent?.trim();
+      if (label && value) detailRatings[label] = value;
+    }
+  });
+
+  // Padrão 3: .review-snippet-details span pairs
+  card.querySelectorAll('.review-snippet-detail').forEach((el) => {
+    const label = el.querySelector('.detail-label')?.textContent?.trim();
+    const value = el.querySelector('.detail-value')?.textContent?.trim();
+    if (label && value) detailRatings[label] = value;
+  });
+
+  return {
+    text,
+    rating,
+    reviewerName,
+    hasExistingReply,
+    detailRatings: Object.keys(detailRatings).length > 0 ? detailRatings : undefined,
+  };
 }
 
 // ─── Inserção de resposta no campo ────────────────────────────────────────────
 // Usar nativeInputValueSetter para compatibilidade com React/Angular que
 // monitoram eventos do DOM e ignoram atribuições diretas a .value
 
-export function insertReplyIntoField(replyText: string): boolean {
-  const field = findFirst(document, REPLY_FIELD_SELECTORS) as HTMLTextAreaElement | null;
+export function insertReplyIntoField(replyText: string, card?: Element | null): boolean {
+  // Busca dentro do card específico primeiro, depois no documento inteiro
+  const root = card ?? document;
+  const field = findFirst(root, REPLY_FIELD_SELECTORS) as HTMLTextAreaElement | null;
   if (!field) {
     console.warn('[Respondera] campo de resposta não encontrado');
     return false;
@@ -202,7 +256,7 @@ function injectButtons(): void {
     btn.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
-      openPanel(data);
+      openPanel(data, card);
     });
 
     replyArea.appendChild(btn);
@@ -213,10 +267,13 @@ function injectButtons(): void {
 
 let panelIframe: HTMLIFrameElement | null = null;
 let pendingPanelData: ReviewData | null = null;
+let activeCard: Element | null = null;
 
-function openPanel(data: ReviewData): void {
+function openPanel(data: ReviewData, card: Element): void {
   // Fecha painel anterior se estiver aberto
   closePanel();
+
+  activeCard = card;
 
   const iframe = document.createElement('iframe');
   iframe.id = 'respondera-panel-frame';
@@ -244,6 +301,7 @@ function closePanel(): void {
     panelIframe = null;
   }
   pendingPanelData = null;
+  activeCard = null;
 }
 
 // Mensagens recebidas do iframe do painel
@@ -265,7 +323,7 @@ window.addEventListener('message', (e) => {
       break;
 
     case 'RESPONDERA_INSERT':
-      if (msg.reply) insertReplyIntoField(msg.reply);
+      if (msg.reply) insertReplyIntoField(msg.reply, activeCard);
       closePanel();
       break;
 

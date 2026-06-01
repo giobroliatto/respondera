@@ -15,17 +15,16 @@ router.use(authMiddleware);
 
 // POST /reply/generate
 router.post('/generate', usageLimitMiddleware, async (req: AuthRequest, res: Response) => {
-  const { reviewText, rating, reviewerName, tone } = req.body as {
+  const { reviewText, rating, reviewerName, tone, detailRatings } = req.body as {
     reviewText?: string;
     rating?: number;
     reviewerName?: string;
     tone?: string;
+    detailRatings?: Record<string, string>;
   };
 
-  if (!reviewText) {
-    res.status(400).json({ error: 'reviewText é obrigatório.' });
-    return;
-  }
+  // reviewText é opcional — avaliações sem comentário são válidas
+  // O serviço gera resposta baseada apenas na nota quando não há texto
 
   if (rating === undefined || rating < 1 || rating > 5 || !Number.isInteger(rating)) {
     res.status(400).json({ error: 'rating deve ser um número inteiro entre 1 e 5.' });
@@ -48,10 +47,11 @@ router.post('/generate', usageLimitMiddleware, async (req: AuthRequest, res: Res
     : undefined;
 
   const { reply, tokensUsed } = await generateReply({
-    reviewText,
+    reviewText: reviewText ?? '',
     rating,
     reviewerName,
     tone: (tone as Tone) ?? 'friendly',
+    detailRatings,
     businessContext: business
       ? {
           name: business.name,

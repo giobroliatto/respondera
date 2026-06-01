@@ -55,11 +55,19 @@ async function handleGenerateReply(
   }
 
   try {
+    const rating = data.rating ?? 5;
+    const starWord = rating === 1 ? 'estrela' : 'estrelas';
+    // Avaliações sem comentário recebem texto sintético para o backend não retornar 400
+    const reviewText = data.text?.trim()
+      ? data.text
+      : `(Avaliação sem comentário escrito — apenas ${rating} ${starWord})`;
+
     const result = await generateReply({
-      reviewText:   data.text ?? '',
-      rating:       data.rating ?? 5,
+      reviewText,
+      rating,
       reviewerName: data.reviewerName ?? undefined,
       tone:         data.tone ?? 'friendly',
+      detailRatings: data.detailRatings,
     });
 
     // Atualiza contador de uso no storage

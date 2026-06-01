@@ -1,4 +1,4 @@
-import Anthropic from '@anthropic-ai/sdk';
+﻿import Anthropic from '@anthropic-ai/sdk';
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -17,6 +17,7 @@ export interface GenerateReplyParams {
   reviewerName?: string;
   tone?: 'formal' | 'friendly' | 'empathetic';
   businessContext: BusinessContext | null;
+  detailRatings?: Record<string, string>;
 }
 
 export interface GenerateReplyResult {
@@ -35,36 +36,54 @@ function buildSystemPrompt(businessContext: BusinessContext | null, tone: string
 
   const contextBlock = businessContext
     ? `Nome: ${businessContext.name}
-Segmento: ${businessContext.segment}${
-        businessContext.highlights ? `\nDiferenciais: ${businessContext.highlights}` : ''
-      }`
-    : 'Contexto n\u00e3o dispon\u00edvel — gere a resposta baseada apenas nas informa\u00e7\u00f5es da avalia\u00e7\u00e3o.';
+Segmento: ${businessContext.segment}${businessContext.highlights ? `\nDiferenciais: ${businessContext.highlights}` : ''}`
+    : 'Contexto não disponível — gere a resposta baseada apenas nas informações da avaliação.';
 
-  return `Voc\u00ea \u00e9 um assistente especializado em gest\u00e3o de reputa\u00e7\u00e3o online para pequenos neg\u00f3cios.
-Sua fun\u00e7\u00e3o \u00e9 gerar respostas profissionais, aut\u00eanticas e personalizadas para avalia\u00e7\u00f5es do Google.
+  return `Você é um assistente especializado em gestão de reputação online para pequenos negócios.
+Sua função é gerar respostas profissionais, autênticas e personalizadas para avaliações do Google.
 
 REGRAS:
-- A resposta deve ser em portugu\u00eas brasileiro
+- A resposta deve ser em português brasileiro
 - Nunca invente fatos sobre o estabelecimento
-- Nunca mencione valores, pre\u00e7os ou tickets m\u00e9dios que n\u00e3o foram fornecidos no contexto
-- Se a avalia\u00e7\u00e3o mencionar um valor que parece inconsistente com o contexto, aborde isso gentilmente na resposta
-- Para avalia\u00e7\u00f5es negativas (1-2 estrelas): reconhe\u00e7a o problema, pe\u00e7a desculpas, ofere\u00e7a solu\u00e7\u00e3o
-- Para avalia\u00e7\u00f5es positivas (4-5 estrelas): agrade\u00e7a com entusiasmo mas sem exagero
-- Para avalia\u00e7\u00f5es neutras (3 estrelas): agrade\u00e7a e pergunte o que pode melhorar
-- M\u00e1ximo de 150 palavras na resposta
+- Nunca mencione valores, preços ou tickets médios que não foram fornecidos no contexto
+- Se a avaliação mencionar um valor inconsistente com o contexto, aborde isso gentilmente
+- Para avaliações negativas (1-2 estrelas): reconheça o problema, peça desculpas, ofereça solução
+- Para avaliações positivas (4-5 estrelas): agradeça com entusiasmo mas sem exagero
+- Para avaliações neutras (3 estrelas): agradeça e pergunte o que pode melhorar
+- Para avaliações sem comentário: gere resposta genérica e calorosa adequada à nota
+- Considere TODAS as informações adicionais da avaliação (comida, serviço, ambiente, preço etc.)
+- Máximo de 150 palavras na resposta
 - Tom solicitado: ${toneInstruction}
 
 CONTEXTO DO ESTABELECIMENTO:
 ${contextBlock}`;
 }
 
-function buildUserPrompt(reviewText: string, rating: number, reviewerName: string): string {
-  return `Avalia\u00e7\u00e3o recebida:
-Nota: ${rating}/5 estrelas
-Avaliador: ${reviewerName}
-Texto: ${reviewText || 'Sem texto, apenas nota'}
+function buildUserPrompt(
+  reviewText: string,
+  rating: number,
+  reviewerName: string,
+  detailRatings?: Record<string, string>,
+): string {
+  const starWord = rating === 1 ? 'estrela' : 'estrelas';
+  const commentBlock = reviewText.trim()
+    ? `Comentário: ${reviewText}`
+    : `(O cliente não deixou comentário — avaliação apenas com nota ${rating} ${starWord})`;
 
-Gere uma resposta adequada para esta avalia\u00e7\u00e3o.`;
+  let detailsBlock = '';
+  if (detailRatings && Object.keys(detailRatings).length > 0) {
+    const lines = Object.entries(detailRatings)
+      .map(([k, v]) => `  - ${k}: ${v}`)
+      .join('\n');
+    detailsBlock = `\nInformações adicionais da avaliação:\n${lines}`;
+  }
+
+  return `Avaliação recebida:
+Nota geral: ${rating}/5 ${starWord}
+Avaliador: ${reviewerName}
+${commentBlock}${detailsBlock}
+
+Gere uma resposta adequada para esta avaliação.`;
 }
 
 export async function generateReply(params: GenerateReplyParams): Promise<GenerateReplyResult> {
@@ -74,10 +93,11 @@ export async function generateReply(params: GenerateReplyParams): Promise<Genera
     reviewerName = 'Cliente',
     tone = 'friendly',
     businessContext,
+    detailRatings,
   } = params;
 
   const systemPrompt = buildSystemPrompt(businessContext, tone);
-  const userPrompt = buildUserPrompt(reviewText, rating, reviewerName);
+  const userPrompt = buildUserPrompt(reviewText, rating, reviewerName, detailRatings);
 
   const message = await anthropic.messages.create({
     model: 'claude-haiku-4-5',
