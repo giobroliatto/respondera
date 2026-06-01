@@ -1,70 +1,75 @@
 import { Router, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { authMiddleware, AuthRequest } from '../middlewares/authMiddleware';
+import { BusinessSchema } from '../utils/validationSchemas';
+import { logger } from '../utils/logger';
 
 const router = Router();
 const prisma = new PrismaClient();
-
-const VALID_TONES = ['FORMAL', 'NEUTRO', 'DESCONTRAÍDO'];
 
 // Todas as rotas de business exigem autenticação
 router.use(authMiddleware);
 
 // GET /business — retorna o único estabelecimento do usuário autenticado
 router.get('/', async (req: AuthRequest, res: Response) => {
-  const business = await prisma.business.findUnique({
-    where: { userId: req.user!.id },
-  });
+  try {
+    const business = await prisma.business.findUnique({
+      where: { userId: req.user!.id },
+    });
 
-  if (!business) {
-    res.status(404).json({ error: 'Nenhum estabelecimento cadastrado ainda.' });
-    return;
+    if (!business) {
+      res.status(404).json({ error: 'Nenhum estabelecimento cadastrado ainda.' });
+      return;
+    }
+
+    res.json({ business });
+  } catch (err: any) {
+    logger.error('Business fetch error', { userId: req.user!.id.slice(0, 8), error: err.message });
+    res.status(500).json({ error: 'Erro ao buscar estabelecimento.' });
   }
-
-  res.json({ business });
 });
 
 // POST /business — cria ou atualiza o único estabelecimento do usuário (upsert)
 router.post('/', async (req: AuthRequest, res: Response) => {
-  const { name, segment, tone, avgTicket, highlights } = req.body as {
-    name?: string;
-    segment?: string;
-    tone?: string;
-    avgTicket?: string;
-    highlights?: string;
-  };
+  try {
+    const validatedData = BusinessSchema.parse(req.body);
+    const { name, segment, tone, avgTicket, highlights } = validatedData;
 
-  if (!name || !segment) {
-    res.status(400).json({ error: 'Nome e segmento são obrigatórios.' });
-    return;
-  }
+    const business = await prisma.business.upsert({
+      where: { userId: req.user!.id },
+      create: {
+        userId: req.user!.id,
+        name,
+        segment,
+        tone: tone ?? 'NEUTRO',
+        avgTicket: avgTicket ?? null,
+        highlights: highlights ?? null,
+      },
+      update: {
+        name,
+        segment,
+        ...(tone && { tone }),
+        avgTicket: avgTicket !== undefined ? avgTicket : undefined,
+        highlights: highlights !== undefined ? highlights : undefined,
+      },
+    });
 
-  if (tone && !VALID_TONES.includes(tone)) {
-    res.status(400).json({ error: `Tom inválido. Use: ${VALID_TONES.join(', ')}.` });
-    return;
-  }
-
-  const business = await prisma.business.upsert({
-    where: { userId: req.user!.id },
-    create: {
-      userId: req.user!.id,
-      name,
+    logger.info('Business updated', {
+      userId: req.user!.id.slice(0, 8),
       segment,
-      tone: tone ?? 'NEUTRO',
-      avgTicket: avgTicket ?? null,
-      highlights: highlights ?? null,
-    },
-    update: {
-      name,
-      segment,
-      ...(tone && { tone }),
-      avgTicket: avgTicket !== undefined ? avgTicket : undefined,
-      highlights: highlights !== undefined ? highlights : undefined,
-    },
-  });
+    });
 
-  res.status(200).json({ business });
+    res.status(200).json({ business });
+  } catch (err: any) {
+    if (err.name === 'ZodError') {
+      res.status(400).json({ error: err.errors[0]?.message || 'Validation error' });
+    } else {
+      logger.error('Business creation error', { userId: req.user!.id.slice(0, 8), error: err.message });
+      res.status(500).json({ error: 'Erro ao salvar estabelecimento.' });
+    }
+  }
 });
 
 export { router as businessRouter };
+
 
