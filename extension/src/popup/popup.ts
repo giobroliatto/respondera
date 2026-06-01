@@ -1,6 +1,6 @@
 import { getStorage, setStorage, clearStorage, isLoggedIn } from '../shared/storage';
-
-const BACKEND = BACKEND_URL;
+import { login as apiLogin, register as apiRegister } from '../shared/api';
+import { AuthResponse } from '../shared/types';
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
 
@@ -43,18 +43,7 @@ function showLogin(): void {
     btn.textContent = 'Entrando...';
 
     try {
-      const res = await fetch(`${BACKEND}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error ?? 'Erro ao fazer login.');
-      }
-
-      const data = await res.json();
+      const data = await apiLogin(email, password);
       await storeUserData(data);
       notifyContentScript();
       await showHome();
@@ -111,20 +100,9 @@ function showRegister(): void {
     btn.textContent = 'Criando conta...';
 
     try {
-      const res = await fetch(`${BACKEND}/auth/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error ?? 'Erro ao criar conta.');
-      }
-
-      const data = await res.json();
+      const data = await apiRegister(email, password);
       // Registro não retorna usageCount; começa em 0
-      await storeUserData({ ...data, user: { ...data.user, usageCount: 0 } });
+      await storeUserData({ ...data, user: { ...data.user, usageCount: data.user.usageCount ?? 0 } });
       notifyContentScript();
       await showHome();
     } catch (err: unknown) {
@@ -171,10 +149,7 @@ async function showHome(): Promise<void> {
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-async function storeUserData(data: {
-  token: string;
-  user: { email: string; plan: 'FREE' | 'PRO'; usageCount: number };
-}): Promise<void> {
+async function storeUserData(data: AuthResponse): Promise<void> {
   await setStorage('authToken',  data.token);
   await setStorage('userEmail',  data.user.email);
   await setStorage('userPlan',   data.user.plan);

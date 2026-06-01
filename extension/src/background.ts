@@ -1,33 +1,37 @@
 // background.ts — service worker da extensão
-// Recebe mensagens do content script, chama o backend e devolve a resposta.
+// Gerencia estado global, gera respostas via api.ts e responde ao painel via long-lived port.
 
 import { getStorage, setStorage } from './shared/storage';
+import { generateReply } from './shared/api';
+import { ApiError, ReviewData, ExtensionMessage } from './shared/types';
+
+// ─── Estado global do service worker ─────────────────────────────────────────
+// O service worker pode ser suspenso e reiniciado pelo Chrome; o estado abaixo
+// é portanto efêmero (sobrevive apenas enquanto o SW está ativo).
+
+let _currentUserPlan: string | null = null;
+
+// ─── Instalação ───────────────────────────────────────────────────────────────
 
 chrome.runtime.onInstalled.addListener(() => {
   console.log('[Respondera] extensão instalada/atualizada');
 });
 
-interface ReviewData {
-  text: string | null;
-  rating: number | null;
-  reviewerName: string | null;
-  hasExistingReply: boolean;
-  tone?: string;
-}
+// ─── Mensagens simples (sendMessage) ─────────────────────────────────────────
 
-interface GenerateReplyMessage {
-  type: 'GENERATE_REPLY';
-  data: ReviewData;
-}
+chrome.runtime.onMessage.addListener((message: ExtensionMessage | { type: string }) => {
+  if (message.type === 'RESPONDERA_LOGGED_IN' || message.type === 'SESSION_EXPIRED') {
+    _currentUserPlan = null; // invalida cache em memória
+  }
+  return false;
+});
 
-type IncomingMessage = GenerateReplyMessage;
+// ─── Long-lived port (connect) ────────────────────────────────────────────────
 
-// Usa long-lived port (connect) em vez de sendMessage/sendResponse
-// para evitar o bug do MV3 onde o service worker é morto antes de responder.
 chrome.runtime.onConnect.addListener((port) => {
   if (port.name !== 'respondera-reply') return;
 
-  port.onMessage.addListener(async (message: IncomingMessage) => {
+  port.onMessage.addListener(async (message: ExtensionMessage) => {
     if (message.type !== 'GENERATE_REPLY') return;
 
     try {
@@ -40,49 +44,42 @@ chrome.runtime.onConnect.addListener((port) => {
   });
 });
 
+// ─── Geração de resposta ──────────────────────────────────────────────────────
+
 async function handleGenerateReply(
-  data: ReviewData
+  data: ReviewData,
 ): Promise<{ reply?: string; error?: string }> {
   const token = await getStorage('authToken');
-
   if (!token) {
-    return { error: 'Você precisa fazer login na extensão Respondera.' };
+    return { error: 'login:Você precisa fazer login na extensão Respondera.' };
   }
 
-  const res = await fetch(`${BACKEND_URL}/reply/generate`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify({
-      reviewText: data.text ?? '',
-      rating: data.rating ?? 5,
+  try {
+    const result = await generateReply({
+      reviewText:   data.text ?? '',
+      rating:       data.rating ?? 5,
       reviewerName: data.reviewerName ?? undefined,
-      tone: data.tone ?? 'friendly',
-    }),
-  });
+      tone:         data.tone ?? 'friendly',
+    });
 
-  if (res.status === 401) {
-    return { error: 'Sessão expirada. Faça login novamente na extensão.' };
+    // Atualiza contador de uso no storage
+    const currentUsage = await getStorage('usageCount');
+    if (currentUsage !== null) {
+      await setStorage('usageCount', currentUsage + 1);
+    }
+
+    return { reply: result.reply };
+  } catch (err) {
+    if (err instanceof ApiError) {
+      if (err.code === 'SESSION_EXPIRED') {
+        _currentUserPlan = null;
+        return { error: 'login:' + err.message };
+      }
+      if (err.code === 'USAGE_LIMIT_REACHED') {
+        return { error: 'limite:' + err.message };
+      }
+      return { error: err.message };
+    }
+    return { error: 'Erro ao gerar resposta. Tente novamente.' };
   }
-
-  if (res.status === 403) {
-    return { error: 'Você atingiu o limite de respostas deste mês.' };
-  }
-
-  if (!res.ok) {
-    const body = await res.json().catch(() => ({}));
-    return { error: (body as { message?: string }).message ?? 'Erro ao gerar resposta.' };
-  }
-
-  const body = await res.json() as { reply: string; remainingUsage: number };
-
-  // Atualiza o contador de uso no storage local
-  const currentUsage = await getStorage('usageCount');
-  if (currentUsage !== null) {
-    await setStorage('usageCount', currentUsage + 1);
-  }
-
-  return { reply: body.reply };
 }

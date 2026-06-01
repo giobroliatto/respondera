@@ -2,15 +2,7 @@
 // Recebe os dados da avaliação via postMessage, gera resposta via background e
 // devolve a resposta ao content script para inserção no DOM da página.
 
-type PanelState = 'idle' | 'loading' | 'success' | 'error' | 'limit_reached' | 'not_logged_in';
-type ToneOption = 'friendly' | 'formal' | 'empathetic';
-
-interface ReviewData {
-  text: string | null;
-  rating: number | null;
-  reviewerName: string | null;
-  hasExistingReply: boolean;
-}
+import { PanelState, ToneOption, ReviewData } from '../shared/types';
 
 // ─── Estado do painel ─────────────────────────────────────────────────────────
 
@@ -161,10 +153,11 @@ async function generateReply(): Promise<void> {
       port.disconnect();
 
       if (response.error) {
-        if (response.error.toLowerCase().includes('limite')) {
-          setState('limit_reached');
-        } else if (response.error.toLowerCase().includes('login')) {
+        // background prefixes errors with 'login:' or 'limite:' for typed handling
+        if (response.error.startsWith('login:')) {
           setState('not_logged_in');
+        } else if (response.error.startsWith('limite:')) {
+          setState('limit_reached');
         } else {
           el.errorMessage().textContent = response.error;
           setState('error');
