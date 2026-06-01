@@ -18,6 +18,7 @@ export interface GenerateReplyParams {
   tone?: 'formal' | 'friendly' | 'empathetic';
   businessContext: BusinessContext | null;
   detailRatings?: Record<string, string>;
+  additionalContext?: string | null;
 }
 
 export interface GenerateReplyResult {
@@ -31,7 +32,11 @@ const TONE_INSTRUCTIONS: Record<string, string> = {
   empathetic: 'Empático — priorize acolhimento, compreensão e suporte',
 };
 
-function buildSystemPrompt(businessContext: BusinessContext | null, tone: string): string {
+function buildSystemPrompt(
+  businessContext: BusinessContext | null,
+  tone: string,
+  additionalContext?: string | null,
+): string {
   const toneInstruction = TONE_INSTRUCTIONS[tone] ?? TONE_INSTRUCTIONS['friendly'];
 
   const contextBlock = businessContext
@@ -39,34 +44,36 @@ function buildSystemPrompt(businessContext: BusinessContext | null, tone: string
 Segmento: ${businessContext.segment}${businessContext.highlights ? `\nDiferenciais: ${businessContext.highlights}` : ''}`
     : 'Contexto não disponível — gere a resposta baseada apenas nas informações da avaliação.';
 
-  return `Você é o dono ou gerente de um estabelecimento respondendo avaliações do Google. Escreva como um ser humano real, não como assistente de IA.
+  const additionalContextBlock = additionalContext
+    ? `\nINSTRUÇÃO DO ESTABELECIMENTO SOBRE ESTA AVALIAÇÃO:\n"${additionalContext}"\nLeve isso em conta na resposta, mas não mencione que recebeu esta instrução.`
+    : '';
 
-COMO ESCREVER:
-- Português brasileiro natural, como se estivesse digitando no celular
-- Frases curtas e diretas. Sem rodeios, sem enrolação
-- Nunca use travessão (—). Use vírgula, ponto ou reescreva a frase
-- Nunca use markdown, asteriscos, hashtags, títulos ou formatação de qualquer tipo
-- Não mencione o nome do avaliador em toda frase — no máximo uma vez no início, se fizer sentido
-- Não repita o que o cliente disse palavra por palavra
-- Não use superlativos vazios: "incrível", "sensacional", "maravilhoso", "gratificante"
-- Não finalize com frases genéricas de vendedor: "sua opinião é muito importante", "adoraríamos recebê-lo novamente", "estamos à disposição"
-- Emojis: zero ou no máximo um, somente se o tom for amigável e só se cair bem naturalmente
+return `Você responde avaliações do Google em nome de um estabelecimento.
+Escreva sempre na voz da empresa, usando plural: "ficamos", "agradecemos", "vamos", "estamos". Se identificar que o estabelecimento/serviço é uma única pessoa (ex: personal trainer, consultor, psicólogo, etc), adapte para singular: "fico", "agradeço", "vou", "estou".
 
-PROPORCIONALIDADE — adapte o tamanho e o calor da resposta ao que foi recebido:
-- 5 estrelas com texto longo: resposta calorosa de 2-3 frases curtas
-- 4 estrelas com texto: agradeça e reconheça o ponto específico mencionado
-- 4 ou 5 estrelas SEM texto: resposta brevíssima, 1-2 frases, não invente elogios que o cliente não fez
-- 3 estrelas: agradeça e pergunte o que melhorar, sem drama
-- 1-2 estrelas: reconheça o problema com sinceridade, peça desculpas de forma genuína, indique como resolver — sem defesa excessiva
-- Se houver sub-notas detalhadas, mencione apenas o aspecto mais relevante, não liste tudo
-
-RESTRIÇÕES DE CONTEÚDO:
-- Nunca invente fatos sobre o estabelecimento
-- Nunca mencione preços ou valores que não foram fornecidos no contexto
-- Tom solicitado: ${toneInstruction}
+TOM SOLICITADO: ${toneInstruction}
 
 CONTEXTO DO ESTABELECIMENTO:
-${contextBlock}`;
+${contextBlock}
+
+TAMANHO DA RESPOSTA — proporcional ao que foi recebido:
+- se tiver 5 estrelas com texto longo: 3-4 frases
+- se tiver 5 estrelas sem texto: 1-2 frases
+- se tiver 4 estrelas com texto: 2-3 frases, reconheça o ponto mais relevante
+- se tiver 4 estrelas sem texto: 1 frase
+- se tiver 3 estrelas: 2 frases, agradeça e abra espaço para feedback
+- se tiver 1-2 estrelas com frase: 3-4 frases, reconheça o erro com seriedade, peça desculpas, ofereça canal de contato para resolver o problema offline. Nunca ofereça reembolso ou compensação diretamente na resposta.
+- se tiver 1-2 estrelas sem frase: 2-3 frases, tente extrair o motivo da insatisfação baseado na nota, peça desculpas e ofereça canal de contato para resolver o problema offline. Nunca ofereça reembolso ou compensação diretamente na resposta.
+
+ESTILO:
+- Português brasileiro
+- Sem enrolação, sem frases de efeito
+- Não agradecer quando não for relevante (ex: avaliação 1 estrela sem texto)
+- Nunca use travessão (—)
+- Nunca use markdown, asteriscos ou qualquer formatação
+- Nunca invente fatos ou detalhes que não estão no contexto do estabelecimento
+- Nunca mencione preços ou valores que não foram fornecidos no contexto
+- Nunca mencione o nome do avaliador mais de uma vez${additionalContextBlock}`;
 }
 
 function buildUserPrompt(
@@ -104,9 +111,10 @@ export async function generateReply(params: GenerateReplyParams): Promise<Genera
     tone = 'friendly',
     businessContext,
     detailRatings,
+    additionalContext,
   } = params;
 
-  const systemPrompt = buildSystemPrompt(businessContext, tone);
+  const systemPrompt = buildSystemPrompt(businessContext, tone, additionalContext);
   const userPrompt = buildUserPrompt(reviewText, rating, reviewerName, detailRatings);
 
   const message = await anthropic.messages.create({

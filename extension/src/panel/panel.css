@@ -329,6 +329,69 @@ button:disabled {
   color: #9ca3af;
 }
 
+/* ─── Campo de contexto adicional ───────────────────────────────────────── */
+
+.rg-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rg-field-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.rg-optional {
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 10px;
+  color: #b0b7c3;
+}
+
+.rg-context-textarea {
+  resize: none;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 7px 10px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #374151;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s;
+  background: #fafafa;
+}
+
+.rg-context-textarea:focus {
+  border-color: #a5b4fc;
+  background: #ffffff;
+}
+
+.rg-context-textarea::placeholder {
+  color: #c4c9d4;
+  font-size: 11.5px;
+}
+
+.rg-char-count {
+  font-size: 10px;
+  color: #c4c9d4;
+  text-align: right;
+  line-height: 1;
+}
+
+.rg-char-count.rg-char-count--warn {
+  color: #f59e0b;
+}
+
+.rg-char-count.rg-char-count--full {
+  color: #dc2626;
+}
+
 /* ─── Utilitário ─────────────────────────────────────────────────────────── */
 
 .hidden {

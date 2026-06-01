@@ -13,22 +13,24 @@ let selectedTone: ToneOption = 'friendly';
 // ─── Referências DOM ─────────────────────────────────────────────────────────
 
 const el = {
-  reviewerName:   () => document.getElementById('reviewer-name')!,
-  ratingStars:    () => document.getElementById('rating-stars')!,
-  reviewText:     () => document.getElementById('review-text')!,
-  replySection:   () => document.getElementById('reply-section')!,
-  replyTextarea:  () => document.getElementById('reply-textarea') as HTMLTextAreaElement,
-  loadingSection: () => document.getElementById('loading-section')!,
-  errorSection:   () => document.getElementById('error-section')!,
-  errorMessage:   () => document.getElementById('error-message')!,
-  notLoggedSection: () => document.getElementById('not-logged-section')!,
-  limitSection:   () => document.getElementById('limit-section')!,
-  btnGenerate:    () => document.getElementById('btn-generate') as HTMLButtonElement,
-  btnRegenerate:  () => document.getElementById('btn-regenerate') as HTMLButtonElement,
-  btnUse:         () => document.getElementById('btn-use') as HTMLButtonElement,
-  btnClose:       () => document.getElementById('btn-close') as HTMLButtonElement,
-  btnRecheckAuth: () => document.getElementById('btn-recheck-auth') as HTMLButtonElement,
-  usageInfo:      () => document.getElementById('usage-info')!,
+  reviewerName:      () => document.getElementById('reviewer-name')!,
+  ratingStars:       () => document.getElementById('rating-stars')!,
+  reviewText:        () => document.getElementById('review-text')!,
+  replySection:      () => document.getElementById('reply-section')!,
+  replyTextarea:     () => document.getElementById('reply-textarea') as HTMLTextAreaElement,
+  loadingSection:    () => document.getElementById('loading-section')!,
+  errorSection:      () => document.getElementById('error-section')!,
+  errorMessage:      () => document.getElementById('error-message')!,
+  notLoggedSection:  () => document.getElementById('not-logged-section')!,
+  limitSection:      () => document.getElementById('limit-section')!,
+  btnGenerate:       () => document.getElementById('btn-generate') as HTMLButtonElement,
+  btnRegenerate:     () => document.getElementById('btn-regenerate') as HTMLButtonElement,
+  btnUse:            () => document.getElementById('btn-use') as HTMLButtonElement,
+  btnClose:          () => document.getElementById('btn-close') as HTMLButtonElement,
+  btnRecheckAuth:    () => document.getElementById('btn-recheck-auth') as HTMLButtonElement,
+  usageInfo:         () => document.getElementById('usage-info')!,
+  additionalContext: () => document.getElementById('rg-additional-context') as HTMLTextAreaElement,
+  charCount:         () => document.getElementById('rg-char-count')!,
 };
 
 // ─── Controle de estado ───────────────────────────────────────────────────────
@@ -182,7 +184,11 @@ async function generateReply(): Promise<void> {
 
     port.postMessage({
       type: 'GENERATE_REPLY',
-      data: { ...currentReviewData, tone: selectedTone },
+      data: {
+        ...currentReviewData,
+        tone: selectedTone,
+        additionalContext: el.additionalContext().value.trim() || null,
+      },
     });
   });
 }
@@ -199,6 +205,15 @@ document.addEventListener('DOMContentLoaded', async () => {
       btn.classList.add('active');
       selectedTone = btn.dataset['tone'] as ToneOption;
     });
+  });
+
+  // Contador de caracteres do campo de contexto adicional
+  el.additionalContext().addEventListener('input', () => {
+    const len = el.additionalContext().value.length;
+    const countEl = el.charCount();
+    countEl.textContent = `${len}/300`;
+    countEl.classList.toggle('rg-char-count--warn', len >= 200 && len < 300);
+    countEl.classList.toggle('rg-char-count--full', len >= 300);
   });
 
   el.btnGenerate().addEventListener('click', generateReply);
@@ -236,6 +251,10 @@ window.addEventListener('message', (e) => {
   if (msg?.type === 'RESPONDERA_DATA' && msg.data) {
     currentReviewData = msg.data;
     renderReview(currentReviewData);
+    // Limpa o campo de contexto adicional a cada nova avaliação
+    el.additionalContext().value = '';
+    el.charCount().textContent = '0/300';
+    el.charCount().classList.remove('rg-char-count--warn', 'rg-char-count--full');
     setState('idle');
   }
 

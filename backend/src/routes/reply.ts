@@ -15,16 +15,22 @@ router.use(authMiddleware);
 
 // POST /reply/generate
 router.post('/generate', usageLimitMiddleware, async (req: AuthRequest, res: Response) => {
-  const { reviewText, rating, reviewerName, tone, detailRatings } = req.body as {
+  const { reviewText, rating, reviewerName, tone, detailRatings, additionalContext } = req.body as {
     reviewText?: string;
     rating?: number;
     reviewerName?: string;
     tone?: string;
     detailRatings?: Record<string, string>;
+    additionalContext?: string | null;
   };
 
   // reviewText é opcional — avaliações sem comentário são válidas
   // O serviço gera resposta baseada apenas na nota quando não há texto
+
+  // Sanitiza additionalContext: remove tags HTML e limita a 300 caracteres
+  const sanitizedAdditionalContext = additionalContext
+    ? additionalContext.replace(/<[^>]*>/g, '').trim().slice(0, 300) || null
+    : null;
 
   if (rating === undefined || rating < 1 || rating > 5 || !Number.isInteger(rating)) {
     res.status(400).json({ error: 'rating deve ser um número inteiro entre 1 e 5.' });
@@ -52,6 +58,7 @@ router.post('/generate', usageLimitMiddleware, async (req: AuthRequest, res: Res
     reviewerName,
     tone: (tone as Tone) ?? 'friendly',
     detailRatings,
+    additionalContext: sanitizedAdditionalContext,
     businessContext: business
       ? {
           name: business.name,

@@ -68,6 +68,7 @@ async function handleGenerateReply(
       reviewerName: data.reviewerName ?? undefined,
       tone:         data.tone ?? 'friendly',
       detailRatings: data.detailRatings,
+      additionalContext: data.additionalContext ?? null,
     });
 
     // Atualiza contador de uso no storage

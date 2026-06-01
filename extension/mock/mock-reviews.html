@@ -101,6 +101,30 @@
       margin-bottom: 20px;
       max-width: 720px;
     }
+
+    /* Separador de seção por tipo de negócio */
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: #5f6368;
+      padding: 8px 0 2px;
+      border-bottom: 1px solid #dadce0;
+      margin-bottom: 4px;
+    }
+
+    /* Badge no canto do card indicando o cenário */
+    .scenario-badge {
+      display: inline-block;
+      font-size: 10px;
+      background: #e8f0fe;
+      color: #1a73e8;
+      border-radius: 4px;
+      padding: 2px 6px;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
   </style>
 </head>
 <body>
@@ -114,14 +138,20 @@
 
   <div class="reviews-list">
 
-    <!-- Avaliação 1: positiva -->
+    <!-- ══════════════════════════════════════════════════════════════
+         RESTAURANTE / PIZZARIA
+    ══════════════════════════════════════════════════════════════ -->
+    <div class="section-label">Restaurante / Pizzaria</div>
+
+    <!-- 001 · 5★ · texto longo · elogiou comida e atendimento específicos -->
     <div class="review-card" data-review-id="mock-001" data-details='{"Comida":"5","Serviço":"5","Ambiente":"5","Tipo de refeição":"Jantar","Preço por pessoa":"R$ 40–60"}'>
+      <div class="scenario-badge">5★ · texto longo · elogio específico</div>
       <div class="reviewer-name" data-reviewer-name>Carlos Silva</div>
       <div class="star-rating" data-star-rating="5">★★★★★</div>
       <div class="review-text" data-review-text>
-        Fui jantar ontem e foi incrível! Comida deliciosa, atendimento rápido e
-        ambiente super agradável. A pizza de calabresa estava perfeita, crocante
-        por fora e macia por dentro. Voltarei com certeza!
+        Fui jantar ontem e foi uma boa surpresa. A pizza de calabresa estava crocante do jeito certo
+        e o garçom, acho que era o Rodrigo, foi muito atencioso sem ficar em cima. Ambiente agradável
+        e a conta fechou dentro do que esperava. Já indiquei pra uns amigos.
       </div>
       <div class="reply-area">
         <div class="reply-label">Sua resposta pública</div>
@@ -129,14 +159,15 @@
       </div>
     </div>
 
-    <!-- Avaliação 2: negativa -->
+    <!-- 002 · 2★ · reclamação específica + valor inconsistente mencionado -->
     <div class="review-card" data-review-id="mock-002" data-details='{"Comida":"2","Serviço":"1","Ambiente":"3","Tipo de refeição":"Jantar"}'>
+      <div class="scenario-badge">2★ · reclamação específica + valor inconsistente</div>
       <div class="reviewer-name" data-reviewer-name>Ana Lima</div>
       <div class="star-rating" data-star-rating="2">★★☆☆☆</div>
       <div class="review-text" data-review-text>
-        Esperamos mais de 40 minutos e a comida chegou fria e errada.
-        Pedi pizza de frango e veio margherita. O garçom foi grosseiro quando
-        reclamamos. Muito decepcionante para um lugar que cobra R$80 por pizza.
+        Esperamos mais de 40 minutos e a comida chegou fria e completamente diferente do pedido.
+        Pedi a pizza de frango com catupiry e veio uma margherita. Quando reclamamos, o garçom foi
+        rude e disse que era culpa da cozinha. R$120 por pizza não combina com isso.
       </div>
       <div class="reply-area">
         <div class="reply-label">Sua resposta pública</div>
@@ -144,13 +175,14 @@
       </div>
     </div>
 
-    <!-- Avaliação 3: neutra -->
-    <div class="review-card" data-review-id="mock-003" data-details='{"Comida":"4","Serviço":"3","Tipo de refeição":"Almoço","Preço por pessoa":"R$ 30–50"}'>
+    <!-- 003 · 3★ · neutro curto · sem explicação -->
+    <div class="review-card" data-review-id="mock-003">
+      <div class="scenario-badge">3★ · neutro curto · sem explicação</div>
       <div class="reviewer-name" data-reviewer-name>Roberto Mendes</div>
       <div class="star-rating" data-star-rating="3">★★★☆☆</div>
       <div class="review-text" data-review-text>
-        Lugar ok. A comida é boa mas o preço é um pouco salgado para o tamanho
-        das porções. Atendimento foi tranquilo. Talvez volte em uma ocasião especial.
+        Lugar ok. A comida é boa mas o preço é um pouco salgado pra o tamanho das porções.
+        Atendimento tranquilo. Talvez volte.
       </div>
       <div class="reply-area">
         <div class="reply-label">Sua resposta pública</div>
@@ -158,11 +190,505 @@
       </div>
     </div>
 
-    <!-- Avaliação 4: só nota, sem texto -->
+    <!-- 004 · 4★ · SEM TEXTO · só sub-notas -->
     <div class="review-card" data-review-id="mock-004" data-details='{"Comida":"4","Serviço":"4","Ambiente":"5","Tipo de refeição":"Café da manhã"}'>
+      <div class="scenario-badge">4★ · SEM TEXTO · só sub-notas</div>
       <div class="reviewer-name" data-reviewer-name>Maria Santos</div>
       <div class="star-rating" data-star-rating="4">★★★★☆</div>
       <div class="review-text" data-review-text></div>
+      <div class="reply-area">
+        <div class="reply-label">Sua resposta pública</div>
+        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
+      </div>
+    </div>
+
+    <!-- 005 · 1★ · SEM TEXTO · pior caso possível -->
+    <div class="review-card" data-review-id="mock-005">
+      <div class="scenario-badge">1★ · SEM TEXTO</div>
+      <div class="reviewer-name" data-reviewer-name>Usuário Google</div>
+      <div class="star-rating" data-star-rating="1">★☆☆☆☆</div>
+      <div class="review-text" data-review-text></div>
+      <div class="reply-area">
+        <div class="reply-label">Sua resposta pública</div>
+        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════
+         BARBEARIA
+    ══════════════════════════════════════════════════════════════ -->
+    <div class="section-label">Barbearia</div>
+
+    <!-- 006 · 5★ · texto curto e direto -->
+    <div class="review-card" data-review-id="mock-006">
+      <div class="scenario-badge">5★ · texto curto e direto</div>
+      <div class="reviewer-name" data-reviewer-name>Lucas Ferreira</div>
+      <div class="star-rating" data-star-rating="5">★★★★★</div>
+      <div class="review-text" data-review-text>
+        Melhor corte que tive nos últimos anos. O Marcos sabe o que faz e escuta o que o cliente quer.
+        Preço justo também.
+      </div>
+      <div class="reply-area">
+        <div class="reply-label">Sua resposta pública</div>
+        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
+      </div>
+    </div>
+
+    <!-- 007 · 4★ · elogio + ressalva (tempo de espera) -->
+    <div class="review-card" data-review-id="mock-007" data-details='{"Corte":"5","Tempo de espera":"2","Ambiente":"4"}'>
+      <div class="scenario-badge">4★ · elogio + ressalva (espera)</div>
+      <div class="reviewer-name" data-reviewer-name>Thiago Alves</div>
+      <div class="star-rating" data-star-rating="4">★★★★☆</div>
+      <div class="review-text" data-review-text>
+        O corte ficou muito bom, saí satisfeito. Só achei que a espera foi um pouco longa,
+        quase uma hora sendo que tinha agendamento. Mas o resultado compensou.
+      </div>
+      <div class="reply-area">
+        <div class="reply-label">Sua resposta pública</div>
+        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
+      </div>
+    </div>
+
+    <!-- 008 · 1★ · agressivo e vago, possível má-fé -->
+    <div class="review-card" data-review-id="mock-008">
+      <div class="scenario-badge">1★ · agressivo · vago · possível má-fé</div>
+      <div class="reviewer-name" data-reviewer-name>Felipe Costa</div>
+      <div class="star-rating" data-star-rating="1">★☆☆☆☆</div>
+      <div class="review-text" data-review-text>
+        PÉSSIMO. Lugar horrível, atendimento um lixo. Nunca mais volto e vou falar pra todo mundo
+        não ir nessa barbearia. Uma vergonha.
+      </div>
+      <div class="reply-area">
+        <div class="reply-label">Sua resposta pública</div>
+        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
+      </div>
+    </div>
+
+    <!-- 009 · 5★ · SEM TEXTO -->
+    <div class="review-card" data-review-id="mock-009">
+      <div class="scenario-badge">5★ · SEM TEXTO</div>
+      <div class="reviewer-name" data-reviewer-name>Marcos Oliveira</div>
+      <div class="star-rating" data-star-rating="5">★★★★★</div>
+      <div class="review-text" data-review-text></div>
+      <div class="reply-area">
+        <div class="reply-label">Sua resposta pública</div>
+        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════
+         ESTÚDIO DE TATUAGEM
+    ══════════════════════════════════════════════════════════════ -->
+    <div class="section-label">Estúdio de Tatuagem</div>
+
+    <!-- 010 · 5★ · longo e detalhado · mencionou higiene e paciência -->
+    <div class="review-card" data-review-id="mock-010" data-details='{"Traço":"5","Higiene":"5","Atendimento":"5"}'>
+      <div class="scenario-badge">5★ · texto longo · detalhes específicos</div>
+      <div class="reviewer-name" data-reviewer-name>Juliana Pereira</div>
+      <div class="star-rating" data-star-rating="5">★★★★★</div>
+      <div class="review-text" data-review-text>
+        Fiz uma tatuagem no antebraço semana passada. O artista foi super paciente quando mudei
+        pequenos detalhes no desenho antes de começar. O traço ficou preciso, as linhas finas
+        que pedi saíram perfeitamente. O estúdio é limpo, material individual e o processo todo
+        foi tranquilo. Já quero marcar a próxima.
+      </div>
+      <div class="reply-area">
+        <div class="reply-label">Sua resposta pública</div>
+        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
+      </div>
+    </div>
+
+    <!-- 011 · 3★ · demorou mais do esperado, resultado ok -->
+    <div class="review-card" data-review-id="mock-011">
+      <div class="scenario-badge">3★ · demorou · resultado aceitável</div>
+      <div class="reviewer-name" data-reviewer-name>Rafael Santos</div>
+      <div class="star-rating" data-star-rating="3">★★★☆☆</div>
+      <div class="review-text" data-review-text>
+        A tatuagem ficou boa, não tenho reclamação do trabalho em si. Mas o horário não foi
+        respeitado, demorou quase duas horas além do combinado. Sem aviso, sem explicação.
+        Se melhorar nisso, a nota sobe.
+      </div>
+      <div class="reply-area">
+        <div class="reply-label">Sua resposta pública</div>
+        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
+      </div>
+    </div>
+
+    <!-- 012 · 1★ · reclamação concreta (resultado diferente do combinado) -->
+    <div class="review-card" data-review-id="mock-012">
+      <div class="scenario-badge">1★ · reclamação concreta · resultado diferente</div>
+      <div class="reviewer-name" data-reviewer-name>Amanda Rodrigues</div>
+      <div class="star-rating" data-star-rating="1">★☆☆☆☆</div>
+      <div class="review-text" data-review-text>
+        O traçado saiu completamente diferente do que foi aprovado. Aprovamos o desenho juntos,
+        tinha detalhes específicos no sombreado que sumiram na hora de executar. Quando mostrei
+        a referência original, o artista disse que "interpretou de outro jeito". Estou com
+        algo no meu corpo que não escolhi.
+      </div>
+      <div class="reply-area">
+        <div class="reply-label">Sua resposta pública</div>
+        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════
+         ESCRITÓRIO DE ADVOCACIA
+    ══════════════════════════════════════════════════════════════ -->
+    <div class="section-label">Escritório de Advocacia</div>
+
+    <!-- 013 · 5★ · formal · resultado específico (ganhou causa) -->
+    <div class="review-card" data-review-id="mock-013">
+      <div class="scenario-badge">5★ · formal · resultado concreto</div>
+      <div class="reviewer-name" data-reviewer-name>Paulo Henrique Neves</div>
+      <div class="star-rating" data-star-rating="5">★★★★★</div>
+      <div class="review-text" data-review-text>
+        Contratei o escritório para uma ação trabalhista que durava dois anos sem andamento com
+        outro advogado. Em seis meses chegamos a acordo. A comunicação foi clara durante todo
+        o processo, sempre soube o que estava acontecendo. Recomendo sem reservas.
+      </div>
+      <div class="reply-area">
+        <div class="reply-label">Sua resposta pública</div>
+        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
+      </div>
+    </div>
+
+    <!-- 014 · 2★ · não resolveu · demora · falta de retorno -->
+    <div class="review-card" data-review-id="mock-014">
+      <div class="scenario-badge">2★ · não resolveu · sem retorno</div>
+      <div class="reviewer-name" data-reviewer-name>Cláudia Martins</div>
+      <div class="star-rating" data-star-rating="2">★★☆☆☆</div>
+      <div class="review-text" data-review-text>
+        Passei meses esperando retorno sobre meu processo e precisava ligar toda semana para ter
+        alguma informação. O caso encerrou sem o resultado esperado e a explicação foi vaga.
+        Senti que não houve o engajamento que o valor cobrado justificaria.
+      </div>
+      <div class="reply-area">
+        <div class="reply-label">Sua resposta pública</div>
+        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════
+         CLÍNICA VETERINÁRIA
+    ══════════════════════════════════════════════════════════════ -->
+    <div class="section-label">Clínica Veterinária</div>
+
+    <!-- 015 · 5★ · texto emocional · animal doente que se recuperou -->
+    <div class="review-card" data-review-id="mock-015">
+      <div class="scenario-badge">5★ · texto emocional</div>
+      <div class="reviewer-name" data-reviewer-name>Patrícia Lima</div>
+      <div class="star-rating" data-star-rating="5">★★★★★</div>
+      <div class="review-text" data-review-text>
+        Trouxe minha cachorra com febre alta e sem comer. A Dr. Camila examinou com calma,
+        explicou cada passo do diagnóstico e ficou disponível pra tirar dúvidas mesmo fora
+        do horário. A Nina se recuperou completamente. Não tem como não agradecer.
+      </div>
+      <div class="reply-area">
+        <div class="reply-label">Sua resposta pública</div>
+        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
+      </div>
+    </div>
+
+    <!-- 016 · 1★ · animal esperou demais · atendimento ruim -->
+    <div class="review-card" data-review-id="mock-016">
+      <div class="scenario-badge">1★ · espera excessiva · atendimento ruim</div>
+      <div class="reviewer-name" data-reviewer-name>Leonardo Souza</div>
+      <div class="star-rating" data-star-rating="1">★☆☆☆☆</div>
+      <div class="review-text" data-review-text>
+        Cheguei com meu gato em crise respiratória e fiquei 50 minutos na recepção sem ninguém
+        olhar. Precisei insistir bastante para ser atendido. Quando finalmente chamaram, a
+        veterinária mal examinou o animal e já quis fazer uma bateria de exames caros sem dar
+        nenhum diagnóstico. Nunca mais.
+      </div>
+      <div class="reply-area">
+        <div class="reply-label">Sua resposta pública</div>
+        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════
+         ACADEMIA / CROSSFIT
+    ══════════════════════════════════════════════════════════════ -->
+    <div class="section-label">Academia / CrossFit</div>
+
+    <!-- 017 · 4★ · elogio instrutores + equipamentos velhos -->
+    <div class="review-card" data-review-id="mock-017" data-details='{"Instrutores":"5","Equipamentos":"3","Limpeza":"4"}'>
+      <div class="scenario-badge">4★ · elogio + crítica objetiva</div>
+      <div class="reviewer-name" data-reviewer-name>Renata Almeida</div>
+      <div class="star-rating" data-star-rating="4">★★★★☆</div>
+      <div class="review-text" data-review-text>
+        Os professores são muito bons, isso não tenho dúvida. Mas alguns equipamentos já estão
+        precisando de manutenção, um dos remos estava com problema faz semanas. A limpeza está
+        ok. Subo a nota quando resolver o equipamento.
+      </div>
+      <div class="reply-area">
+        <div class="reply-label">Sua resposta pública</div>
+        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
+      </div>
+    </div>
+
+    <!-- 018 · 5★ · SEM TEXTO -->
+    <div class="review-card" data-review-id="mock-018">
+      <div class="scenario-badge">5★ · SEM TEXTO</div>
+      <div class="reviewer-name" data-reviewer-name>Bruno Carvalho</div>
+      <div class="star-rating" data-star-rating="5">★★★★★</div>
+      <div class="review-text" data-review-text></div>
+      <div class="reply-area">
+        <div class="reply-label">Sua resposta pública</div>
+        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════
+         SALÃO DE BELEZA
+    ══════════════════════════════════════════════════════════════ -->
+    <div class="section-label">Salão de Beleza</div>
+
+    <!-- 019 · 5★ · longo · coloração específica -->
+    <div class="review-card" data-review-id="mock-019" data-details='{"Coloração":"5","Atendimento":"5","Resultado":"5"}'>
+      <div class="scenario-badge">5★ · texto longo · resultado específico</div>
+      <div class="reviewer-name" data-reviewer-name>Fernanda Gomes</div>
+      <div class="star-rating" data-star-rating="5">★★★★★</div>
+      <div class="review-text" data-review-text>
+        Fiz a coloração aqui depois de ter tido um resultado horrível em outro salão. A Jéssica
+        fez uma avaliação do meu cabelo antes de qualquer coisa, explicou o que era possível
+        fazer no dia e o que precisaria de mais sessões. O resultado ficou exatamente o que
+        combinamos e o cabelo não ficou ressecado. Finalmente.
+      </div>
+      <div class="reply-area">
+        <div class="reply-label">Sua resposta pública</div>
+        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
+      </div>
+    </div>
+
+    <!-- 020 · 2★ · resultado diferente do combinado -->
+    <div class="review-card" data-review-id="mock-020">
+      <div class="scenario-badge">2★ · resultado diferente · frustração</div>
+      <div class="reviewer-name" data-reviewer-name>Isabela Nascimento</div>
+      <div class="star-rating" data-star-rating="2">★★☆☆☆</div>
+      <div class="review-text" data-review-text>
+        Mostrei referências de um loiro mel e saí com um loiro quase platinado. Reclamei na hora
+        e disseram que "o cabelo puxou assim". Paguei caro por algo que não pedi e que precisei
+        refazer em outro lugar. Nenhuma proposta de solução foi oferecida.
+      </div>
+      <div class="reply-area">
+        <div class="reply-label">Sua resposta pública</div>
+        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════
+         OFICINA MECÂNICA
+    ══════════════════════════════════════════════════════════════ -->
+    <div class="section-label">Oficina Mecânica</div>
+
+    <!-- 021 · 5★ · confiança · explicou problema · resolveu rápido -->
+    <div class="review-card" data-review-id="mock-021">
+      <div class="scenario-badge">5★ · honestidade · rapidez</div>
+      <div class="reviewer-name" data-reviewer-name>Sandro Pereira</div>
+      <div class="star-rating" data-star-rating="5">★★★★★</div>
+      <div class="review-text" data-review-text>
+        Fui com o carro fazendo um barulho estranho. O mecânico ligou antes de fazer qualquer
+        coisa, explicou o problema, mandou foto da peça desgastada e só seguiu depois da minha
+        aprovação. Ficou pronto no mesmo dia. Raro encontrar isso.
+      </div>
+      <div class="reply-area">
+        <div class="reply-label">Sua resposta pública</div>
+        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
+      </div>
+    </div>
+
+    <!-- 022 · 2★ · cobrou serviço que não foi feito -->
+    <div class="review-card" data-review-id="mock-022">
+      <div class="scenario-badge">2★ · cobrou indevido · serviço não executado</div>
+      <div class="reviewer-name" data-reviewer-name>Gustavo Lopes</div>
+      <div class="star-rating" data-star-rating="2">★★☆☆☆</div>
+      <div class="review-text" data-review-text>
+        Na nota constava troca de filtro de ar que não foi feita, verifiquei em casa e estava
+        o mesmo filtro sujo. Liguei e o atendente ficou na defensiva dizendo que "com certeza
+        foi feito". Sem evidência nenhuma. Não volto e fico desconfortável em recomendar.
+      </div>
+      <div class="reply-area">
+        <div class="reply-label">Sua resposta pública</div>
+        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════
+         CAFETERIA
+    ══════════════════════════════════════════════════════════════ -->
+    <div class="section-label">Cafeteria</div>
+
+    <!-- 023 · 4★ · ambiente bom · café ok · wifi péssimo -->
+    <div class="review-card" data-review-id="mock-023" data-details='{"Café":"4","Ambiente":"5","Wi-fi":"1","Atendimento":"4"}'>
+      <div class="scenario-badge">4★ · misto · detalhe específico negativo</div>
+      <div class="reviewer-name" data-reviewer-name>Camila Duarte</div>
+      <div class="star-rating" data-star-rating="4">★★★★☆</div>
+      <div class="review-text" data-review-text>
+        Ambiente muito bom pra trabalhar, tranquilo e bem iluminado. O café é saboroso.
+        O único problema sério é o wi-fi, que caiu umas três vezes em duas horas.
+        Para quem vai pra trabalhar como eu, é um ponto crítico.
+      </div>
+      <div class="reply-area">
+        <div class="reply-label">Sua resposta pública</div>
+        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
+      </div>
+    </div>
+
+    <!-- 024 · 5★ · SEM TEXTO -->
+    <div class="review-card" data-review-id="mock-024">
+      <div class="scenario-badge">5★ · SEM TEXTO</div>
+      <div class="reviewer-name" data-reviewer-name>Jonas Ribeiro</div>
+      <div class="star-rating" data-star-rating="5">★★★★★</div>
+      <div class="review-text" data-review-text></div>
+      <div class="reply-area">
+        <div class="reply-label">Sua resposta pública</div>
+        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════
+         ESCOLA DE IDIOMAS
+    ══════════════════════════════════════════════════════════════ -->
+    <div class="section-label">Escola de Idiomas</div>
+
+    <!-- 025 · 5★ · resultado concreto em pouco tempo -->
+    <div class="review-card" data-review-id="mock-025">
+      <div class="scenario-badge">5★ · resultado concreto</div>
+      <div class="reviewer-name" data-reviewer-name>Natália Costa</div>
+      <div class="star-rating" data-star-rating="5">★★★★★</div>
+      <div class="review-text" data-review-text>
+        Em três meses consegui me virar numa viagem pra Portugal sem depender de tradução.
+        A professora Ana adapta as aulas pro que você precisa de verdade, não fica só no livro.
+        Recomendo especialmente pra quem já tentou outros cursos e não evoluiu.
+      </div>
+      <div class="reply-area">
+        <div class="reply-label">Sua resposta pública</div>
+        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
+      </div>
+    </div>
+
+    <!-- 026 · 3★ · material desatualizado · professores variados -->
+    <div class="review-card" data-review-id="mock-026">
+      <div class="scenario-badge">3★ · crítica estrutural · construtivo</div>
+      <div class="reviewer-name" data-reviewer-name>Henrique Moraes</div>
+      <div class="star-rating" data-star-rating="3">★★★☆☆</div>
+      <div class="review-text" data-review-text>
+        A qualidade varia muito dependendo de qual professor pega. Com um deles a aula é dinâmica,
+        com outro é só ler apostila. O material didático parece que não é atualizado faz tempo,
+        cheio de expressões que ninguém usa mais. O método em si é bom, a execução é inconsistente.
+      </div>
+      <div class="reply-area">
+        <div class="reply-label">Sua resposta pública</div>
+        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════
+         CLÍNICA DE PSICOLOGIA
+    ══════════════════════════════════════════════════════════════ -->
+    <div class="section-label">Clínica de Psicologia</div>
+
+    <!-- 027 · 5★ · sensível · elogio à psicóloga -->
+    <div class="review-card" data-review-id="mock-027">
+      <div class="scenario-badge">5★ · texto sensível · saúde mental</div>
+      <div class="reviewer-name" data-reviewer-name>Mariana Teixeira</div>
+      <div class="star-rating" data-star-rating="5">★★★★★</div>
+      <div class="review-text" data-review-text>
+        Estava resistente a iniciar terapia e a Dra. Vanessa deixou o processo natural, sem
+        pressão. Com o tempo percebi mudanças reais na forma como lido com situações difíceis.
+        O ambiente é acolhedor e o agendamento é fácil. Fico feliz que fui.
+      </div>
+      <div class="reply-area">
+        <div class="reply-label">Sua resposta pública</div>
+        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
+      </div>
+    </div>
+
+    <!-- 028 · 2★ · cancelamento de última hora · sem remarcação fácil -->
+    <div class="review-card" data-review-id="mock-028">
+      <div class="scenario-badge">2★ · logística ruim · cancelamento</div>
+      <div class="reviewer-name" data-reviewer-name>André Campos</div>
+      <div class="star-rating" data-star-rating="2">★★☆☆☆</div>
+      <div class="review-text" data-review-text>
+        Minha sessão foi cancelada com 30 minutos de antecedência por mensagem. Quando tentei
+        remarcar, as únicas opções disponíveis eram daqui a três semanas. Para quem está
+        em processo terapêutico, esse tipo de interrupção não é pequena. Decepcionante.
+      </div>
+      <div class="reply-area">
+        <div class="reply-label">Sua resposta pública</div>
+        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════
+         PETSHOP / BANHO E TOSA
+    ══════════════════════════════════════════════════════════════ -->
+    <div class="section-label">Petshop / Banho e Tosa</div>
+
+    <!-- 029 · 5★ · cuidado com o animal · cliente recorrente -->
+    <div class="review-card" data-review-id="mock-029">
+      <div class="scenario-badge">5★ · cliente recorrente</div>
+      <div class="reviewer-name" data-reviewer-name>Tatiane Borges</div>
+      <div class="star-rating" data-star-rating="5">★★★★★</div>
+      <div class="review-text" data-review-text>
+        Levo minha lhasa faz uns dois anos. Ela é difícil com estranhos mas chegou a ponto
+        de entrar sozinha quando abre a porta. Isso diz tudo sobre como tratan os animais aqui.
+      </div>
+      <div class="reply-area">
+        <div class="reply-label">Sua resposta pública</div>
+        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
+      </div>
+    </div>
+
+    <!-- 030 · 1★ · animal entregue machucado -->
+    <div class="review-card" data-review-id="mock-030">
+      <div class="scenario-badge">1★ · situação grave · animal machucado</div>
+      <div class="reviewer-name" data-reviewer-name>Rodrigo Fonseca</div>
+      <div class="star-rating" data-star-rating="1">★☆☆☆☆</div>
+      <div class="review-text" data-review-text>
+        Deixei meu cachorro pra tosa e ele voltou com um corte na orelha que claramente
+        foi feito pela tesoura. Quando questionei, disseram que "já estava assim" e que
+        não sabiam de nada. O animal estava com medo e tremendo. Registrei ocorrência.
+      </div>
+      <div class="reply-area">
+        <div class="reply-label">Sua resposta pública</div>
+        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════
+         HOTEL / POUSADA
+    ══════════════════════════════════════════════════════════════ -->
+    <div class="section-label">Hotel / Pousada</div>
+
+    <!-- 031 · 4★ · boa estada · quarto bom · café da manhã fraco -->
+    <div class="review-card" data-review-id="mock-031" data-details='{"Quarto":"5","Café da manhã":"3","Localização":"5","Atendimento":"4"}'>
+      <div class="scenario-badge">4★ · misto · ponto fraco específico</div>
+      <div class="reviewer-name" data-reviewer-name>Viviane Assis</div>
+      <div class="star-rating" data-star-rating="4">★★★★☆</div>
+      <div class="review-text" data-review-text>
+        Quarto limpo, cama boa, localização ótima. Só achei o café da manhã bem abaixo do
+        que o preço sugere — poucas opções e o suco era de caixinha. Não é um problema
+        grave mas dá pra melhorar sem muito esforço.
+      </div>
+      <div class="reply-area">
+        <div class="reply-label">Sua resposta pública</div>
+        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
+      </div>
+    </div>
+
+    <!-- 032 · 2★ · ar condicionado quebrado · sem solução -->
+    <div class="review-card" data-review-id="mock-032">
+      <div class="scenario-badge">2★ · problema técnico · sem solução na hora</div>
+      <div class="reviewer-name" data-reviewer-name>Eduardo Melo</div>
+      <div class="star-rating" data-star-rating="2">★★☆☆☆</div>
+      <div class="review-text" data-review-text>
+        O ar condicionado do quarto não funcionava e reportei na chegada. Me disseram que
+        iam resolver e nunca resolveram. Fiz check-out depois de duas noites com calor
+        numa cidade quente. Propuseram desconto no bar, que eu nem uso. A troca de quarto
+        "não estava disponível" mas na saída vi que havia quartos livres.
+      </div>
       <div class="reply-area">
         <div class="reply-label">Sua resposta pública</div>
         <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
