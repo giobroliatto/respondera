@@ -83,6 +83,11 @@ async function apiFetch<T>(
     throw new ApiError('UNKNOWN', 'Acesso negado.');
   }
 
+  // 404 — recurso não encontrado (não é erro fatal para alguns endpoints)
+  if (res.status === 404) {
+    throw new ApiError('UNKNOWN', '__NOT_FOUND__');
+  }
+
   if (!res.ok) {
     const body = await res.json().catch(() => ({})) as { error?: string; message?: string };
     const msg = body.error ?? body.message ?? `Erro ${res.status}.`;
@@ -124,8 +129,7 @@ export async function getBusiness(): Promise<BusinessResponse | null> {
     businessCache = data.business;
     return businessCache;
   } catch (err) {
-    // 404 significa que o usuário ainda não configurou o contexto — não é erro fatal
-    if (err instanceof ApiError && err.message.includes('404')) return null;
+    if (err instanceof ApiError && err.message === '__NOT_FOUND__') return null;
     throw err;
   }
 }
