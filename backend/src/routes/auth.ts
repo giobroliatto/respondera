@@ -3,11 +3,14 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
 import { authMiddleware, AuthRequest } from '../middlewares/authMiddleware';
+import { authLimiter } from '../middlewares/rateLimitMiddleware';
+import { RegisterSchema, LoginSchema } from '../utils/validationSchemas';
+import { sanitizeEmail } from '../utils/sanitization';
+import { logger, logAuthFailure } from '../utils/logger';
 
 const router = Router();
 const prisma = new PrismaClient();
 const SALT_ROUNDS = 12;
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function signToken(userId: string, email: string, plan: string): string {
   return jwt.sign(
@@ -18,69 +21,76 @@ function signToken(userId: string, email: string, plan: string): string {
 }
 
 // POST /auth/register
-router.post('/register', async (req: Request, res: Response) => {
-  const { email, password } = req.body as { email?: string; password?: string };
+router.post('/register', authLimiter, async (req: Request, res: Response) => {
+  try {
+    const validatedData = RegisterSchema.parse(req.body);
+    const { email, password } = validatedData;
 
-  if (!email || !password) {
-    res.status(400).json({ error: 'Email e senha são obrigatórios.' });
-    return;
+    const sanitizedEmail = sanitizeEmail(email);
+
+    const existing = await prisma.user.findUnique({ where: { email: sanitizedEmail } });
+    if (existing) {
+      logAuthFailure(sanitizedEmail, 'Email already registered');
+      res.status(409).json({ error: 'E-mail já cadastrado.' });
+      return;
+    }
+
+    const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
+
+    const user = await prisma.user.create({
+      data: { email: sanitizedEmail, passwordHash },
+      select: { id: true, email: true, plan: true },
+    });
+
+    const token = signToken(user.id, user.email, user.plan);
+    logger.info('User registered', { userId: user.id, email: sanitizedEmail.slice(0, 3) + '***' });
+
+    res.status(201).json({ token, user });
+  } catch (err: any) {
+    if (err.name === 'ZodError') {
+      res.status(400).json({ error: err.errors[0]?.message || 'Validation error' });
+    } else {
+      logger.error('Registration error', { error: err.message });
+      res.status(500).json({ error: 'Erro ao registrar. Tente novamente.' });
+    }
   }
-
-  if (!EMAIL_REGEX.test(email)) {
-    res.status(400).json({ error: 'E-mail inválido.' });
-    return;
-  }
-
-  if (password.length < 8) {
-    res.status(400).json({ error: 'A senha deve ter no mínimo 8 caracteres.' });
-    return;
-  }
-
-  const existing = await prisma.user.findUnique({ where: { email } });
-  if (existing) {
-    res.status(409).json({ error: 'E-mail já cadastrado.' });
-    return;
-  }
-
-  const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
-
-  const user = await prisma.user.create({
-    data: { email, passwordHash },
-    select: { id: true, email: true, plan: true },
-  });
-
-  const token = signToken(user.id, user.email, user.plan);
-
-  res.status(201).json({ token, user });
 });
 
 // POST /auth/login
-router.post('/login', async (req: Request, res: Response) => {
-  const { email, password } = req.body as { email?: string; password?: string };
+router.post('/login', authLimiter, async (req: Request, res: Response) => {
+  try {
+    const validatedData = LoginSchema.parse(req.body);
+    const { email, password } = validatedData;
+    const sanitizedEmail = sanitizeEmail(email);
 
-  if (!email || !password) {
-    res.status(400).json({ error: 'Email e senha são obrigatórios.' });
-    return;
+    const user = await prisma.user.findUnique({ where: { email: sanitizedEmail } });
+
+    // Tempo constante para evitar user enumeration
+    const passwordMatch = user
+      ? await bcrypt.compare(password, user.passwordHash)
+      : await bcrypt.hash(password, SALT_ROUNDS).then(() => false);
+
+    if (!user || !passwordMatch) {
+      logAuthFailure(sanitizedEmail, 'Invalid credentials');
+      res.status(401).json({ error: 'Credenciais inválidas.' });
+      return;
+    }
+
+    const token = signToken(user.id, user.email, user.plan);
+    logger.info('User login', { userId: user.id, email: sanitizedEmail.slice(0, 3) + '***' });
+
+    res.json({
+      token,
+      user: { id: user.id, email: user.email, plan: user.plan, usageCount: user.usageCount },
+    });
+  } catch (err: any) {
+    if (err.name === 'ZodError') {
+      res.status(400).json({ error: err.errors[0]?.message || 'Validation error' });
+    } else {
+      logger.error('Login error', { error: err.message });
+      res.status(500).json({ error: 'Erro ao fazer login. Tente novamente.' });
+    }
   }
-
-  const user = await prisma.user.findUnique({ where: { email } });
-
-  // Tempo constante para evitar user enumeration
-  const passwordMatch = user
-    ? await bcrypt.compare(password, user.passwordHash)
-    : await bcrypt.hash(password, SALT_ROUNDS).then(() => false);
-
-  if (!user || !passwordMatch) {
-    res.status(401).json({ error: 'Credenciais inválidas.' });
-    return;
-  }
-
-  const token = signToken(user.id, user.email, user.plan);
-
-  res.json({
-    token,
-    user: { id: user.id, email: user.email, plan: user.plan, usageCount: user.usageCount },
-  });
 });
 
 // GET /auth/me

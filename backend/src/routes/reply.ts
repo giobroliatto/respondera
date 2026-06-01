@@ -1,85 +1,81 @@
-import { Router, Response } from 'express';
+﻿import { Router, Response } from 'express';
 import { authMiddleware, AuthRequest } from '../middlewares/authMiddleware';
 import { usageLimitMiddleware } from '../middlewares/usageLimitMiddleware';
+import { replyGenerationLimiter } from '../middlewares/rateLimitMiddleware';
 import { generateReply } from '../services/anthropicService';
 import { incrementUsage } from '../services/usageService';
+import { GenerateReplySchema } from '../utils/validationSchemas';
+import { sanitizeReviewText, sanitizeAdditionalContext } from '../utils/sanitization';
+import { logger, logReplyGenerationError } from '../utils/logger';
 import { PrismaClient } from '@prisma/client';
 
 const router = Router();
 const prisma = new PrismaClient();
 
-const VALID_TONES = ['formal', 'friendly', 'empathetic'] as const;
-type Tone = typeof VALID_TONES[number];
-
 router.use(authMiddleware);
 
 // POST /reply/generate
-router.post('/generate', usageLimitMiddleware, async (req: AuthRequest, res: Response) => {
-  const { reviewText, rating, reviewerName, tone, detailRatings, additionalContext } = req.body as {
-    reviewText?: string;
-    rating?: number;
-    reviewerName?: string;
-    tone?: string;
-    detailRatings?: Record<string, string>;
-    additionalContext?: string | null;
-  };
+router.post('/generate', replyGenerationLimiter, usageLimitMiddleware, async (req: AuthRequest, res: Response) => {
+  try {
+    const validatedData = GenerateReplySchema.parse(req.body);
+    const { reviewText, rating, reviewerName, tone, detailRatings, additionalContext } = validatedData;
 
-  // reviewText é opcional — avaliações sem comentário são válidas
-  // O serviço gera resposta baseada apenas na nota quando não há texto
+    // Sanitiza inputs
+    const sanitizedReviewText = sanitizeReviewText(reviewText);
+    const sanitizedAdditionalContext = sanitizeAdditionalContext(additionalContext);
 
-  // Sanitiza additionalContext: remove tags HTML e limita a 300 caracteres
-  const sanitizedAdditionalContext = additionalContext
-    ? additionalContext.replace(/<[^>]*>/g, '').trim().slice(0, 300) || null
-    : null;
+    // Busca o único estabelecimento do usuário (relação 1-para-1)
+    const business = await prisma.business.findUnique({
+      where: { userId: req.user!.id },
+    });
 
-  if (rating === undefined || rating < 1 || rating > 5 || !Number.isInteger(rating)) {
-    res.status(400).json({ error: 'rating deve ser um número inteiro entre 1 e 5.' });
-    return;
+    // Gera a resposta mesmo sem contexto de estabelecimento, mas avisa
+    const contextWarning = !business
+      ? 'Resposta gerada sem contexto de estabelecimento. Cadastre seu negócio para respostas mais personalizadas.'
+      : undefined;
+
+    const { reply, tokensUsed } = await generateReply({
+      reviewText: sanitizedReviewText,
+      rating,
+      reviewerName,
+      tone: (tone as any) ?? 'friendly',
+      detailRatings,
+      additionalContext: sanitizedAdditionalContext,
+      businessContext: business
+        ? {
+            name: business.name,
+            segment: business.segment,
+            avgTicket: business.avgTicket,
+            highlights: business.highlights,
+          }
+        : null,
+    });
+
+    await incrementUsage(req.user!.id);
+
+    const { count, limit } = req.usageInfo!;
+    const remainingUsage = limit - (count + 1);
+
+    logger.info('Reply generated', {
+      userId: req.user!.id.slice(0, 8),
+      rating,
+      tokensUsed,
+    });
+
+    res.json({
+      reply,
+      tokensUsed,
+      remainingUsage: Math.max(0, remainingUsage),
+      ...(contextWarning && { contextWarning }),
+    });
+  } catch (err: any) {
+    if (err.name === 'ZodError') {
+      res.status(400).json({ error: err.errors[0]?.message || 'Validation error' });
+    } else {
+      logReplyGenerationError(req.user!.id, err.message, req.body.rating);
+      res.status(500).json({ error: 'Erro ao gerar resposta. Tente novamente.' });
+    }
   }
-
-  if (tone && !VALID_TONES.includes(tone as Tone)) {
-    res.status(400).json({ error: `tone inválido. Use: ${VALID_TONES.join(', ')}.` });
-    return;
-  }
-
-  // Busca o único estabelecimento do usuário (relação 1-para-1)
-  const business = await prisma.business.findUnique({
-    where: { userId: req.user!.id },
-  });
-
-  // Gera a resposta mesmo sem contexto de estabelecimento, mas avisa
-  const contextWarning = !business
-    ? 'Resposta gerada sem contexto de estabelecimento. Cadastre seu negócio para respostas mais personalizadas.'
-    : undefined;
-
-  const { reply, tokensUsed } = await generateReply({
-    reviewText: reviewText ?? '',
-    rating,
-    reviewerName,
-    tone: (tone as Tone) ?? 'friendly',
-    detailRatings,
-    additionalContext: sanitizedAdditionalContext,
-    businessContext: business
-      ? {
-          name: business.name,
-          segment: business.segment,
-          avgTicket: business.avgTicket,
-          highlights: business.highlights,
-        }
-      : null,
-  });
-
-  await incrementUsage(req.user!.id);
-
-  const { count, limit } = req.usageInfo!;
-  const remainingUsage = limit - (count + 1);
-
-  res.json({
-    reply,
-    tokensUsed,
-    remainingUsage: Math.max(0, remainingUsage),
-    ...(contextWarning && { contextWarning }),
-  });
 });
 
 export { router as replyRouter };

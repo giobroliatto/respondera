@@ -222,3 +222,153 @@ respondera/
 | PRO | 200 |
 
 O contador reseta no início de cada mês.
+
+---
+
+## 9. Segurança
+
+### Validação de entrada
+
+- Todos os endpoints validam entrada com **Zod** antes de processar
+- Tamanho máximo de `reviewText`: 2000 caracteres
+- Tamanho máximo de `additionalContext`: 300 caracteres
+- Senhas mínimo 6 caracteres (em produção, aumentar para 12+)
+
+### Rate limiting
+
+- **Login/Registro**: 10 requisições por IP por 15 minutos
+- **Geração de resposta**: 30 requisições por usuário por hora
+
+### Sanitização
+
+- HTML tags removidas de inputs (especialmente `reviewText` e `additionalContext`)
+- Email validado conforme RFC 5321
+- Senhas comparadas com tempo-constante (bcrypt)
+
+### Logging e auditoria
+
+- Senhas **nunca** são logadas (descartadas após hash)
+- Tokens JWT **nunca** são logadas
+- Logs estruturados com Winston incluem:
+  - Falhas de autenticação (email mascarado: primeiros 3 chars + `***`)
+  - Erros de geração de IA (mensagem truncada a 200 chars, sem tokens)
+  - Acesso autorizado (userId mascarado: primeiros 8 chars)
+- Todos os logs em **JSON** para facilitar monitoramento
+
+### Middleware de segurança
+
+- **Helmet.js**: Headers HTTP de segurança
+- **CORS**: Configurável via `CORS_ORIGIN`
+- **Limite de payload**: Máximo 10KB por requisição
+- **Erro handler global**: Expõe apenas mensagens genéricas em produção
+
+---
+
+## 10. Deployment
+
+### Opções de hospedagem
+
+#### Backend — Railway / Render
+
+1. **Railway** (recomendado para iniciar)
+   - Conecte seu repositório GitHub
+   - Selecione Branch `master`
+   - Configure variáveis de ambiente: `JWT_SECRET`, `ANTHROPIC_API_KEY`, `CORS_ORIGIN`
+   - Railway gerencia `PORT` automaticamente
+   - PostgreSQL: use provisionado no Railway ou Supabase (free tier 500MB)
+
+2. **Render**
+   - Similar ao Railway
+   - Free tier: 750h/mês (sempre ativo, não dorme como Heroku)
+   - Database: Supabase (PostgreSQL free tier)
+
+#### Banco de dados — Supabase vs Railway
+
+| Supabase | Railway |
+|---|---|
+| **Free**: 500MB, 2 query/s | **Free**: incluído no plano |
+| Auto-backup | Backups automáticos |
+| Perfeito para MVP | Simples integração com Railway |
+
+**Recomendado para iniciar**: Railway Backend + Supabase Database
+
+#### Extensão — Chrome Web Store
+
+1. Crie uma conta no [Chrome Web Store](https://chrome.google.com/webstore/devconsole/)
+2. **Taxa única**: $5 USD
+3. Faça build para produção:
+   ```bash
+   cd extension
+   pnpm build  # Aponta para api.respondera.com.br (ou seu domínio)
+   ```
+4. Zipifique `extension/dist/`
+5. Upload na console do Web Store
+
+### Checklist de produção
+
+- [ ] `JWT_SECRET` gerado com 32+ caracteres aleatórios (`openssl rand -base64 32`)
+- [ ] `CORS_ORIGIN` restrito a domínio da extensão (não `*`)
+- [ ] `ANTHROPIC_API_KEY` nunca commitado (verificar `.gitignore`)
+- [ ] Migração de banco de dados rodada no Supabase/Railway
+- [ ] Logs monitorados (verificar Winston logs para erros)
+- [ ] Rate limiting testado (tentar 11 requisições rapidamente)
+- [ ] Sanitização testada (tentar injetar HTML no review, verificar se é removido)
+- [ ] Endpoint de health check rodando: `GET /health`
+- [ ] Cache de distribuição (CDN) ativado se disponível
+
+### Comando para gerar secrets seguros
+
+```bash
+# JWT_SECRET (32 chars, base64)
+openssl rand -base64 32
+
+# Ou via Node.js
+node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+```
+
+### Variáveis de ambiente para produção
+
+```env
+DATABASE_URL="postgresql://user:pass@host:5432/db"
+JWT_SECRET="<gerado-com-openssl>"
+ANTHROPIC_API_KEY="sk-ant-<sua-chave>"
+PORT="3000"
+CORS_ORIGIN="https://api.respondera.com.br"
+NODE_ENV="production"
+```
+
+---
+
+## 11. Monitoração e manutenção
+
+### Logs
+
+- Winston salva em `logs/` (configure em `logger.ts`)
+- Integre com serviço como Sentry, Loggly, ou Datadog em produção
+
+### Métricas
+
+- Monitore:
+  - Taxa de requisições (rate limit hits)
+  - Taxa de erro (ZodError, API errors)
+  - Latência de geração de IA (tempo com Claude)
+  - Taxa de uso por plano (para upsell)
+
+### Pagamento (Mercado Pago — futuro)
+
+- Campo `plan` já existe no schema `User` (valores: `FREE`, `PRO`)
+- Integrar webhook de Mercado Pago para atualizar `plan` após pagamento
+- Validar `remainingUsage` antes de gerar resposta
+
+---
+
+## 12. Troubleshooting
+
+| Problema | Solução |
+|---|---|
+| "Cannot find module 'redis'" | Rate limiter usa memória local. Em produção, remova importações de Redis. ✅ Já feito. |
+| Extensão não injecta botão | Verifique `content.ts` está compilado em `dist/content.js`. Recarge extensão (↺). |
+| Painel não carrega | Inspecionar DevTools da extensão (`chrome://extensions/` → Detalhes → Errors). |
+| API retorna 401 | Token expirado (30 dias). Faça login novamente. |
+| "rate limit exceeded" | Aguarde 15min (login) ou 1h (geração). |
+
