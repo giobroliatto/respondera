@@ -1,53 +1,92 @@
-* {
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap');
+
+/* ─── Variáveis ──────────────────────────────────────────────────────────── */
+
+:root {
+  --bg:          #0D0D0D;
+  --bg-2:        #141414;
+  --bg-input:    #1A1A1A;
+  --border:      rgba(255,255,255,0.08);
+  --border-mid:  rgba(255,255,255,0.14);
+  --text:        #F0F0F0;
+  --text-muted:  #5A5A5A;
+  --text-mid:    #9CA3AF;
+  --accent:      #10B981;
+  --accent-dim:  rgba(16,185,129,0.1);
+  --accent-hover:#0ea872;
+  --red:         #EF4444;
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-body:    'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --radius:    8px;
+}
+
+/* ─── Reset ──────────────────────────────────────────────────────────────── */
+
+*, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--font-body);
   width: 300px;
   min-height: 200px;
-  background: #ffffff;
-  color: #1a1a1a;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 13px;
 }
 
 #app {
   padding: 16px;
 }
 
+/* ─── Header ─────────────────────────────────────────────────────────────── */
+
 .header {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 16px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 18px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
 }
 
 .logo {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
+  opacity: 0.85;
 }
 
 .title {
-  font-size: 16px;
-  font-weight: 700;
-  color: #1a56db;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  letter-spacing: 0.06em;
+  color: var(--text);
+  line-height: 1;
 }
 
-.subtitle {
-  font-size: 13px;
-  color: #6b7280;
-  margin-bottom: 12px;
+.title span {
+  color: var(--accent);
 }
+
+/* ─── Telas ───────────────────────────────────────────────────────────────── */
 
 .screen.hidden {
   display: none;
 }
 
-/* Login form */
-#form-login {
+.subtitle {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+  font-weight: 300;
+}
+
+/* ─── Formulários ────────────────────────────────────────────────────────── */
+
+#form-login,
+#form-register {
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -55,54 +94,76 @@ body {
 
 input[type="email"],
 input[type="password"] {
-  padding: 8px 10px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 13px;
+  padding: 9px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 12.5px;
+  font-family: var(--font-body);
   outline: none;
+  background: var(--bg-input);
+  color: var(--text);
   transition: border-color 0.15s;
 }
 
-input:focus {
-  border-color: #1a56db;
+input::placeholder {
+  color: var(--text-muted);
 }
+
+input:focus {
+  border-color: rgba(16,185,129,0.45);
+}
+
+/* ─── Botões ──────────────────────────────────────────────────────────────── */
 
 button {
   padding: 9px 14px;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s;
+  font-family: var(--font-body);
+  transition: background 0.15s, opacity 0.15s;
 }
 
-#btn-login {
-  background: #1a56db;
-  color: #fff;
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+#btn-login,
+#btn-register {
+  background: var(--accent);
+  color: #000;
   margin-top: 4px;
+  width: 100%;
 }
 
-#btn-login:hover {
-  background: #1648c5;
+#btn-login:hover:not(:disabled),
+#btn-register:hover:not(:disabled) {
+  background: var(--accent-hover);
 }
 
 .btn-secondary {
-  background: #f3f4f6;
-  color: #374151;
+  background: transparent;
+  color: var(--text-mid);
+  border: 1.5px solid var(--border-mid);
   width: 100%;
-  margin-top: 12px;
+  margin-top: 10px;
 }
 
-.btn-secondary:hover {
-  background: #e5e7eb;
+.btn-secondary:hover:not(:disabled) {
+  border-color: rgba(255,255,255,0.2);
+  color: var(--text);
+  background: rgba(255,255,255,0.04);
 }
 
-/* Home screen */
+/* ─── Home screen ─────────────────────────────────────────────────────────── */
+
 .user-email {
-  font-size: 12px;
-  color: #6b7280;
-  margin-bottom: 8px;
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin-bottom: 10px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -112,51 +173,60 @@ button {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
-  border-radius: 6px;
-  padding: 6px 10px;
+  background: var(--accent-dim);
+  border: 1px solid rgba(16,185,129,0.18);
+  border-radius: var(--radius);
+  padding: 7px 10px;
   margin-bottom: 12px;
 }
 
 #plan-label {
   font-size: 12px;
   font-weight: 700;
-  color: #1a56db;
+  color: var(--accent);
+  letter-spacing: 0.04em;
 }
 
 .usage {
   font-size: 11px;
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 .hint {
   font-size: 12px;
-  color: #374151;
-  line-height: 1.5;
+  color: var(--text-mid);
+  line-height: 1.55;
   text-align: center;
-  padding: 10px;
-  background: #f9fafb;
-  border-radius: 6px;
+  padding: 12px 10px;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
 }
 
-/* Error */
+.hint strong {
+  color: var(--text);
+}
+
+/* ─── Erro ────────────────────────────────────────────────────────────────── */
+
 .error {
   font-size: 12px;
-  color: #dc2626;
+  color: var(--red);
   margin-top: 6px;
+  line-height: 1.4;
 }
 
-/* Switch screen link */
+/* ─── Switch link ────────────────────────────────────────────────────────── */
+
 .switch-link {
   font-size: 12px;
-  color: #6b7280;
+  color: var(--text-muted);
   margin-top: 10px;
   text-align: center;
 }
 
 .switch-link a {
-  color: #1a56db;
+  color: var(--accent);
   text-decoration: none;
   font-weight: 600;
 }
@@ -165,28 +235,7 @@ button {
   text-decoration: underline;
 }
 
-/* Register form — same style as login form */
-#form-register {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-#btn-register {
-  background: #1a56db;
-  color: #fff;
-  margin-top: 4px;
-}
-
-#btn-register:hover:not(:disabled) {
-  background: #1648c5;
-}
-
-#btn-register:disabled,
-#btn-login:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
+/* ─── Utilitário ─────────────────────────────────────────────────────────── */
 
 .hidden {
   display: none !important;
