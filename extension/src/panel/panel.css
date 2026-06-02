@@ -149,7 +149,13 @@ body {
   max-height: 70px;
   overflow-y: auto;
   word-break: break-word;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.12) transparent;
 }
+
+.review-text::-webkit-scrollbar { width: 3px; }
+.review-text::-webkit-scrollbar-track { background: transparent; }
+.review-text::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 2px; }
 
 /* ─── Tom ─────────────────────────────────────────────────────────────────── */
 

@@ -48,7 +48,8 @@ router.post('/register', authLimiter, async (req: Request, res: Response) => {
     res.status(201).json({ token, user });
   } catch (err: any) {
     if (err.name === 'ZodError') {
-      res.status(400).json({ error: err.errors[0]?.message || 'Validation error' });
+      const msg = err.issues?.[0]?.message ?? err.errors?.[0]?.message ?? 'Validation error';
+      res.status(400).json({ error: msg });
     } else {
       logger.error('Registration error', { error: err.message });
       res.status(500).json({ error: 'Erro ao registrar. Tente novamente.' });
@@ -85,7 +86,8 @@ router.post('/login', authLimiter, async (req: Request, res: Response) => {
     });
   } catch (err: any) {
     if (err.name === 'ZodError') {
-      res.status(400).json({ error: err.errors[0]?.message || 'Validation error' });
+      const msg = err.issues?.[0]?.message ?? err.errors?.[0]?.message ?? 'Validation error';
+      res.status(400).json({ error: msg });
     } else {
       logger.error('Login error', { error: err.message });
       res.status(500).json({ error: 'Erro ao fazer login. Tente novamente.' });

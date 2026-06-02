@@ -65,8 +65,8 @@ async function apiFetch<T>(
     clearTimeout(timerId);
   }
 
-  // 401 — sessão expirada: limpa storage e emite evento
-  if (res.status === 401) {
+  // 401 — sessão expirada: limpa storage e emite evento (apenas para rotas autenticadas)
+  if (res.status === 401 && requiresAuth) {
     await clearStorage();
     chrome.runtime.sendMessage({ type: 'SESSION_EXPIRED' }).catch(() => {
       // Ignora se não há listener (popup fechado)
