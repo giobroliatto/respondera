@@ -74,11 +74,14 @@ async function apiFetch<T>(
     throw new ApiError('SESSION_EXPIRED', 'Sessão expirada. Faça login novamente.');
   }
 
-  // 403 — pode ser limite de uso
+  // 403 — pode ser limite de uso ou tom PRO
   if (res.status === 403) {
-    const body = await res.json().catch(() => ({})) as { error?: string };
+    const body = await res.json().catch(() => ({})) as { error?: string; message?: string };
     if (body.error === 'USAGE_LIMIT_REACHED') {
       throw new ApiError('USAGE_LIMIT_REACHED', 'Você atingiu o limite de respostas deste mês.');
+    }
+    if (body.error === 'PRO_REQUIRED') {
+      throw new ApiError('UNKNOWN', body.message ?? 'Este tom está disponível apenas no plano PRO.');
     }
     throw new ApiError('UNKNOWN', 'Acesso negado.');
   }

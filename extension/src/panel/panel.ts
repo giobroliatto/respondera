@@ -9,6 +9,8 @@ import { PanelState, ToneOption, ReviewData } from '../shared/types';
 let currentReviewData: ReviewData | null = null;
 let currentState: PanelState = 'idle';
 let selectedTone: ToneOption = 'friendly';
+let userPlan: string | null = null;
+let customToneValue: string | null = null;
 
 // ─── Referências DOM ─────────────────────────────────────────────────────────
 
@@ -31,6 +33,14 @@ const el = {
   usageInfo:         () => document.getElementById('usage-info')!,
   additionalContext: () => document.getElementById('rg-additional-context') as HTMLTextAreaElement,
   charCount:         () => document.getElementById('rg-char-count')!,
+  toneGroupPro:       () => document.getElementById('tone-group-pro')!,
+  customToneRow:      () => document.getElementById('custom-tone-row')!,
+  customToneInputWrap:() => document.getElementById('custom-tone-input-wrap')!,
+  btnCustomTone:      () => document.getElementById('btn-custom-tone') as HTMLButtonElement,
+  customToneInput:    () => document.getElementById('custom-tone-input') as HTMLInputElement,
+  customToneCharCount:() => document.getElementById('custom-tone-char-count')!,
+  proRequiredMsg:     () => document.getElementById('pro-required-msg')!,
+  contextProMsg:      () => document.getElementById('context-pro-msg')!,
 };
 
 // ─── Controle de estado ───────────────────────────────────────────────────────
@@ -186,11 +196,82 @@ async function generateReply(): Promise<void> {
       type: 'GENERATE_REPLY',
       data: {
         ...currentReviewData,
-        tone: selectedTone,
-        additionalContext: el.additionalContext().value.trim() || null,
+        tone: customToneValue ? ('custom' as ToneOption) : selectedTone,
+        customTone: customToneValue,
+        additionalContext: userPlan === 'PRO' ? (el.additionalContext().value.trim() || null) : null,
       },
     });
   });
+}
+
+// ─── Inicialização de tons PRO ────────────────────────────────────────────────
+
+async function initToneSection(): Promise<void> {
+  userPlan = await getFromStorage('userPlan') as string | null;
+
+  if (userPlan === 'PRO') {
+    el.toneGroupPro().classList.remove('hidden');
+    el.customToneRow().classList.remove('hidden');
+
+    // Handlers para tons PRO
+    document.querySelectorAll<HTMLButtonElement>('.tone-btn-pro').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tone-btn').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        selectedTone = btn.dataset['tone'] as ToneOption;
+        // Limpa tom personalizado ao selecionar tom pré-definido
+        customToneValue = null;
+        el.customToneInput().value = '';
+        el.customToneCharCount().textContent = '0/100';
+        el.btnCustomTone().classList.remove('active');
+        el.customToneInputWrap().classList.add('hidden');
+      });
+    });
+
+    // Toggle do campo de tom personalizado
+    el.btnCustomTone().addEventListener('click', () => {
+      const isHidden = el.customToneInputWrap().classList.contains('hidden');
+      if (isHidden) {
+        el.customToneInputWrap().classList.remove('hidden');
+        el.customToneInput().focus();
+        el.btnCustomTone().classList.add('active');
+      } else {
+        el.customToneInputWrap().classList.add('hidden');
+        el.customToneInput().value = '';
+        el.customToneCharCount().textContent = '0/100';
+        customToneValue = null;
+        el.btnCustomTone().classList.remove('active');
+        if (!document.querySelector('.tone-btn.active')) {
+          document.querySelector<HTMLButtonElement>('.tone-btn[data-tone="friendly"]')?.classList.add('active');
+          selectedTone = 'friendly';
+        }
+      }
+    });
+
+    // Input do tom personalizado
+    el.customToneInput().addEventListener('input', () => {
+      const val = el.customToneInput().value;
+      el.customToneCharCount().textContent = `${val.length}/100`;
+      customToneValue = val.trim() || null;
+      if (customToneValue) {
+        document.querySelectorAll('.tone-btn').forEach((b) => b.classList.remove('active'));
+      } else if (!document.querySelector('.tone-btn.active')) {
+        document.querySelector<HTMLButtonElement>(`.tone-btn[data-tone="${selectedTone}"]`)?.classList.add('active');
+      }
+    });
+  } else {
+    // FREE: bloqueia o campo de contexto adicional
+    el.additionalContext().disabled = true;
+    el.contextProMsg().classList.remove('hidden');
+
+    // Tons PRO: ao clicar, exibe mensagem inline (desaparece após 3s)
+    document.querySelectorAll<HTMLButtonElement>('.tone-btn-pro').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        el.proRequiredMsg().classList.remove('hidden');
+        setTimeout(() => el.proRequiredMsg().classList.add('hidden'), 3000);
+      });
+    });
+  }
 }
 
 // ─── Inicialização ────────────────────────────────────────────────────────────
@@ -198,14 +279,22 @@ async function generateReply(): Promise<void> {
 document.addEventListener('DOMContentLoaded', async () => {
   await updateUsageFooter();
 
-  // Seletor de tom
-  document.querySelectorAll<HTMLButtonElement>('.tone-btn').forEach((btn) => {
+  // Seletor de tom — tons base (FREE + PRO)
+  document.querySelectorAll<HTMLButtonElement>('#tone-group-base .tone-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.tone-btn').forEach((b) => b.classList.remove('active'));
       btn.classList.add('active');
       selectedTone = btn.dataset['tone'] as ToneOption;
+      // Limpa tom personalizado ao selecionar tom padrão
+      customToneValue = null;
+      el.customToneInput().value = '';
+      el.customToneCharCount().textContent = '0/100';
+      el.btnCustomTone().classList.remove('active');
+      el.customToneInputWrap().classList.add('hidden');
     });
   });
+
+  await initToneSection();
 
   // Contador de caracteres do campo de contexto adicional
   el.additionalContext().addEventListener('input', () => {
@@ -251,10 +340,19 @@ window.addEventListener('message', (e) => {
   if (msg?.type === 'RESPONDERA_DATA' && msg.data) {
     currentReviewData = msg.data;
     renderReview(currentReviewData);
-    // Limpa o campo de contexto adicional a cada nova avaliação
+    // Limpa contexto adicional
     el.additionalContext().value = '';
     el.charCount().textContent = '0/300';
     el.charCount().classList.remove('rg-char-count--warn', 'rg-char-count--full');
+    // Limpa tom personalizado e restaura tom padrão
+    customToneValue = null;
+    el.customToneInput().value = '';
+    el.customToneCharCount().textContent = '0/100';
+    el.btnCustomTone().classList.remove('active');
+    el.customToneInputWrap().classList.add('hidden');
+    document.querySelectorAll('.tone-btn').forEach((b) => b.classList.remove('active'));
+    document.querySelector<HTMLButtonElement>('.tone-btn[data-tone="friendly"]')?.classList.add('active');
+    selectedTone = 'friendly';
     setState('idle');
   }
 

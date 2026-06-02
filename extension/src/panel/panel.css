@@ -392,6 +392,100 @@ button:disabled {
   color: #dc2626;
 }
 
+/* ─── Tons PRO ───────────────────────────────────────────────────────────── */
+
+.tone-group-pro {
+  margin-top: 6px;
+}
+
+.tone-btn-pro {
+  border-color: #a5b4fc;
+}
+
+.tone-btn-pro.active {
+  border-color: #4F46E5;
+  background: #eef2ff;
+  color: #4F46E5;
+  font-weight: 600;
+}
+
+/* ─── Tom personalizado ──────────────────────────────────────────────────── */
+
+.custom-tone-row {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tone-custom-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: 1.5px dashed #d1d5db;
+  border-radius: 6px;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 500;
+  color: #6b7280;
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color 0.15s, color 0.15s;
+  width: fit-content;
+}
+
+.tone-custom-toggle:hover,
+.tone-custom-toggle.active {
+  border-color: #4F46E5;
+  color: #4F46E5;
+}
+
+.custom-tone-input-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.custom-tone-input {
+  border: 1.5px solid #a5b4fc;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 12px;
+  color: #374151;
+  font-family: inherit;
+  outline: none;
+  background: #f5f3ff;
+  transition: border-color 0.15s;
+  width: 100%;
+}
+
+.custom-tone-input:focus {
+  border-color: #4F46E5;
+}
+
+/* ─── Mensagem PRO inline ────────────────────────────────────────────────── */
+
+.pro-required-msg {
+  font-size: 11px;
+  color: #7c3aed;
+  font-weight: 500;
+  margin-top: 6px;
+  padding: 3px 8px;
+  background: #f5f3ff;
+  border-radius: 4px;
+  border: 1px solid #ddd6fe;
+  width: fit-content;
+}
+
+/* ─── Contexto adicional bloqueado (FREE) ────────────────────────────────── */
+
+.rg-context-textarea:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  background: #f3f4f6;
+}
+
 /* ─── Utilitário ─────────────────────────────────────────────────────────── */
 
 .hidden {

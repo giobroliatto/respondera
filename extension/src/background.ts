@@ -67,6 +67,7 @@ async function handleGenerateReply(
       rating,
       reviewerName: data.reviewerName ?? undefined,
       tone:         data.tone ?? 'friendly',
+      customTone:   data.customTone ?? null,
       detailRatings: data.detailRatings,
       additionalContext: data.additionalContext ?? null,
     });

@@ -1,6 +1,6 @@
 # Respondera
 
-Extensão Chrome que gera respostas profissionais para avaliações do Google Meu Negócio usando IA (Claude Haiku).
+Extensão Chrome que gera respostas profissionais para avaliações do Google Perfil de Empresas usando IA (Claude Haiku).
 
 ## Pré-requisitos
 

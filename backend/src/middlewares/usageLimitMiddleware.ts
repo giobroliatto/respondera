@@ -25,6 +25,16 @@ export async function usageLimitMiddleware(
     return;
   }
 
+  // Validação de tons exclusivos PRO
+  const PRO_ONLY_TONES = ['direct', 'casual', 'assertive', 'custom'];
+  if (PRO_ONLY_TONES.includes(req.body?.tone) && user.plan === 'FREE') {
+    res.status(403).json({
+      error: 'PRO_REQUIRED',
+      message: 'Este tom está disponível apenas no plano PRO.',
+    });
+    return;
+  }
+
   // Reinicia o contador se já passou um mês desde o último reset
   const now = new Date();
   const resetAt = new Date(user.usageResetAt);

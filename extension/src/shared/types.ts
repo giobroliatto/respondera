@@ -3,7 +3,7 @@
 // ─── Planos ───────────────────────────────────────────────────────────────────
 
 export type Plan = 'FREE' | 'PRO';
-export type ToneOption = 'friendly' | 'formal' | 'empathetic';
+export type ToneOption = 'friendly' | 'formal' | 'empathetic' | 'direct' | 'casual' | 'assertive' | 'custom';
 export type PanelState = 'idle' | 'loading' | 'success' | 'error' | 'limit_reached' | 'not_logged_in';
 
 // ─── Avaliação ────────────────────────────────────────────────────────────────
@@ -14,6 +14,7 @@ export interface ReviewData {
   reviewerName: string | null;
   hasExistingReply: boolean;
   tone?: ToneOption;
+  customTone?: string | null;
   detailRatings?: Record<string, string>; // ex: { "Comida": "5", "Serviço": "4", "Ambiente": "5", "Preço por pessoa": "R$40-60" }
   additionalContext?: string | null;
 }
@@ -56,6 +57,7 @@ export interface GenerateReplyData {
   rating: number;
   reviewerName?: string;
   tone?: ToneOption;
+  customTone?: string | null;
   detailRatings?: Record<string, string>;
   additionalContext?: string | null;
 }

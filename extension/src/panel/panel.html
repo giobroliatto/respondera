@@ -25,16 +25,42 @@
     </div>
 
     <!-- Seletor de tom -->
-    <div class="panel-section">
+    <div class="panel-section" id="tone-section">
       <span class="section-label">Tom da resposta</span>
-      <div class="tone-group" role="group" aria-label="Selecionar tom da resposta">
+      <!-- Linha 1 (FREE + PRO): Amigável | Formal | Empático -->
+      <div class="tone-group" role="group" aria-label="Selecionar tom da resposta" id="tone-group-base">
         <button class="tone-btn active" data-tone="friendly" type="button">Amigável</button>
         <button class="tone-btn" data-tone="formal" type="button">Formal</button>
         <button class="tone-btn" data-tone="empathetic" type="button">Empático</button>
       </div>
+      <!-- Linha 2 (PRO): Direto | Descontraído | Assertivo -->
+      <div class="tone-group tone-group-pro hidden" role="group" id="tone-group-pro" aria-label="Tons exclusivos PRO">
+        <button class="tone-btn tone-btn-pro" data-tone="direct" type="button">Direto</button>
+        <button class="tone-btn tone-btn-pro" data-tone="casual" type="button">Descontraído</button>
+        <button class="tone-btn tone-btn-pro" data-tone="assertive" type="button">Assertivo</button>
+      </div>
+      <!-- Tom personalizado toggle (PRO) -->
+      <div class="custom-tone-row hidden" id="custom-tone-row">
+        <button class="tone-custom-toggle" id="btn-custom-tone" type="button">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20.9888 4.28491L19.6405 2.93089C18.4045 1.6897 16.4944 1.6897 15.2584 2.93089L13.0112 5.30042L18.7416 11.055L21.1011 8.68547C21.6629 8.1213 22 7.33145 22 6.54161C22 5.75176 21.5506 4.84908 20.9888 4.28491Z" fill="currentColor"/><path d="M16.2697 10.9422L11.7753 6.42877L2.89888 15.3427C2.33708 15.9069 2 16.6968 2 17.5994V21.0973C2 21.5487 2.33708 22 2.89888 22H6.49438C7.2809 22 8.06742 21.6615 8.74157 21.0973L17.618 12.1834L16.2697 10.9422Z" fill="currentColor"/></svg>
+          Personalizar tom
+        </button>
+        <div class="custom-tone-input-wrap hidden" id="custom-tone-input-wrap">
+          <input
+            type="text"
+            id="custom-tone-input"
+            class="custom-tone-input"
+            placeholder="Descreva o tom que quiser. Ex: irônico, ultra-formal, jurídico..."
+            maxlength="100"
+          />
+          <span class="rg-char-count" id="custom-tone-char-count">0/100</span>
+        </div>
+      </div>
+      <!-- Mensagem inline para usuário FREE tentando usar tom PRO -->
+      <p class="pro-required-msg hidden" id="pro-required-msg">Disponível no plano PRO</p>
     </div>
 
-    <!-- Contexto adicional -->
+    <!-- Contexto adicional (PRO) -->
     <div class="panel-section">
       <div class="rg-field-group">
         <label for="rg-additional-context" class="rg-field-label">Contexto adicional <span class="rg-optional">(opcional)</span></label>
@@ -46,6 +72,7 @@
           maxlength="300"
         ></textarea>
         <span class="rg-char-count" id="rg-char-count">0/300</span>
+        <p class="pro-required-msg hidden" id="context-pro-msg">Disponível no plano PRO</p>
       </div>
     </div>
 

@@ -15,7 +15,8 @@ export interface GenerateReplyParams {
   reviewText: string;
   rating: number;
   reviewerName?: string;
-  tone?: 'formal' | 'friendly' | 'empathetic';
+  tone?: 'formal' | 'friendly' | 'empathetic' | 'direct' | 'casual' | 'assertive' | 'custom';
+  customTone?: string | null;
   businessContext: BusinessContext | null;
   detailRatings?: Record<string, string>;
   additionalContext?: string | null;
@@ -27,17 +28,23 @@ export interface GenerateReplyResult {
 }
 
 const TONE_INSTRUCTIONS: Record<string, string> = {
-  formal: 'Formal — linguagem respeitosa e profissional, tratamento em Você',
-  friendly: 'Amigável — linguagem leve, próxima e calorosa',
+  formal:     'Formal — linguagem respeitosa e profissional, tratamento em Você',
+  friendly:   'Amigável — linguagem leve, próxima e calorosa',
   empathetic: 'Empático — priorize acolhimento, compreensão e suporte',
+  direct:     'Direto — objetivo e sem rodeios, resposta mais curta que o normal',
+  casual:     'Descontraído — informal e próximo, adequado para negócios jovens',
+  assertive:  'Assertivo — firme e seguro, para avaliações de má-fé ou agressivas sem entrar no jogo',
 };
 
 function buildSystemPrompt(
   businessContext: BusinessContext | null,
   tone: string,
   additionalContext?: string | null,
+  customTone?: string | null,
 ): string {
-  const toneInstruction = TONE_INSTRUCTIONS[tone] ?? TONE_INSTRUCTIONS['friendly'];
+  const toneInstruction = tone === 'custom'
+    ? (customTone?.trim() || 'Neutro')
+    : (TONE_INSTRUCTIONS[tone] ?? TONE_INSTRUCTIONS['friendly']);
 
   const contextBlock = businessContext
     ? `Nome: ${businessContext.name}
@@ -109,12 +116,13 @@ export async function generateReply(params: GenerateReplyParams): Promise<Genera
     rating,
     reviewerName = 'Cliente',
     tone = 'friendly',
+    customTone,
     businessContext,
     detailRatings,
     additionalContext,
   } = params;
 
-  const systemPrompt = buildSystemPrompt(businessContext, tone, additionalContext);
+  const systemPrompt = buildSystemPrompt(businessContext, tone, additionalContext, customTone);
   const userPrompt = buildUserPrompt(reviewText, rating, reviewerName, detailRatings);
 
   const message = await anthropic.messages.create({

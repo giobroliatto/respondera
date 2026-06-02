@@ -18,7 +18,7 @@ router.use(authMiddleware);
 router.post('/generate', replyGenerationLimiter, usageLimitMiddleware, async (req: AuthRequest, res: Response) => {
   try {
     const validatedData = GenerateReplySchema.parse(req.body);
-    const { reviewText, rating, reviewerName, tone, detailRatings, additionalContext } = validatedData;
+    const { reviewText, rating, reviewerName, tone, customTone, detailRatings, additionalContext } = validatedData;
 
     // Sanitiza inputs
     const sanitizedReviewText = sanitizeReviewText(reviewText);
@@ -39,6 +39,7 @@ router.post('/generate', replyGenerationLimiter, usageLimitMiddleware, async (re
       rating,
       reviewerName,
       tone: (tone as any) ?? 'friendly',
+      customTone: customTone ? customTone.replace(/<[^>]*>/g, '').trim().slice(0, 100) : null,
       detailRatings,
       additionalContext: sanitizedAdditionalContext,
       businessContext: business
