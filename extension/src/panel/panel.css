@@ -64,7 +64,7 @@ body {
 
 .panel-title {
   font-family: var(--font-display);
-  font-size: 1.15rem;
+  font-size: 1.5rem;
   letter-spacing: 0.07em;
   color: var(--text);
   display: flex;
@@ -80,6 +80,12 @@ body {
 
 .title-accent {
   color: var(--accent);
+}
+
+.panel-logo {
+  width: 24px;
+  height: 24px;
+  margin-right: 7px;
 }
 
 .btn-close {
@@ -243,6 +249,26 @@ body {
   color: var(--purple);
 }
 
+.tone-btn-pro--locked {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.tone-btn-pro--locked:hover {
+  border-color: rgba(139,92,246,0.3);
+  color: var(--text-muted);
+}
+
+.tone-custom-toggle--locked {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.tone-custom-toggle--locked:hover {
+  border-color: rgba(255,255,255,0.14);
+  color: var(--text-muted);
+}
+
 .custom-tone-input-wrap {
   display: flex;
   flex-direction: column;
@@ -395,7 +421,13 @@ body {
   min-height: 140px;
   background: var(--bg-input);
   transition: border-color 0.15s;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.12) transparent;
 }
+
+.review-text::-webkit-scrollbar { width: 3px; }
+.review-text::-webkit-scrollbar-track { background: transparent; }
+.review-text::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 2px; }
 
 #reply-textarea:focus {
   border-color: rgba(16,185,129,0.35);

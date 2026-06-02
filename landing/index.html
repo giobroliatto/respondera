@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Respondera — Respostas IA para avaliações do Google</title>
+  <title>Respondera</title>
 
   <!-- SEO & OG -->
   <meta name="description" content="O Respondera gera respostas profissionais para avaliações do Google com um clique — direto na página, sem copiar, sem colar." />
@@ -565,7 +565,24 @@
     }
     @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
     .demo-panel-footer { display: flex; gap: 0.75rem; }
-    .demo-tone-row { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; }
+    .demo-tone-row { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; flex-wrap: wrap; }
+    .demo-tone-section { margin-bottom: 1.25rem; }
+    .demo-tone-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 0.5rem; }
+    .demo-pro-badge { display: inline-block; font-size: 0.58rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; background: rgba(139,92,246,0.15); color: #a78bfa; border: 1px solid rgba(139,92,246,0.28); border-radius: 100px; padding: 0.08rem 0.38rem; margin-left: 0.3rem; vertical-align: middle; line-height: 1.8; pointer-events: none; }
+    .tone-chip-custom { border-style: dashed !important; display: inline-flex !important; align-items: center; gap: 0.35rem; }
+    .tone-chip-custom svg { flex-shrink: 0; }
+    .tone-chip.tone-chip-pro.active,
+    .tone-chip.tone-chip-custom.active { border-color: #a78bfa; color: #a78bfa; background: rgba(139,92,246,0.1); }
+    #demo-custom-tone-wrap { margin-top: 0.4rem; }
+    .demo-context-section { margin-bottom: 1rem; }
+    .demo-context-label { font-size: 0.72rem; color: var(--text-muted); margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.25rem; flex-wrap: wrap; }
+    .demo-optional { opacity: 0.65; font-size: 0.68rem; }
+    .demo-field { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: var(--font-body); font-size: 0.82rem; padding: 0.5rem 0.75rem; outline: none; transition: border-color 0.2s; box-sizing: border-box; }
+    .demo-field:focus { border-color: rgba(16,185,129,0.4); }
+    .demo-field-textarea { resize: none; line-height: 1.5; }
+    #demo-pro-cta { text-align: center; margin-top: 1.5rem; }
+    #demo-pro-cta a { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.88rem; color: #a78bfa; border: 1px solid rgba(139,92,246,0.25); background: rgba(139,92,246,0.07); padding: 0.6rem 1.4rem; border-radius: 100px; transition: background 0.22s, border-color 0.22s; }
+    #demo-pro-cta a:hover { background: rgba(139,92,246,0.14); border-color: rgba(139,92,246,0.45); }
 
     /* ─── PLANOS ─────────────────────────────────────────────────── */
     #planos {
@@ -827,7 +844,7 @@
             <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg>
           </div>
           <h3 class="step-title">Clique no botão IA</h3>
-          <p class="step-desc">Um único botão "<svg fill="#8b5cf6" width="15" height="15" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg"><path d="M 26.6875 12.6602 C 26.9687 12.6602 27.1094 12.4961 27.1797 12.2383 C 27.9062 8.3242 27.8594 8.2305 31.9375 7.4570 C 32.2187 7.4102 32.3828 7.2461 32.3828 6.9648 C 32.3828 6.6836 32.2187 6.5195 31.9375 6.4726 C 27.8828 5.6524 28.0000 5.5586 27.1797 1.6914 C 27.1094 1.4336 26.9687 1.2695 26.6875 1.2695 C 26.4062 1.2695 26.2656 1.4336 26.1953 1.6914 C 25.3750 5.5586 25.5156 5.6524 21.4375 6.4726 C 21.1797 6.5195 20.9922 6.6836 20.9922 6.9648 C 20.9922 7.2461 21.1797 7.4102 21.4375 7.4570 C 25.5156 8.2774 25.4687 8.3242 26.1953 12.2383 C 26.2656 12.4961 26.4062 12.6602 26.6875 12.6602 Z M 15.3438 28.7852 C 15.7891 28.7852 16.0938 28.5039 16.1406 28.0821 C 16.9844 21.8242 17.1953 21.8242 23.6641 20.5821 C 24.0860 20.5117 24.3906 20.2305 24.3906 19.7852 C 24.3906 19.3633 24.0860 19.0586 23.6641 18.9883 C 17.1953 18.0977 16.9609 17.8867 16.1406 11.5117 C 16.0938 11.0899 15.7891 10.7852 15.3438 10.7852 C 14.9219 10.7852 14.6172 11.0899 14.5703 11.5352 C 13.7969 17.8164 13.4687 17.7930 7.0469 18.9883 C 6.6250 19.0821 6.3203 19.3633 6.3203 19.7852 C 6.3203 20.2539 6.6250 20.5117 7.1406 20.5821 C 13.5156 21.6133 13.7969 21.7774 14.5703 28.0352 C 14.6172 28.5039 14.9219 28.7852 15.3438 28.7852 Z M 31.2344 54.7305 C 31.8438 54.7305 32.2891 54.2852 32.4062 53.6524 C 34.0703 40.8086 35.8750 38.8633 48.5781 37.4570 C 49.2344 37.3867 49.6797 36.8945 49.6797 36.2852 C 49.6797 35.6758 49.2344 35.2070 48.5781 35.1133 C 35.8750 33.7070 34.0703 31.7617 32.4062 18.9180 C 32.2891 18.2852 31.8438 17.8633 31.2344 17.8633 C 30.6250 17.8633 30.1797 18.2852 30.0860 18.9180 C 28.4219 31.7617 26.5938 33.7070 13.9140 35.1133 C 13.2344 35.2070 12.7891 35.6758 12.7891 36.2852 C 12.7891 36.8945 13.2344 37.3867 13.9140 37.4570 C 26.5703 39.1211 28.3281 40.8321 30.0860 53.6524 C 30.1797 54.2852 30.6250 54.7305 31.2344 54.7305 Z"/></svg> Responder com IA" aparece na avaliação. Clique nele e um painel lateral abre com a avaliação já carregada.</p>
+          <p class="step-desc">Um único botão "<svg fill="#20E7B2" width="15" height="15" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg"><path d="M 26.6875 12.6602 C 26.9687 12.6602 27.1094 12.4961 27.1797 12.2383 C 27.9062 8.3242 27.8594 8.2305 31.9375 7.4570 C 32.2187 7.4102 32.3828 7.2461 32.3828 6.9648 C 32.3828 6.6836 32.2187 6.5195 31.9375 6.4726 C 27.8828 5.6524 28.0000 5.5586 27.1797 1.6914 C 27.1094 1.4336 26.9687 1.2695 26.6875 1.2695 C 26.4062 1.2695 26.2656 1.4336 26.1953 1.6914 C 25.3750 5.5586 25.5156 5.6524 21.4375 6.4726 C 21.1797 6.5195 20.9922 6.6836 20.9922 6.9648 C 20.9922 7.2461 21.1797 7.4102 21.4375 7.4570 C 25.5156 8.2774 25.4687 8.3242 26.1953 12.2383 C 26.2656 12.4961 26.4062 12.6602 26.6875 12.6602 Z M 15.3438 28.7852 C 15.7891 28.7852 16.0938 28.5039 16.1406 28.0821 C 16.9844 21.8242 17.1953 21.8242 23.6641 20.5821 C 24.0860 20.5117 24.3906 20.2305 24.3906 19.7852 C 24.3906 19.3633 24.0860 19.0586 23.6641 18.9883 C 17.1953 18.0977 16.9609 17.8867 16.1406 11.5117 C 16.0938 11.0899 15.7891 10.7852 15.3438 10.7852 C 14.9219 10.7852 14.6172 11.0899 14.5703 11.5352 C 13.7969 17.8164 13.4687 17.7930 7.0469 18.9883 C 6.6250 19.0821 6.3203 19.3633 6.3203 19.7852 C 6.3203 20.2539 6.6250 20.5117 7.1406 20.5821 C 13.5156 21.6133 13.7969 21.7774 14.5703 28.0352 C 14.6172 28.5039 14.9219 28.7852 15.3438 28.7852 Z M 31.2344 54.7305 C 31.8438 54.7305 32.2891 54.2852 32.4062 53.6524 C 34.0703 40.8086 35.8750 38.8633 48.5781 37.4570 C 49.2344 37.3867 49.6797 36.8945 49.6797 36.2852 C 49.6797 35.6758 49.2344 35.2070 48.5781 35.1133 C 35.8750 33.7070 34.0703 31.7617 32.4062 18.9180 C 32.2891 18.2852 31.8438 17.8633 31.2344 17.8633 C 30.6250 17.8633 30.1797 18.2852 30.0860 18.9180 C 28.4219 31.7617 26.5938 33.7070 13.9140 35.1133 C 13.2344 35.2070 12.7891 35.6758 12.7891 36.2852 C 12.7891 36.8945 13.2344 37.3867 13.9140 37.4570 C 26.5703 39.1211 28.3281 40.8321 30.0860 53.6524 C 30.1797 54.2852 30.6250 54.7305 31.2344 54.7305 Z"/></svg> Responder com IA" aparece na avaliação. Clique nele e um painel lateral abre com a avaliação já carregada.</p>
         </div>
         <div class="step-card reveal reveal-delay-2">
           <div class="step-number">03</div>
@@ -932,7 +949,7 @@
         <div class="plan-card plan-card-pro reveal reveal-delay-1">
           <div class="plan-badge">Mais popular</div>
           <div class="plan-name">Pro</div>
-          <div class="plan-price">R$29<span class="plan-unit">,90/mês</span></div>
+          <div class="plan-price">R$19<span class="plan-unit">,90/mês</span></div>
           <p class="plan-tagline">Para negócios que levam avaliações a sério</p>
           <hr class="plan-divider" />
           <ul class="plan-features">
@@ -950,7 +967,7 @@
             </li>
             <li class="plan-feature">
               <svg viewBox="0 0 24 24"><polyline class="feature-check" points="20 6 9 17 4 12"/></svg>
-              Tom personalizado, escreva o tom que quiser
+              Tom personalizado: defina o tom que quiser
             </li>
             <li class="plan-feature">
               <svg viewBox="0 0 24 24"><polyline class="feature-check" points="20 6 9 17 4 12"/></svg>

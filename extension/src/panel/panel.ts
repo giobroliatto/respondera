@@ -210,9 +210,6 @@ async function initToneSection(): Promise<void> {
   userPlan = await getFromStorage('userPlan') as string | null;
 
   if (userPlan === 'PRO') {
-    el.toneGroupPro().classList.remove('hidden');
-    el.customToneRow().classList.remove('hidden');
-
     // Handlers para tons PRO
     document.querySelectorAll<HTMLButtonElement>('.tone-btn-pro').forEach((btn) => {
       btn.addEventListener('click', () => {
@@ -264,12 +261,20 @@ async function initToneSection(): Promise<void> {
     el.additionalContext().disabled = true;
     el.contextProMsg().classList.remove('hidden');
 
-    // Tons PRO: ao clicar, exibe mensagem inline (desaparece após 3s)
+    // Tons PRO: visíveis mas bloqueados para FREE
     document.querySelectorAll<HTMLButtonElement>('.tone-btn-pro').forEach((btn) => {
+      btn.classList.add('tone-btn-pro--locked');
       btn.addEventListener('click', () => {
         el.proRequiredMsg().classList.remove('hidden');
         setTimeout(() => el.proRequiredMsg().classList.add('hidden'), 3000);
       });
+    });
+
+    // Tom personalizado: visível mas bloqueado para FREE
+    el.btnCustomTone().classList.add('tone-custom-toggle--locked');
+    el.btnCustomTone().addEventListener('click', () => {
+      el.proRequiredMsg().classList.remove('hidden');
+      setTimeout(() => el.proRequiredMsg().classList.add('hidden'), 3000);
     });
   }
 }
