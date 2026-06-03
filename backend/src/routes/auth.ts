@@ -1,21 +1,21 @@
 import { Router, Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { PrismaClient } from '@prisma/client';
 import { authMiddleware, AuthRequest } from '../middlewares/authMiddleware';
 import { authLimiter } from '../middlewares/rateLimitMiddleware';
 import { RegisterSchema, LoginSchema } from '../utils/validationSchemas';
 import { sanitizeEmail } from '../utils/sanitization';
 import { logger, logAuthFailure } from '../utils/logger';
+import { env } from '../config/env';
+import { prisma } from '../lib/prisma';
 
 const router = Router();
-const prisma = new PrismaClient();
 const SALT_ROUNDS = 12;
 
 function signToken(userId: string, email: string, plan: string): string {
   return jwt.sign(
     { userId, email, plan },
-    process.env.JWT_SECRET as string,
+    env.JWT_SECRET,
     { expiresIn: '30d' }
   );
 }
@@ -48,7 +48,7 @@ router.post('/register', authLimiter, async (req: Request, res: Response) => {
     res.status(201).json({ token, user });
   } catch (err: any) {
     if (err.name === 'ZodError') {
-      const msg = err.issues?.[0]?.message ?? err.errors?.[0]?.message ?? 'Validation error';
+      const msg = err.issues?.[0]?.message ?? 'Validation error';
       res.status(400).json({ error: msg });
     } else {
       logger.error('Registration error', { error: err.message });
@@ -86,7 +86,7 @@ router.post('/login', authLimiter, async (req: Request, res: Response) => {
     });
   } catch (err: any) {
     if (err.name === 'ZodError') {
-      const msg = err.issues?.[0]?.message ?? err.errors?.[0]?.message ?? 'Validation error';
+      const msg = err.issues?.[0]?.message ?? 'Validation error';
       res.status(400).json({ error: msg });
     } else {
       logger.error('Login error', { error: err.message });

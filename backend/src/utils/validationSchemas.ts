@@ -30,7 +30,7 @@ export type Business = z.infer<typeof BusinessSchema>;
 // ─── Reply Generation ─────────────────────────────────────────────────
 
 export const GenerateReplySchema = z.object({
-  reviewText: z.string().max(2000, 'Texto da avaliação não pode exceder 2000 caracteres').optional(),
+  reviewText: z.string().max(2000, 'Texto da avaliação não pode exceder 2000 caracteres').optional().default(''),
   rating: z.number().int().min(1).max(5),
   reviewerName: z.string().max(200).optional(),
   tone: z.enum(['formal', 'friendly', 'empathetic', 'direct', 'casual', 'assertive', 'custom']).optional(),

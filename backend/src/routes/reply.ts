@@ -7,10 +7,9 @@ import { incrementUsage } from '../services/usageService';
 import { GenerateReplySchema } from '../utils/validationSchemas';
 import { sanitizeReviewText, sanitizeAdditionalContext } from '../utils/sanitization';
 import { logger, logReplyGenerationError } from '../utils/logger';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../lib/prisma';
 
 const router = Router();
-const prisma = new PrismaClient();
 
 router.use(authMiddleware);
 
@@ -71,7 +70,7 @@ router.post('/generate', replyGenerationLimiter, usageLimitMiddleware, async (re
     });
   } catch (err: any) {
     if (err.name === 'ZodError') {
-      res.status(400).json({ error: err.errors[0]?.message || 'Validation error' });
+      res.status(400).json({ error: err.issues?.[0]?.message || 'Validation error' });
     } else {
       logReplyGenerationError(req.user!.id, err.message, req.body.rating);
       res.status(500).json({ error: 'Erro ao gerar resposta. Tente novamente.' });

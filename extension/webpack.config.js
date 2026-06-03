@@ -43,12 +43,31 @@ module.exports = (env, argv) => {
       }),
       new CopyPlugin({
         patterns: [
-          { from: 'manifest.json',             to: '.' },
+          {
+            from: 'manifest.json',
+            to: '.',
+            transform(content) {
+              const manifest = JSON.parse(content.toString());
+              const apiHost = isDev ? 'http://localhost:3333/*' : 'https://api.respondera.com.br/*';
+              manifest.host_permissions = [
+                'https://business.google.com/*',
+                'https://www.google.com/business/*',
+                apiHost,
+              ];
+              return JSON.stringify(manifest, null, 2);
+            },
+          },
           { from: 'src/popup/popup.html',       to: '.' },
           { from: 'src/popup/popup.css',        to: '.' },
           { from: 'src/panel/panel.html',       to: '.' },
           { from: 'src/panel/panel.css',        to: '.' },
-          { from: 'public/icons',               to: 'icons' },
+          {
+            from: 'public/icons',
+            to: 'icons',
+            globOptions: {
+              ignore: ['**/*.svg'],
+            },
+          },
         ],
       }),
     ],

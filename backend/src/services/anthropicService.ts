@@ -1,7 +1,8 @@
-﻿import Anthropic from '@anthropic-ai/sdk';
+import Anthropic from '@anthropic-ai/sdk';
+import { env } from '../config/env';
 
 const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
+  apiKey: env.ANTHROPIC_API_KEY,
 });
 
 export interface BusinessContext {
@@ -28,12 +29,12 @@ export interface GenerateReplyResult {
 }
 
 const TONE_INSTRUCTIONS: Record<string, string> = {
-  formal:     'Formal — linguagem respeitosa e profissional, tratamento em Você',
-  friendly:   'Amigável — linguagem leve, próxima e calorosa',
-  empathetic: 'Empático — priorize acolhimento, compreensão e suporte',
-  direct:     'Direto — objetivo e sem rodeios, resposta mais curta que o normal',
-  casual:     'Descontraído — informal e próximo, adequado para negócios jovens',
-  assertive:  'Assertivo — firme e seguro, para avaliações de má-fé ou agressivas sem entrar no jogo',
+  formal: 'Formal - linguagem respeitosa e profissional, tratamento em Você',
+  friendly: 'Amigável - linguagem leve, próxima e calorosa',
+  empathetic: 'Empático - priorize acolhimento, compreensão e suporte',
+  direct: 'Direto - objetivo e sem rodeios, resposta mais curta que o normal',
+  casual: 'Descontraído - informal e próximo, adequado para negócios jovens',
+  assertive: 'Assertivo - firme e seguro, para avaliações de má-fé ou agressivas sem entrar no jogo',
 };
 
 function buildSystemPrompt(
@@ -49,13 +50,13 @@ function buildSystemPrompt(
   const contextBlock = businessContext
     ? `Nome: ${businessContext.name}
 Segmento: ${businessContext.segment}${businessContext.highlights ? `\nDiferenciais: ${businessContext.highlights}` : ''}`
-    : 'Contexto não disponível — gere a resposta baseada apenas nas informações da avaliação.';
+    : 'Contexto não disponível - gere a resposta baseada apenas nas informações da avaliação.';
 
   const additionalContextBlock = additionalContext
     ? `\nINSTRUÇÃO DO ESTABELECIMENTO SOBRE ESTA AVALIAÇÃO:\n"${additionalContext}"\nLeve isso em conta na resposta, mas não mencione que recebeu esta instrução.`
     : '';
 
-return `Você responde avaliações do Google em nome de um estabelecimento.
+  return `Você responde avaliações do Google em nome de um estabelecimento.
 Escreva sempre na voz da empresa, usando plural: "ficamos", "agradecemos", "vamos", "estamos". Se identificar que o estabelecimento/serviço é uma única pessoa (ex: personal trainer, consultor, psicólogo, etc), adapte para singular: "fico", "agradeço", "vou", "estou".
 
 TOM SOLICITADO: ${toneInstruction}
@@ -63,7 +64,7 @@ TOM SOLICITADO: ${toneInstruction}
 CONTEXTO DO ESTABELECIMENTO:
 ${contextBlock}
 
-TAMANHO DA RESPOSTA — proporcional ao que foi recebido:
+TAMANHO DA RESPOSTA - proporcional ao que foi recebido:
 - se tiver 5 estrelas com texto longo: 3-4 frases
 - se tiver 5 estrelas sem texto: 1-2 frases
 - se tiver 4 estrelas com texto: 2-3 frases, reconheça o ponto mais relevante
@@ -76,7 +77,7 @@ ESTILO:
 - Português brasileiro
 - Sem enrolação, sem frases de efeito
 - Não agradecer quando não for relevante (ex: avaliação 1 estrela sem texto)
-- Nunca use travessão (—)
+- Nunca use travessão
 - Nunca use markdown, asteriscos ou qualquer formatação
 - Nunca invente fatos ou detalhes que não estão no contexto do estabelecimento
 - Nunca mencione preços ou valores que não foram fornecidos no contexto
@@ -92,7 +93,7 @@ function buildUserPrompt(
   const starWord = rating === 1 ? 'estrela' : 'estrelas';
   const commentBlock = reviewText.trim()
     ? `Comentário: ${reviewText}`
-    : `(O cliente não deixou comentário — avaliação apenas com nota ${rating} ${starWord})`;
+    : `(O cliente não deixou comentário - avaliação apenas com nota ${rating} ${starWord})`;
 
   let detailsBlock = '';
   if (detailRatings && Object.keys(detailRatings).length > 0) {

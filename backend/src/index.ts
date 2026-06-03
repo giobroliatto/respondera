@@ -1,3 +1,4 @@
+import './config/env';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -5,16 +6,17 @@ import { authRouter } from './routes/auth';
 import { businessRouter } from './routes/business';
 import { replyRouter } from './routes/reply';
 import { logger } from './utils/logger';
+import { env, getCorsOrigin } from './config/env';
 
 const app = express();
-const PORT = process.env.PORT ?? 3333;
+const PORT = env.PORT;
 
 // Segurança: adicionar headers HTTP
 app.use(helmet());
 
 // CORS
 app.use(cors({
-  origin: process.env.CORS_ORIGIN ?? '*',
+  origin: getCorsOrigin(),
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
@@ -40,7 +42,7 @@ app.use((err: any, _req: express.Request, res: express.Response, _next: express.
   });
   
   res.status(err.status ?? 500).json({
-    error: process.env.NODE_ENV === 'production' 
+    error: env.NODE_ENV === 'production' 
       ? 'Erro interno do servidor' 
       : err.message,
   });

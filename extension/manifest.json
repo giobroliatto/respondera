@@ -12,7 +12,8 @@
   "host_permissions": [
     "https://business.google.com/*",
     "https://www.google.com/business/*",
-    "http://localhost:3333/*"
+    "http://localhost:3333/*",
+    "https://api.respondera.com.br/*"
   ],
 
   "background": {

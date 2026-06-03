@@ -1,11 +1,10 @@
 import { Router, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
 import { authMiddleware, AuthRequest } from '../middlewares/authMiddleware';
 import { BusinessSchema } from '../utils/validationSchemas';
 import { logger } from '../utils/logger';
+import { prisma } from '../lib/prisma';
 
 const router = Router();
-const prisma = new PrismaClient();
 
 // Todas as rotas de business exigem autenticação
 router.use(authMiddleware);
@@ -62,7 +61,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(200).json({ business });
   } catch (err: any) {
     if (err.name === 'ZodError') {
-      res.status(400).json({ error: err.errors[0]?.message || 'Validation error' });
+      res.status(400).json({ error: err.issues?.[0]?.message || 'Validation error' });
     } else {
       logger.error('Business creation error', { userId: req.user!.id.slice(0, 8), error: err.message });
       res.status(500).json({ error: 'Erro ao salvar estabelecimento.' });

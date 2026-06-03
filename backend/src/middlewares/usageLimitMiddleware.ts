@@ -1,8 +1,6 @@
 import { Response, NextFunction } from 'express';
-import { PrismaClient } from '@prisma/client';
 import { AuthRequest } from './authMiddleware';
-
-const prisma = new PrismaClient();
+import { prisma } from '../lib/prisma';
 
 // Limites por plano — não expor esses valores nas respostas da API
 const PLAN_LIMITS: Record<string, number> = {

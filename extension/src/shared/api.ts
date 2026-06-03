@@ -93,7 +93,7 @@ async function apiFetch<T>(
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({})) as { error?: string; message?: string };
-    const msg = body.error ?? body.message ?? `Erro ${res.status}.`;
+    const msg = body.message ?? body.error ?? `Erro ${res.status}.`;
     throw new ApiError('UNKNOWN', msg);
   }
 

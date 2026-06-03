@@ -1,6 +1,11 @@
 import winston from 'winston';
+import fs from 'fs';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
+
+if (!isDevelopment) {
+  fs.mkdirSync('logs', { recursive: true });
+}
 
 const logFormat = winston.format.combine(
   winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),

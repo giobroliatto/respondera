@@ -1,24 +1,31 @@
 import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 
+function requestIpKey(req: any): string {
+  return ipKeyGenerator(req.ip ?? req.socket?.remoteAddress ?? 'unknown');
+}
+
 // Rate limiting para login/registro: 10 requests por IP por 15 minutos
 export const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
+  windowMs: 15 * 60 * 1000,
   max: 10,
-  message: 'Muitas tentativas de login. Tente novamente em 15 minutos.',
+  message: {
+    error: 'RATE_LIMITED',
+    message: 'Muitas tentativas de login. Tente novamente em 15 minutos.',
+  },
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: ipKeyGenerator, // Suporta IPv6 corretamente
+  keyGenerator: requestIpKey,
 });
 
-// Rate limiting para geração de resposta: 30 requests por usuário por hora
+// Rate limiting para geracao de resposta: 30 requests por usuario por hora
 export const replyGenerationLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hora
+  windowMs: 60 * 60 * 1000,
   max: 30,
-  keyGenerator: (req: any) => {
-    // Usar user ID se autenticado, senão IP com suporte IPv6
-    return req.user?.id || ipKeyGenerator(req);
+  keyGenerator: (req: any) => req.user?.id || requestIpKey(req),
+  message: {
+    error: 'RATE_LIMITED',
+    message: 'Limite de geracoes atingido. Tente novamente em 1 hora.',
   },
-  message: 'Limite de gerações atingido. Tente novamente em 1 hora.',
   standardHeaders: true,
   legacyHeaders: false,
 });
