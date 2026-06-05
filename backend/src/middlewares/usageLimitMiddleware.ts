@@ -15,11 +15,19 @@ export async function usageLimitMiddleware(
 ): Promise<void> {
   const user = await prisma.user.findUnique({
     where: { id: req.user!.id },
-    select: { plan: true, usageCount: true, usageResetAt: true },
+    select: { plan: true, usageCount: true, usageResetAt: true, emailVerifiedAt: true },
   });
 
   if (!user) {
     res.status(401).json({ error: 'Usuário não encontrado.' });
+    return;
+  }
+
+  if (!user.emailVerifiedAt) {
+    res.status(403).json({
+      error: 'EMAIL_NOT_VERIFIED',
+      message: 'Confirme seu e-mail antes de gerar respostas.',
+    });
     return;
   }
 

@@ -3,6 +3,7 @@ export interface StorageData {
   userEmail: string | null;
   userPlan: 'FREE' | 'PRO' | null;
   usageCount: number | null;
+  emailVerified: boolean | null;
 }
 
 type StorageKey = keyof StorageData;

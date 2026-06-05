@@ -11,14 +11,17 @@ datasource db {
 }
 
 model User {
-  id           String    @id @default(uuid())
-  email        String    @unique
-  passwordHash String
-  plan         Plan      @default(FREE)
-  usageCount   Int       @default(0)
-  usageResetAt DateTime  @default(now())
-  createdAt    DateTime  @default(now())
-  business     Business?
+  id                          String    @id @default(uuid())
+  email                       String    @unique
+  passwordHash                String
+  plan                        Plan      @default(FREE)
+  usageCount                  Int       @default(0)
+  usageResetAt                DateTime  @default(now())
+  emailVerifiedAt             DateTime?
+  emailVerificationTokenHash  String?
+  emailVerificationExpiresAt  DateTime?
+  createdAt                   DateTime  @default(now())
+  business                    Business?
 }
 
 model Business {

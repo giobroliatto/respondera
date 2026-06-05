@@ -1,5 +1,10 @@
 import { getStorage, setStorage, clearStorage, isLoggedIn } from '../shared/storage';
-import { login as apiLogin, register as apiRegister } from '../shared/api';
+import {
+  getMe,
+  login as apiLogin,
+  register as apiRegister,
+  resendVerificationEmail,
+} from '../shared/api';
 import { AuthResponse } from '../shared/types';
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
@@ -125,8 +130,10 @@ async function showHome(): Promise<void> {
   const email = await getStorage('userEmail');
   const plan  = await getStorage('userPlan');
   const usage = await getStorage('usageCount');
+  const emailVerified = await getStorage('emailVerified');
 
   document.getElementById('user-email')!.textContent = email ?? '';
+  renderVerificationBox(Boolean(emailVerified));
 
   if (plan === 'PRO') {
     document.getElementById('plan-label')!.textContent = 'Plano PRO';
@@ -145,6 +152,8 @@ async function showHome(): Promise<void> {
     await clearStorage();
     showLogin();
   });
+
+  bindVerificationActions();
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -154,6 +163,72 @@ async function storeUserData(data: AuthResponse): Promise<void> {
   await setStorage('userEmail',  data.user.email);
   await setStorage('userPlan',   data.user.plan);
   await setStorage('usageCount', data.user.usageCount);
+  await setStorage('emailVerified', data.user.emailVerified);
+}
+
+function setVerificationMessage(message: string, isError = false): void {
+  const msg = document.getElementById('verification-message')!;
+  msg.textContent = message;
+  msg.classList.remove('hidden');
+  msg.style.color = isError ? 'var(--red)' : 'var(--text)';
+}
+
+function renderVerificationBox(emailVerified: boolean): void {
+  const box = document.getElementById('email-verification-box')!;
+  const msg = document.getElementById('verification-message')!;
+  msg.classList.add('hidden');
+  msg.textContent = '';
+  box.classList.toggle('hidden', emailVerified);
+}
+
+function bindVerificationActions(): void {
+  const resendBtn = document.getElementById('btn-resend-verification') as HTMLButtonElement;
+  const refreshBtn = document.getElementById('btn-refresh-verification') as HTMLButtonElement;
+
+  const freshResend = resendBtn.cloneNode(true) as HTMLButtonElement;
+  const freshRefresh = refreshBtn.cloneNode(true) as HTMLButtonElement;
+  resendBtn.replaceWith(freshResend);
+  refreshBtn.replaceWith(freshRefresh);
+
+  freshResend.addEventListener('click', async () => {
+    freshResend.disabled = true;
+    freshResend.textContent = 'Enviando...';
+
+    try {
+      const result = await resendVerificationEmail();
+      await setStorage('emailVerified', result.emailVerified);
+      renderVerificationBox(result.emailVerified);
+      if (!result.emailVerified) setVerificationMessage(result.message);
+    } catch (err) {
+      setVerificationMessage(err instanceof Error ? err.message : 'Erro ao reenviar e-mail.', true);
+    } finally {
+      freshResend.disabled = false;
+      freshResend.textContent = 'Reenviar e-mail';
+    }
+  });
+
+  freshRefresh.addEventListener('click', async () => {
+    freshRefresh.disabled = true;
+    freshRefresh.textContent = 'Checando...';
+
+    try {
+      const user = await getMe();
+      await setStorage('userPlan', user.plan);
+      await setStorage('usageCount', user.usageCount);
+      await setStorage('emailVerified', user.emailVerified);
+      renderVerificationBox(user.emailVerified);
+      if (!user.emailVerified) {
+        setVerificationMessage('E-mail ainda não confirmado.');
+      } else {
+        await showHome();
+      }
+    } catch (err) {
+      setVerificationMessage(err instanceof Error ? err.message : 'Erro ao atualizar status.', true);
+    } finally {
+      freshRefresh.disabled = false;
+      freshRefresh.textContent = 'Atualizar';
+    }
+  });
 }
 
 function notifyContentScript(): void {

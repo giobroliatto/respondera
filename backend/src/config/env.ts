@@ -8,6 +8,9 @@ type RuntimeEnv = {
   PORT: string;
   CORS_ORIGIN: string;
   NODE_ENV: string;
+  PUBLIC_API_URL: string;
+  RESEND_API_KEY?: string;
+  EMAIL_FROM?: string;
 };
 
 function loadDotEnv(): void {
@@ -64,6 +67,12 @@ const ANTHROPIC_API_KEY = requireEnv('ANTHROPIC_API_KEY');
 assertNotPlaceholder('JWT_SECRET', JWT_SECRET);
 assertNotPlaceholder('ANTHROPIC_API_KEY', ANTHROPIC_API_KEY);
 
+if (NODE_ENV === 'production') {
+  requireEnv('PUBLIC_API_URL');
+  requireEnv('RESEND_API_KEY');
+  requireEnv('EMAIL_FROM');
+}
+
 export const env: RuntimeEnv = {
   DATABASE_URL,
   JWT_SECRET,
@@ -71,6 +80,9 @@ export const env: RuntimeEnv = {
   PORT: process.env.PORT ?? '3333',
   CORS_ORIGIN: process.env.CORS_ORIGIN ?? '*',
   NODE_ENV,
+  PUBLIC_API_URL: process.env.PUBLIC_API_URL ?? `http://localhost:${process.env.PORT ?? '3333'}`,
+  RESEND_API_KEY: process.env.RESEND_API_KEY,
+  EMAIL_FROM: process.env.EMAIL_FROM,
 };
 
 export function getCorsOrigin(): string | string[] {

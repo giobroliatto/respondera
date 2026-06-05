@@ -29,3 +29,16 @@ export const replyGenerationLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 });
+
+// Rate limiting para reenvio de confirmacao: 3 requests por usuario/IP por hora
+export const emailVerificationLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 3,
+  keyGenerator: (req: any) => req.user?.id || requestIpKey(req),
+  message: {
+    error: 'RATE_LIMITED',
+    message: 'Muitas tentativas de reenvio. Tente novamente em 1 hora.',
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});

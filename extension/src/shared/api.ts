@@ -60,7 +60,10 @@ async function apiFetch<T>(
     if (err instanceof DOMException && err.name === 'AbortError') {
       throw new ApiError('TIMEOUT', 'Tempo esgotado. Verifique sua conexão e tente novamente.');
     }
-    throw new ApiError('NETWORK_ERROR', 'Erro de rede. Verifique sua conexão.');
+    throw new ApiError(
+      'NETWORK_ERROR',
+      `Erro de rede ao chamar ${BACKEND_URL}${path}. Verifique se o backend está rodando e recarregue a extensão.`,
+    );
   } finally {
     clearTimeout(timerId);
   }
@@ -79,6 +82,9 @@ async function apiFetch<T>(
     const body = await res.json().catch(() => ({})) as { error?: string; message?: string };
     if (body.error === 'USAGE_LIMIT_REACHED') {
       throw new ApiError('USAGE_LIMIT_REACHED', 'Você atingiu o limite de respostas deste mês.');
+    }
+    if (body.error === 'EMAIL_NOT_VERIFIED') {
+      throw new ApiError('EMAIL_NOT_VERIFIED', body.message ?? 'Confirme seu e-mail antes de gerar respostas.');
     }
     if (body.error === 'PRO_REQUIRED') {
       throw new ApiError('UNKNOWN', body.message ?? 'Este tom está disponível apenas no plano PRO.');
@@ -120,6 +126,13 @@ export async function register(email: string, password: string): Promise<AuthRes
 
 export async function getMe(): Promise<AuthResponse['user']> {
   return apiFetch<AuthResponse['user']>('/auth/me', { method: 'GET' });
+}
+
+export async function resendVerificationEmail(): Promise<{ message: string; emailVerified: boolean }> {
+  return apiFetch<{ message: string; emailVerified: boolean }>(
+    '/auth/resend-verification',
+    { method: 'POST', body: JSON.stringify({}) },
+  );
 }
 
 // ─── Business ─────────────────────────────────────────────────────────────────

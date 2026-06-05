@@ -26,11 +26,13 @@ export interface AuthUser {
   email: string;
   plan: Plan;
   usageCount: number;
+  emailVerified: boolean;
 }
 
 export interface AuthResponse {
   token: string;
   user: AuthUser;
+  message?: string;
 }
 
 // ─── Business ─────────────────────────────────────────────────────────────────
@@ -74,6 +76,7 @@ export interface GenerateReplyResponse {
 export type ApiErrorCode =
   | 'SESSION_EXPIRED'
   | 'USAGE_LIMIT_REACHED'
+  | 'EMAIL_NOT_VERIFIED'
   | 'NETWORK_ERROR'
   | 'TIMEOUT'
   | 'UNKNOWN';
