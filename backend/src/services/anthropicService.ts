@@ -11,6 +11,7 @@ export interface BusinessContext {
   avgTicket?: string | null;
   highlights?: string | null;
   soloOperator?: boolean | null;
+  soloGender?: string | null; // 'M' | 'F'
 }
 
 export interface GenerateReplyParams {
@@ -57,11 +58,19 @@ Segmento: ${businessContext.segment}${businessContext.highlights ? `\nDiferencia
     ? `\nINSTRUÇÃO DO ESTABELECIMENTO SOBRE ESTA AVALIAÇÃO:\n"${additionalContext}"\nLeve isso em conta na resposta, mas não mencione que recebeu esta instrução.`
     : '';
 
-  const voiceInstruction = businessContext?.soloOperator
-    ? 'Escreva na voz de uma pessoa física — use sempre singular: "fico", "agradeço", "vou", "estou", "atendo".'
-    : businessContext
-      ? 'Escreva na voz da empresa — use sempre plural: "ficamos", "agradecemos", "vamos", "estamos", "atendemos".'
-      : 'Escreva na voz da empresa usando plural ("ficamos", "agradecemos"). Se perceber claramente que é um profissional solo (personal trainer, psicólogo, etc), use singular.';
+  let voiceInstruction: string;
+  if (businessContext?.soloOperator) {
+    const genderNote = businessContext.soloGender === 'F'
+      ? ' Use o feminino nos adjetivos e particípios: "contente/feliz", "comprometida", "disponível", "animada".'
+      : businessContext.soloGender === 'M'
+        ? ' Use o masculino nos adjetivos e particípios: "contente/feliz", "comprometido", "disponível", "animado".'
+        : '';
+    voiceInstruction = `Escreva na voz de uma pessoa física — use sempre singular: "fico", "agradeço", "vou", "estou", "atendo".${genderNote}`;
+  } else if (businessContext) {
+    voiceInstruction = 'Escreva na voz da empresa — use sempre plural: "ficamos", "agradecemos", "vamos", "estamos", "atendemos".';
+  } else {
+    voiceInstruction = 'Escreva na voz da empresa usando plural ("ficamos", "agradecemos"). Se perceber claramente que é um profissional solo (personal trainer, psicólogo, etc), use singular.';
+  }
 
   return `Você responde avaliações do Google em nome de um estabelecimento.
 ${voiceInstruction}

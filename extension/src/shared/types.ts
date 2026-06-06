@@ -44,6 +44,7 @@ export interface BusinessData {
   avgTicket?: string | null;
   highlights?: string | null;
   soloOperator?: boolean;
+  soloGender?: 'M' | 'F' | null;
 }
 
 export interface BusinessResponse extends BusinessData {

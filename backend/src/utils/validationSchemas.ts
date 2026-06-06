@@ -24,6 +24,7 @@ export const BusinessSchema = z.object({
   avgTicket: z.string().max(100).nullable().optional(),
   highlights: z.string().max(500).nullable().optional(),
   soloOperator: z.boolean().optional(),
+  soloGender: z.enum(['M', 'F']).nullable().optional(),
 });
 
 export type Business = z.infer<typeof BusinessSchema>;

@@ -54,6 +54,7 @@ router.post('/generate', replyGenerationLimiter, usageLimitMiddleware, async (re
             avgTicket: business.avgTicket,
             highlights: business.highlights,
             soloOperator: business.soloOperator,
+            soloGender: business.soloGender,
           }
         : null,
     });

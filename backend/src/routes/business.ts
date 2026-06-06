@@ -32,7 +32,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const validatedData = BusinessSchema.parse(req.body);
-    const { name, segment, tone, avgTicket, highlights, soloOperator } = validatedData;
+    const { name, segment, tone, avgTicket, highlights, soloOperator, soloGender } = validatedData;
 
     const business = await prisma.business.upsert({
       where: { userId: req.user!.id },
@@ -44,6 +44,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         avgTicket: avgTicket ?? null,
         highlights: highlights ?? null,
         soloOperator: soloOperator ?? false,
+        soloGender: soloGender ?? null,
       },
       update: {
         name,
@@ -52,6 +53,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         avgTicket: avgTicket !== undefined ? avgTicket : undefined,
         highlights: highlights !== undefined ? highlights : undefined,
         soloOperator: soloOperator !== undefined ? soloOperator : undefined,
+        soloGender: soloGender !== undefined ? soloGender : undefined,
       },
     });
 

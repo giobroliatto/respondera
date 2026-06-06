@@ -182,7 +182,8 @@ function bindTabs(isPro: boolean): void {
 
 // ─── Formulário Meu Negócio ───────────────────────────────────────────────
 
-let _soloOperator = false; // estado do toggle voz
+let _soloOperator = false;
+let _soloGender: 'M' | 'F' = 'M';
 
 async function loadBusinessForm(isPro: boolean): Promise<void> {
   // Lock visual para FREE
@@ -205,9 +206,11 @@ async function loadBusinessForm(isPro: boolean): Promise<void> {
       const highlightsEl = document.getElementById('biz-highlights') as HTMLTextAreaElement;
       highlightsEl.value = (business as any).highlights ?? '';
       document.getElementById('biz-highlights-count')!.textContent = `${highlightsEl.value.length}/200`;
-      // Restaura toggle de voz
+      // Restaura toggle de voz e gênero
       _soloOperator = Boolean((business as any).soloOperator);
+      _soloGender = (business as any).soloGender === 'F' ? 'F' : 'M';
       updateVoiceToggle(_soloOperator);
+      updateGenderToggle(_soloGender);
     }
   } catch {
     // silencioso — formulário fica em branco se não houver negócio cadastrado
@@ -221,10 +224,18 @@ function updateVoiceToggle(isSolo: boolean): void {
     const isSoloBtn = btn.dataset['value'] === 'solo';
     btn.classList.toggle('toggle-active', isSolo ? isSoloBtn : !isSoloBtn);
   });
+  const genderRow = document.getElementById('biz-gender-row')!;
+  genderRow.classList.toggle('hidden', !isSolo);
   const hint = document.getElementById('biz-voice-hint')!;
   hint.textContent = isSolo
     ? 'A IA vai usar "fico", "agradeço", "atendo"…'
     : 'A IA vai usar "ficamos", "agradecemos"…';
+}
+
+function updateGenderToggle(gender: 'M' | 'F'): void {
+  document.querySelectorAll<HTMLButtonElement>('.gender-btn').forEach((btn) => {
+    btn.classList.toggle('gender-active', btn.dataset['value'] === gender);
+  });
 }
 
 function bindBusinessForm(isPro: boolean): void {
@@ -245,6 +256,15 @@ function bindBusinessForm(isPro: boolean): void {
       if (!isPro) return;
       _soloOperator = btn.dataset['value'] === 'solo';
       updateVoiceToggle(_soloOperator);
+    });
+  });
+
+  // Toggle masculino/feminino
+  freshForm.querySelectorAll<HTMLButtonElement>('.gender-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (!isPro) return;
+      _soloGender = btn.dataset['value'] as 'M' | 'F';
+      updateGenderToggle(_soloGender);
     });
   });
 
@@ -278,6 +298,7 @@ function bindBusinessForm(isPro: boolean): void {
         avgTicket: ticket || null,
         highlights: highlights || null,
         soloOperator: _soloOperator,
+        soloGender: _soloOperator ? _soloGender : null,
       });
       feedback.textContent = 'Contexto salvo!';
       feedback.className = 'feedback success';

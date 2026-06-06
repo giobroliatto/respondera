@@ -34,6 +34,7 @@ model Business {
   avgTicket    String?
   highlights   String?
   soloOperator Boolean  @default(false)
+  soloGender   String?  // 'M' | 'F' — só relevante quando soloOperator = true
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)

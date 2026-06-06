@@ -37,10 +37,6 @@ body {
   font-size: 13px;
 }
 
-/* Impede scrollbar vertical no popup — o conteúdo deve caber sem overflow */
-html {
-  overflow-y: hidden;
-}
 
 #app {
   padding: 16px;
@@ -395,13 +391,54 @@ button:disabled {
   line-height: 1.4;
 }
 
+/* ─── Gênero (sub-linha solo) ────────────────────────────────────────────── */
+
+.gender-row {
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.gender-btn {
+  flex: 1;
+  padding: 5px 6px;
+  font-size: 11px;
+  font-weight: 500;
+  font-family: var(--font-body);
+  background: var(--bg-input);
+  color: var(--text-muted);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  margin-top: 0;
+  text-align: center;
+}
+
+.gender-btn:hover:not(.gender-active) {
+  border-color: var(--border-mid);
+  color: var(--text-mid);
+}
+
+.gender-btn.gender-active {
+  background: var(--accent-dim);
+  color: var(--accent);
+  border-color: rgba(16,185,129,0.3);
+  font-weight: 600;
+}
+
+.fields-locked .gender-btn {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
 /* ─── Formulário do negócio ──────────────────────────────────────────────── */
 
 .field-group {
   display: flex;
   flex-direction: column;
-  gap: 5px;
-  margin-bottom: 10px;
+  gap: 4px;
+  margin-bottom: 8px;
   position: relative;
 }
 
