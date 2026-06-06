@@ -68,6 +68,8 @@ export async function usageLimitMiddleware(
 
   // Injeta info de uso no req para que a rota compute remainingUsage sem query extra
   req.usageInfo = { count: user.usageCount, limit };
+  // Atualiza o plano no req.user com o valor real do banco (token pode estar desatualizado)
+  req.user!.plan = user.plan;
 
   next();
 }
