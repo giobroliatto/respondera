@@ -61,11 +61,11 @@ Segmento: ${businessContext.segment}${businessContext.highlights ? `\nDiferencia
   let voiceInstruction: string;
   if (businessContext?.soloOperator) {
     const genderNote = businessContext.soloGender === 'F'
-      ? ' Use o feminino nos adjetivos e particípios: "contente/feliz", "comprometida", "disponível", "animada".'
+      ? ' Use o feminino nos adjetivos e particípios: "comprometida", "disponível", "animada", "feliz".'
       : businessContext.soloGender === 'M'
-        ? ' Use o masculino nos adjetivos e particípios: "contente/feliz", "comprometido", "disponível", "animado".'
+        ? ' Use o masculino nos adjetivos e particípios: "comprometido", "disponível", "animado", "feliz".'
         : '';
-    voiceInstruction = `Escreva na voz de uma pessoa física — use sempre singular: "fico", "agradeço", "vou", "estou", "atendo".${genderNote}`;
+    voiceInstruction = `Escreva na voz de uma pessoa física — use SEMPRE o singular: "fico", "agradeço", "vou", "estou", "atendo", "lamento", "peço desculpas". NUNCA use plural: "ficamos", "agradecemos", "lamentamos", "pedimos", "estamos", "vamos".${genderNote}`;
   } else if (businessContext) {
     voiceInstruction = 'Escreva na voz da empresa — use sempre plural: "ficamos", "agradecemos", "vamos", "estamos", "atendemos".';
   } else {
