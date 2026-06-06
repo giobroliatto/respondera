@@ -9,7 +9,7 @@
   <link rel="shortcut icon" href="/favicon.png" />
 
   <!-- SEO & OG -->
-  <meta name="description" content="O Respondera gera respostas profissionais para avaliações do Google com um clique — direto na página, sem copiar, sem colar." />
+  <meta name="description" content="O Respondera gera respostas profissionais para avaliações do Google com um clique, direto na página, sem copiar, sem colar." />
   <meta property="og:title" content="Respondera — Respostas IA para avaliações do Google" />
   <meta property="og:description" content="Extensão do Chrome que injeta um botão de IA diretamente na página de avaliações do Google Perfil de Empresas." />
   <meta property="og:image" content="/landing/og-image.png" />
@@ -62,31 +62,6 @@
     }
     a { color: inherit; text-decoration: none; }
     img { max-width: 100%; display: block; }
-
-    /* ─── CURSOR CUSTOMIZADO ──────────────────────────────────────── */
-    .cursor {
-      width: 8px;
-      height: 8px;
-      background: var(--accent);
-      border-radius: 50%;
-      position: fixed;
-      pointer-events: none;
-      z-index: 9999;
-      transform: translate(-50%, -50%);
-      transition: transform 0.1s ease, opacity 0.3s;
-      mix-blend-mode: screen;
-    }
-    .cursor-ring {
-      width: 32px;
-      height: 32px;
-      border: 1px solid rgba(16,185,129,0.4);
-      border-radius: 50%;
-      position: fixed;
-      pointer-events: none;
-      z-index: 9998;
-      transform: translate(-50%, -50%);
-      transition: transform 0.18s ease, width 0.2s, height 0.2s;
-    }
 
     /* ─── GRAIN TEXTURE ──────────────────────────────────────────── */
     body::before {
@@ -694,6 +669,131 @@
     .footer-link:hover { color: var(--text); }
     .footer-copyright { font-size: 0.78rem; color: var(--text-muted); }
 
+    /* ─── DEPOIMENTOS ────────────────────────────────────────────── */
+    #depoimentos {
+      padding: var(--space-xl) 0;
+    }
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: var(--space-md);
+    }
+    .testimonial-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      transition: border-color 0.3s, transform 0.3s;
+    }
+    .testimonial-card:hover {
+      border-color: rgba(16,185,129,0.25);
+      transform: translateY(-4px);
+    }
+    .testimonial-stars {
+      color: #FBBF24;
+      font-size: 0.9rem;
+      letter-spacing: 0.05em;
+    }
+    .testimonial-text {
+      font-size: 0.92rem;
+      color: var(--text);
+      line-height: 1.7;
+      font-weight: 300;
+      flex: 1;
+    }
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .testimonial-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--accent-dim);
+      border: 1px solid rgba(16,185,129,0.2);
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .testimonial-name {
+      font-size: 0.88rem;
+      font-weight: 500;
+    }
+    .testimonial-role {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    /* ─── FAQ ────────────────────────────────────────────────────── */
+    #faq {
+      padding: var(--space-xl) 0;
+      background: var(--bg-2);
+      border-top: 1px solid var(--border);
+    }
+    .faq-list {
+      max-width: 720px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .faq-item {
+      border-bottom: 1px solid var(--border);
+    }
+    .faq-item:first-child {
+      border-top: 1px solid var(--border);
+    }
+    .faq-question {
+      width: 100%;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 0.98rem;
+      font-weight: 500;
+      padding: 1.35rem 0;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      transition: color 0.2s;
+    }
+    .faq-question:hover { color: var(--accent); }
+    .faq-question.open { color: var(--accent); }
+    .faq-icon {
+      font-size: 1.4rem;
+      font-weight: 300;
+      color: var(--text-muted);
+      flex-shrink: 0;
+      transition: transform 0.25s;
+      line-height: 1;
+    }
+    .faq-question.open .faq-icon {
+      transform: rotate(45deg);
+      color: var(--accent);
+    }
+    .faq-answer {
+      display: none;
+      padding-bottom: 1.35rem;
+    }
+    .faq-answer.open { display: block; }
+    .faq-answer p {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+      font-weight: 300;
+    }
+
     /* ─── RESPONSIVO ─────────────────────────────────────────────── */
     @media (max-width: 900px) {
       #hero {
@@ -713,6 +813,7 @@
       .demo-body { grid-template-columns: 1fr; }
       .demo-divider { height: 1px; width: auto; }
       .plans-grid { grid-template-columns: 1fr; max-width: 420px; }
+      .testimonials-grid { grid-template-columns: 1fr; }
 
       .nav-cta { display: none; }
       .hamburger { display: flex; }
@@ -728,10 +829,6 @@
   </style>
 </head>
 <body>
-
-  <!-- CURSOR CUSTOMIZADO -->
-  <div class="cursor" id="cursor"></div>
-  <div class="cursor-ring" id="cursor-ring"></div>
 
   <!-- NAV -->
   <nav id="nav">
@@ -763,7 +860,7 @@
           <br />A resposta também<br />poderia estar.
         </h1>
         <p class="hero-sub reveal reveal-delay-2">
-          O Respondera gera respostas profissionais para avaliações do Google com um clique —
+          O Respondera gera respostas profissionais para avaliações do Google com um clique,
           <strong>direto na página</strong>, sem copiar, sem colar.
         </p>
         <div class="hero-buttons reveal reveal-delay-3">
@@ -855,7 +952,7 @@
             <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
           </div>
           <h3 class="step-title">Resposta inserida</h3>
-          <p class="step-desc">A IA gera a resposta em segundos. Clique em "Usar" e o texto é inserido diretamente no campo do Google — pronto para publicar.</p>
+          <p class="step-desc">A IA gera a resposta em segundos. Clique em "Usar" e o texto é inserido diretamente no campo do Google, pronto para publicar.</p>
         </div>
       </div>
     </div>
@@ -913,6 +1010,51 @@
     </div>
   </section>
 
+  <!-- ─── DEPOIMENTOS ───────────────────────────────────────────────── -->
+  <section id="depoimentos">
+    <div class="container">
+      <div style="text-align:center; margin-bottom: var(--space-lg)">
+        <div class="section-label reveal">Depoimentos</div>
+        <h2 class="section-title reveal reveal-delay-1">Quem já usa, não volta<br />a responder manualmente.</h2>
+      </div>
+      <div class="testimonials-grid">
+        <div class="testimonial-card reveal">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">"Eu tinha mais de 60 avaliações sem resposta acumuladas. Em uma tarde resolvi tudo. As respostas ficaram melhores do que eu escreveria sozinha."</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">C</div>
+            <div>
+              <div class="testimonial-name">Camila R.</div>
+              <div class="testimonial-role">Clínica de estética · São Paulo</div>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card reveal reveal-delay-1">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">"Uso principalmente para as avaliações negativas. Antes eu ficava sem saber o que falar. Agora respondo com segurança em segundos, sem entrar no jogo de quem reclama de má-fé."</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">R</div>
+            <div>
+              <div class="testimonial-name">Rafael M.</div>
+              <div class="testimonial-role">Restaurante · Belo Horizonte</div>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card reveal reveal-delay-2">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">"Como personal trainer, a IA entendeu que sou eu respondendo e não uma empresa. Cada resposta soa exatamente como eu escreveria, no singular, no meu tom."</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">T</div>
+            <div>
+              <div class="testimonial-name">Thiago N.</div>
+              <div class="testimonial-role">Personal trainer · Curitiba</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ─── PLANOS ─────────────────────────────────────────────────────── -->
   <section id="planos">
     <div class="container">
@@ -962,15 +1104,19 @@
             </li>
             <li class="plan-feature">
               <svg viewBox="0 0 24 24"><polyline class="feature-check" points="20 6 9 17 4 12"/></svg>
-              Contexto personalizado por avaliação
+              Perfil do negócio: nome, segmento e diferenciais nas respostas
             </li>
             <li class="plan-feature">
               <svg viewBox="0 0 24 24"><polyline class="feature-check" points="20 6 9 17 4 12"/></svg>
-              6 tons de resposta (3 exclusivos)
+              Voz solo ou empresa, masculino ou feminino
             </li>
             <li class="plan-feature">
               <svg viewBox="0 0 24 24"><polyline class="feature-check" points="20 6 9 17 4 12"/></svg>
-              Tom personalizado: defina o tom que quiser
+              6 tons (3 exclusivos) + tom personalizado livre
+            </li>
+            <li class="plan-feature">
+              <svg viewBox="0 0 24 24"><polyline class="feature-check" points="20 6 9 17 4 12"/></svg>
+              Contexto adicional por avaliação
             </li>
             <li class="plan-feature">
               <svg viewBox="0 0 24 24"><polyline class="feature-check" points="20 6 9 17 4 12"/></svg>
@@ -978,6 +1124,63 @@
             </li>
           </ul>
           <a href="/upgrade" class="btn btn-primary" style="width:100%; justify-content:center;">Assinar PRO</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FAQ ──────────────────────────────────────────────────────── -->
+  <section id="faq">
+    <div class="container">
+      <div style="text-align:center; margin-bottom: var(--space-lg)">
+        <div class="section-label reveal">Dúvidas</div>
+        <h2 class="section-title reveal reveal-delay-1">Perguntas frequentes</h2>
+      </div>
+      <div class="faq-list reveal">
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(this)">
+            Precisa instalar algum programa além da extensão?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <p>Não. O Respondera é uma extensão do Chrome: você instala em segundos pela Chrome Web Store e já funciona. Não há nada para configurar no seu computador.</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(this)">
+            Funciona para qualquer tipo de negócio?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <p>Sim. Restaurante, clínica, loja, estúdio, personal trainer, advogado. Qualquer negócio com Google Perfil de Empresas. No plano PRO você cadastra o nome, segmento e diferenciais do seu negócio para respostas ainda mais personalizadas.</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(this)">
+            As respostas são genéricas ou personalizadas?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <p>No plano FREE a IA usa o texto da avaliação para gerar uma resposta adequada ao contexto. No PRO você cadastra o perfil do seu negócio (nome, segmento, diferenciais, se trabalha sozinho ou em equipe) e as respostas soam como se você mesmo tivesse escrito.</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(this)">
+            Posso cancelar quando quiser?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <p>Sim, sem fidelidade. Você cancela a qualquer momento e continua com acesso PRO até o fim do período pago.</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(this)">
+            Meus dados de avaliação ficam armazenados?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <p>Não. O texto das avaliações é enviado à IA apenas no momento da geração da resposta e não é armazenado nos nossos servidores. Guardamos somente os dados da sua conta e o perfil do negócio que você cadastrar.</p>
+          </div>
         </div>
       </div>
     </div>
@@ -1003,31 +1206,6 @@
 
   <!-- ─── SCRIPTS ───────────────────────────────────────────────────── -->
   <script>
-    // ── CURSOR ─────────────────────────────────────────────────────
-    const cursor = document.getElementById('cursor');
-    const ring = document.getElementById('cursor-ring');
-    let mx = -100, my = -100, rx = -100, ry = -100;
-
-    document.addEventListener('mousemove', e => {
-      mx = e.clientX; my = e.clientY;
-      cursor.style.left = mx + 'px';
-      cursor.style.top  = my + 'px';
-    });
-
-    function animateRing() {
-      rx += (mx - rx) * 0.12;
-      ry += (my - ry) * 0.12;
-      ring.style.left = rx + 'px';
-      ring.style.top  = ry + 'px';
-      requestAnimationFrame(animateRing);
-    }
-    animateRing();
-
-    document.querySelectorAll('a, button, .tone-chip, .plan-card, .step-card').forEach(el => {
-      el.addEventListener('mouseenter', () => ring.style.transform = 'translate(-50%,-50%) scale(1.6)');
-      el.addEventListener('mouseleave', () => ring.style.transform = 'translate(-50%,-50%) scale(1)');
-    });
-
     // ── NAV SCROLL ─────────────────────────────────────────────────
     const nav = document.getElementById('nav');
     window.addEventListener('scroll', () => {
@@ -1112,6 +1290,22 @@
       }
 
       setTimeout(typeChar, 500);
+    }
+
+    // ── FAQ ACCORDION ──────────────────────────────────────────────
+    function toggleFaq(btn) {
+      const answer = btn.nextElementSibling;
+      const isOpen = btn.classList.contains('open');
+      // Fecha todos
+      document.querySelectorAll('.faq-question').forEach(q => {
+        q.classList.remove('open');
+        q.nextElementSibling.classList.remove('open');
+      });
+      // Abre o clicado se estava fechado
+      if (!isOpen) {
+        btn.classList.add('open');
+        answer.classList.add('open');
+      }
     }
 
     function resetDemo() {
