@@ -1,3 +1,6 @@
+# Claude Code (configuração local)
+.claude/
+
 # Dependências
 node_modules/
 

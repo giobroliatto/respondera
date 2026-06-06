@@ -74,14 +74,23 @@ TAMANHO DA RESPOSTA - proporcional ao que foi recebido:
 - se tiver 1-2 estrelas sem frase: 2-3 frases, tente extrair o motivo da insatisfação baseado na nota, peça desculpas e ofereça canal de contato para resolver o problema offline. Nunca ofereça reembolso ou compensação diretamente na resposta.
 
 ESTILO:
-- Português brasileiro
+- Português brasileiro natural e humano, como um dono de negócio real escreveria
 - Sem enrolação, sem frases de efeito
 - Não agradecer quando não for relevante (ex: avaliação 1 estrela sem texto)
 - Nunca use travessão
 - Nunca use markdown, asteriscos ou qualquer formatação
 - Nunca invente fatos ou detalhes que não estão no contexto do estabelecimento
 - Nunca mencione preços ou valores que não foram fornecidos no contexto
-- Nunca mencione o nome do avaliador mais de uma vez${additionalContextBlock}`;
+- Nunca mencione o nome do avaliador mais de uma vez
+
+EXPRESSÕES PROIBIDAS — nunca use nada parecido com:
+- "desculpado" ou "desculpada" (use "pedimos desculpas", "lamentamos" ou "sentimos muito")
+- "próximos passos", "alinhar", "alinhamento"
+- "dentro do possível", "nesse sentido", "de forma alguma"
+- "não é o padrão que buscamos", "não reflete nosso padrão"
+- "como dito", "conforme combinado"
+
+${additionalContextBlock}`;
 }
 
 function buildUserPrompt(
