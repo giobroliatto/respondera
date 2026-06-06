@@ -53,8 +53,8 @@ function showLogin(): void {
     try {
       const data = await apiLogin(email, password);
       await storeUserData(data);
-      notifyContentScript();
       await showHome();
+      notifyContentScript();
     } catch (err: unknown) {
       errEl.textContent = err instanceof Error ? err.message : 'Erro desconhecido.';
       errEl.classList.remove('hidden');
@@ -111,8 +111,8 @@ function showRegister(): void {
       const data = await apiRegister(email, password);
       // Registro não retorna usageCount; começa em 0
       await storeUserData({ ...data, user: { ...data.user, usageCount: data.user.usageCount ?? 0 } });
-      notifyContentScript();
       await showHome();
+      notifyContentScript();
     } catch (err: unknown) {
       errEl.textContent = err instanceof Error ? err.message : 'Erro desconhecido.';
       errEl.classList.remove('hidden');
@@ -161,6 +161,12 @@ async function showHome(): Promise<void> {
   });
 
   bindVerificationActions();
+
+  // Repopula defaultTone no storage em background (necessário após logout/login,
+  // já que clearStorage() apaga tudo e storeUserData não salva o tom).
+  getBusiness()
+    .then(business => { if (business?.tone) setStorage('defaultTone', business.tone); })
+    .catch(() => {});
 }
 
 // ─── Abas ─────────────────────────────────────────────────────────────────

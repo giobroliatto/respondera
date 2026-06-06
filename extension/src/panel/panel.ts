@@ -215,6 +215,39 @@ async function generateReply(): Promise<void> {
   });
 }
 
+// ─── Refresh após login com painel aberto ────────────────────────────────────
+
+async function refreshPlanState(): Promise<void> {
+  // Clona os botões PRO para remover os listeners do caminho FREE (show "PRO required")
+  document.querySelectorAll<HTMLButtonElement>('.tone-btn-pro').forEach((btn) => {
+    btn.replaceWith(btn.cloneNode(true));
+  });
+
+  // Clona o toggle de tom personalizado pelo mesmo motivo
+  const customToggle = el.btnCustomTone();
+  customToggle.replaceWith(customToggle.cloneNode(true));
+
+  // Remove classes de bloqueio adicionadas pelo caminho FREE
+  document.querySelectorAll('.tone-btn-pro--locked').forEach((b) => b.classList.remove('tone-btn-pro--locked'));
+  el.btnCustomTone().classList.remove('tone-custom-toggle--locked');
+
+  // Re-habilita o campo de contexto adicional (desabilitado para FREE)
+  el.additionalContext().disabled = false;
+  el.contextProMsg().classList.add('hidden');
+
+  // Re-inicializa a seção de tons com o plano correto (lê storage atualizado)
+  await initToneSection();
+
+  // Aplica o tom padrão salvo (ou friendly como fallback)
+  const proTones = ['direct', 'casual', 'assertive'];
+  const savedTone = await getFromStorage('defaultTone') as string | null;
+  const canApply = savedTone && (userPlan === 'PRO' || !proTones.includes(savedTone));
+  const toneToApply = (canApply ? savedTone! : 'friendly') as ToneOption;
+  document.querySelectorAll('.tone-btn').forEach((b) => b.classList.remove('active'));
+  document.querySelector<HTMLButtonElement>(`.tone-btn[data-tone="${toneToApply}"]`)?.classList.add('active');
+  selectedTone = toneToApply;
+}
+
 // ─── Inicialização de tons PRO ────────────────────────────────────────────────
 
 async function initToneSection(): Promise<void> {
@@ -344,6 +377,30 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
+  // Detecta login enquanto o painel está aberto via storage (mais confiável que postMessage)
+  chrome.storage.onChanged.addListener(async (changes, area) => {
+    if (area !== 'local') return;
+
+    // userPlan gravado = storeUserData completou authToken + plan (momento seguro)
+    // oldValue undefined = veio de clearStorage (logout), ou seja, é um novo login
+    if (changes['userPlan']?.newValue && !changes['userPlan']?.oldValue) {
+      await refreshPlanState();
+      await updateUsageFooter();
+      if (currentState === 'not_logged_in') setState('idle');
+    }
+
+    // defaultTone populado pelo getBusiness background de showHome
+    if (changes['defaultTone']?.newValue && currentState === 'idle') {
+      const newTone = changes['defaultTone'].newValue as string;
+      const proTones = ['direct', 'casual', 'assertive'];
+      if (userPlan === 'PRO' || !proTones.includes(newTone)) {
+        selectedTone = newTone as ToneOption;
+        document.querySelectorAll('.tone-btn').forEach((b) => b.classList.remove('active'));
+        document.querySelector<HTMLButtonElement>(`.tone-btn[data-tone="${newTone}"]`)?.classList.add('active');
+      }
+    }
+  });
+
   // Sinaliza ao content script que o painel está pronto para receber dados
   window.parent.postMessage({ type: 'RESPONDERA_READY' }, '*');
 });
@@ -378,7 +435,8 @@ window.addEventListener('message', async (e) => {
   }
 
   if (msg?.type === 'RESPONDERA_AUTH_UPDATE' && currentState === 'not_logged_in') {
-    updateUsageFooter();
+    await refreshPlanState();
+    await updateUsageFooter();
     setState('idle');
   }
 });
