@@ -96,6 +96,11 @@ function setState(state: PanelState): void {
 
 // ─── Utilitários ─────────────────────────────────────────────────────────────
 
+function autoResize(textarea: HTMLTextAreaElement): void {
+  textarea.style.height = 'auto';
+  textarea.style.height = `${textarea.scrollHeight}px`;
+}
+
 function renderStars(rating: number | null): string {
   if (rating === null) return '';
   return '★'.repeat(rating) + '☆'.repeat(Math.max(0, 5 - rating));
@@ -184,6 +189,7 @@ async function generateReply(): Promise<void> {
       } else if (response.reply) {
         el.replyTextarea().value = response.reply;
         setState('success');
+        autoResize(el.replyTextarea());
         await updateUsageFooter();
         if (response.contextWarning && warningEl) {
           warningEl.textContent = response.contextWarning;
@@ -353,6 +359,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     countEl.classList.toggle('rg-char-count--warn', len >= 200 && len < 300);
     countEl.classList.toggle('rg-char-count--full', len >= 300);
   });
+
+  el.replyTextarea().addEventListener('input', () => autoResize(el.replyTextarea()));
 
   el.btnGenerate().addEventListener('click', generateReply);
   el.btnRegenerate().addEventListener('click', generateReply);
