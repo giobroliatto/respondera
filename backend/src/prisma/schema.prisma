@@ -20,6 +20,7 @@ model User {
   emailVerifiedAt             DateTime?
   emailVerificationTokenHash  String?
   emailVerificationExpiresAt  DateTime?
+  tokenInvalidatedAt          DateTime?
   createdAt                   DateTime  @default(now())
   business                    Business?
 }

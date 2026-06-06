@@ -19,16 +19,18 @@ router.post('/generate', replyGenerationLimiter, usageLimitMiddleware, async (re
     const validatedData = GenerateReplySchema.parse(req.body);
     const { reviewText, rating, reviewerName, tone, customTone, detailRatings, additionalContext } = validatedData;
 
-    // Sanitiza inputs
+    const isPro = req.user!.plan === 'PRO';
+
+    // Sanitiza inputs — additionalContext só permitido para PRO
     const sanitizedReviewText = sanitizeReviewText(reviewText);
-    const sanitizedAdditionalContext = sanitizeAdditionalContext(additionalContext);
+    const sanitizedAdditionalContext = isPro
+      ? sanitizeAdditionalContext(additionalContext)
+      : null;
 
     // Busca o estabelecimento — só usa o contexto se o usuário for PRO
     const rawBusiness = await prisma.business.findUnique({
       where: { userId: req.user!.id },
     });
-
-    const isPro = req.user!.plan === 'PRO';
     const business = isPro ? rawBusiness : null;
 
     const contextWarning = !business

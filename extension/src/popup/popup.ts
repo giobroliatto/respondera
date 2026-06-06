@@ -6,6 +6,7 @@ import {
   resendVerificationEmail,
   getBusiness,
   saveBusiness,
+  logout as apiLogout,
 } from '../shared/api';
 import { AuthResponse } from '../shared/types';
 
@@ -154,6 +155,7 @@ async function showHome(): Promise<void> {
   btnLogout.replaceWith(freshBtn);
 
   freshBtn.addEventListener('click', async () => {
+    await apiLogout();   // invalida o token no servidor
     await clearStorage();
     showLogin();
   });

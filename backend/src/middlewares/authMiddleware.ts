@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { env } from '../config/env';
+import { prisma } from '../lib/prisma';
 
 export interface AuthUser {
   id: string;
@@ -13,11 +14,11 @@ export interface AuthRequest extends Request {
   usageInfo?: { count: number; limit: number };
 }
 
-export function authMiddleware(
+export async function authMiddleware(
   req: AuthRequest,
   res: Response,
   next: NextFunction
-): void {
+): Promise<void> {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -27,15 +28,29 @@ export function authMiddleware(
 
   const token = authHeader.slice(7);
 
+  let payload: { userId: string; email: string; plan: string; iat?: number };
   try {
-    const payload = jwt.verify(token, env.JWT_SECRET) as {
-      userId: string;
-      email: string;
-      plan: string;
-    };
-    req.user = { id: payload.userId, email: payload.email, plan: payload.plan };
-    next();
+    payload = jwt.verify(token, env.JWT_SECRET) as typeof payload;
   } catch {
     res.status(401).json({ error: 'Token inválido ou expirado.' });
+    return;
   }
+
+  // Verifica se o token foi invalidado por logout posterior
+  const user = await prisma.user.findUnique({
+    where: { id: payload.userId },
+    select: { tokenInvalidatedAt: true },
+  });
+
+  if (user?.tokenInvalidatedAt && payload.iat) {
+    const invalidatedAtMs = user.tokenInvalidatedAt.getTime();
+    const tokenIssuedAtMs = payload.iat * 1000; // iat é em segundos
+    if (tokenIssuedAtMs < invalidatedAtMs) {
+      res.status(401).json({ error: 'Sessão encerrada. Faça login novamente.' });
+      return;
+    }
+  }
+
+  req.user = { id: payload.userId, email: payload.email, plan: payload.plan };
+  next();
 }

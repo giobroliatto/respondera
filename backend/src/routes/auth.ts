@@ -252,6 +252,15 @@ router.get('/verify-email', async (req: Request, res: Response) => {
   page('🔗', 'Link inválido', 'Este link de confirmação não é válido. Verifique se você copiou o endereço completo.', 400);
 });
 
+// POST /auth/logout
+router.post('/logout', authMiddleware, async (req: AuthRequest, res: Response) => {
+  await prisma.user.update({
+    where: { id: req.user!.id },
+    data: { tokenInvalidatedAt: new Date() },
+  });
+  res.json({ message: 'Sessão encerrada.' });
+});
+
 // POST /auth/resend-verification
 router.post('/resend-verification', authMiddleware, emailVerificationLimiter, async (req: AuthRequest, res: Response) => {
   const user = await prisma.user.findUnique({
