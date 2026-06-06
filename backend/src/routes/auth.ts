@@ -146,24 +146,110 @@ router.get('/me', authMiddleware, async (req: AuthRequest, res: Response) => {
 // GET /auth/verify-email?token=...
 router.get('/verify-email', async (req: Request, res: Response) => {
   const token = typeof req.query['token'] === 'string' ? req.query['token'] : '';
+
+  const page = (
+    icon: string,
+    title: string,
+    body: string,
+    statusCode: number = 200,
+  ) => {
+    res.status(statusCode).send(`<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>${title} — Respondera</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0A0A0A;
+      color: #F0F0F0;
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .card {
+      background: #141414;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px;
+      padding: 3rem 2.5rem;
+      max-width: 420px;
+      width: 100%;
+      text-align: center;
+    }
+    .logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.75rem;
+      letter-spacing: 0.05em;
+      color: #F0F0F0;
+      margin-bottom: 2rem;
+    }
+    .logo span { color: #10B981; }
+    .icon {
+      font-size: 3rem;
+      line-height: 1;
+      margin-bottom: 1.25rem;
+    }
+    h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.75rem;
+      letter-spacing: 0.03em;
+      margin-bottom: 0.75rem;
+      color: #F0F0F0;
+    }
+    p {
+      font-size: 0.95rem;
+      color: #6B6B6B;
+      line-height: 1.6;
+    }
+    .divider {
+      border: none;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      margin: 1.75rem 0;
+    }
+    .hint {
+      font-size: 0.8rem;
+      color: #444;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">RESPOND<span>ERA</span></div>
+    <div class="icon">${icon}</div>
+    <h1>${title}</h1>
+    <p>${body}</p>
+    <hr class="divider" />
+    <p class="hint">Pode fechar esta aba e voltar para a extensão.</p>
+  </div>
+</body>
+</html>`);
+  };
+
   if (!token) {
-    res.status(400).send('Link de confirmação inválido.');
+    page('🔗', 'Link inválido', 'Este link de confirmação não é válido. Verifique se você copiou o endereço completo.', 400);
     return;
   }
 
   const result = await verifyEmailToken(token);
 
   if (result === 'verified') {
-    res.send('E-mail confirmado com sucesso. Você já pode voltar para a extensão Respondera.');
+    page('✅', 'E-mail confirmado!', 'Sua conta está ativa. Você já pode usar a Respondera para gerar respostas profissionais com um clique.');
     return;
   }
 
   if (result === 'expired') {
-    res.status(400).send('Este link expirou. Volte para a extensão e solicite um novo e-mail.');
+    page('⏰', 'Link expirado', 'Este link de confirmação expirou. Volte para a extensão e solicite um novo e-mail de confirmação.', 400);
     return;
   }
 
-  res.status(400).send('Link de confirmação inválido.');
+  page('🔗', 'Link inválido', 'Este link de confirmação não é válido. Verifique se você copiou o endereço completo.', 400);
 });
 
 // POST /auth/resend-verification
