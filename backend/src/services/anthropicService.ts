@@ -65,7 +65,10 @@ Segmento: ${businessContext.segment}${businessContext.highlights ? `\nDiferencia
       : businessContext.soloGender === 'M'
         ? ' Use o masculino nos adjetivos e particípios: "comprometido", "disponível", "animado", "feliz".'
         : '';
-    voiceInstruction = `Escreva na voz de uma pessoa física — use SEMPRE o singular: "fico", "agradeço", "vou", "estou", "atendo", "lamento", "peço desculpas". NUNCA use plural: "ficamos", "agradecemos", "lamentamos", "pedimos", "estamos", "vamos".${genderNote}`;
+    voiceInstruction = `Escreva na voz de uma pessoa física — você é o próprio dono/profissional respondendo.
+SEMPRE use singular: "fico", "agradeço", "vou", "estou", "atendo", "lamento", "peço desculpas", "sinto muito", "comigo", "minha parte".
+NUNCA use plural nem pronomes de grupo: "ficamos", "agradecemos", "lamentamos", "pedimos", "estamos", "vamos", "conosco", "nosso", "nossa", "nós", "nossa parte".
+NUNCA use construções "fico + gerúndio" (ex: "fico lamentando", "fico me desculpando") — use o verbo direto: "lamento", "peço desculpas", "sinto muito".${genderNote}`;
   } else if (businessContext) {
     voiceInstruction = 'Escreva na voz da empresa — use sempre plural: "ficamos", "agradecemos", "vamos", "estamos", "atendemos".';
   } else {
@@ -100,7 +103,7 @@ ESTILO:
 - Nunca mencione o nome do avaliador mais de uma vez
 
 EXPRESSÕES PROIBIDAS — nunca use nada parecido com:
-- "desculpado" ou "desculpada" (use "pedimos desculpas", "lamentamos" ou "sentimos muito")
+- "desculpado" ou "desculpada" (use "peço desculpas", "lamento" ou "sinto muito")
 - "próximos passos", "alinhar", "alinhamento"
 - "dentro do possível", "nesse sentido", "de forma alguma"
 - "não é o padrão que buscamos", "não reflete nosso padrão"
