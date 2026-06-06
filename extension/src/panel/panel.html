@@ -15,6 +15,9 @@
       <button id="btn-close" class="btn-close" type="button" aria-label="Fechar painel" title="Fechar">✕</button>
     </div>
 
+    <!-- Área com scroll único (tudo exceto header e ações) -->
+    <div class="panel-scroll">
+
     <!-- Avaliação (readonly) -->
     <div id="review-section" class="panel-section review-section">
       <div class="review-meta">
@@ -111,16 +114,18 @@
 
     </div><!-- /panel-main -->
 
-    <!-- Ações -->
+    </div><!-- /panel-scroll -->
+
+    <!-- Footer (fixo) -->
+    <div class="panel-footer">
+      <span id="usage-info" class="usage-info"></span>
+    </div>
+
+    <!-- Ações (fixas) -->
     <div class="panel-actions">
       <button id="btn-generate" class="btn-primary" type="button">Gerar resposta</button>
       <button id="btn-regenerate" class="btn-secondary hidden" type="button">↺ Regenerar</button>
       <button id="btn-use" class="btn-success hidden" type="button">✓ Usar esta resposta</button>
-    </div>
-
-    <!-- Footer -->
-    <div class="panel-footer">
-      <span id="usage-info" class="usage-info"></span>
     </div>
 
   </div>
