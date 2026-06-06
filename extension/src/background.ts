@@ -48,7 +48,7 @@ chrome.runtime.onConnect.addListener((port) => {
 
 async function handleGenerateReply(
   data: ReviewData,
-): Promise<{ reply?: string; error?: string }> {
+): Promise<{ reply?: string; error?: string; contextWarning?: string }> {
   const token = await getStorage('authToken');
   if (!token) {
     return { error: 'login:Você precisa fazer login na extensão Respondera.' };
@@ -78,7 +78,7 @@ async function handleGenerateReply(
       await setStorage('usageCount', currentUsage + 1);
     }
 
-    return { reply: result.reply };
+    return { reply: result.reply, contextWarning: result.contextWarning };
   } catch (err) {
     if (err instanceof ApiError) {
       if (err.code === 'SESSION_EXPIRED') {

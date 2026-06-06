@@ -23,6 +23,7 @@ export const BusinessSchema = z.object({
   tone: z.enum(['formal', 'friendly', 'empathetic', 'direct', 'casual', 'assertive', 'custom']).optional(),
   avgTicket: z.string().max(100).nullable().optional(),
   highlights: z.string().max(500).nullable().optional(),
+  soloOperator: z.boolean().optional(),
 });
 
 export type Business = z.infer<typeof BusinessSchema>;

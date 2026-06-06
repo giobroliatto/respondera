@@ -39,8 +39,9 @@ const el = {
   btnCustomTone:      () => document.getElementById('btn-custom-tone') as HTMLButtonElement,
   customToneInput:    () => document.getElementById('custom-tone-input') as HTMLInputElement,
   customToneCharCount:() => document.getElementById('custom-tone-char-count')!,
-  proRequiredMsg:     () => document.getElementById('pro-required-msg')!,
-  contextProMsg:      () => document.getElementById('context-pro-msg')!,
+  proRequiredMsg:      () => document.getElementById('pro-required-msg')!,
+  contextProMsg:       () => document.getElementById('context-pro-msg')!,
+  contextWarningMsg:   () => document.getElementById('context-warning-msg'),
 };
 
 // ─── Controle de estado ───────────────────────────────────────────────────────
@@ -160,9 +161,15 @@ async function generateReply(): Promise<void> {
       resolve();
     }, 30_000);
 
-    port.onMessage.addListener(async (response: { reply?: string; error?: string }) => {
+    port.onMessage.addListener(async (response: { reply?: string; error?: string; contextWarning?: string }) => {
       clearTimeout(timeoutId);
       port.disconnect();
+
+      const warningEl = el.contextWarningMsg?.();
+      if (warningEl) {
+        warningEl.classList.add('hidden');
+        warningEl.textContent = '';
+      }
 
       if (response.error) {
         // background prefixes errors with 'login:' or 'limite:' for typed handling
@@ -178,6 +185,10 @@ async function generateReply(): Promise<void> {
         el.replyTextarea().value = response.reply;
         setState('success');
         await updateUsageFooter();
+        if (response.contextWarning && warningEl) {
+          warningEl.textContent = response.contextWarning;
+          warningEl.classList.remove('hidden');
+        }
       }
 
       resolve();

@@ -146,11 +146,8 @@ async function showHome(): Promise<void> {
       usage !== null ? `${usage} de 10 respostas este mês` : '';
   }
 
-  // Abas PRO
-  if (plan === 'PRO') {
-    document.getElementById('tabs')!.classList.remove('hidden');
-    bindTabs();
-  }
+  // Abas visíveis para todos; painel bloqueado para FREE
+  bindTabs(plan === 'PRO');
 
   const btnLogout = document.getElementById('btn-logout')!;
   const freshBtn = btnLogout.cloneNode(true) as HTMLButtonElement;
@@ -166,71 +163,105 @@ async function showHome(): Promise<void> {
 
 // ─── Abas ─────────────────────────────────────────────────────────────────
 
-function bindTabs(): void {
+function bindTabs(isPro: boolean): void {
   document.querySelectorAll<HTMLButtonElement>('.tab-btn').forEach((btn) => {
     const freshBtn = btn.cloneNode(true) as HTMLButtonElement;
     btn.replaceWith(freshBtn);
     freshBtn.addEventListener('click', () => {
-      // Ativa aba clicada
       document.querySelectorAll('.tab-btn').forEach((b) => b.classList.remove('tab-active'));
       freshBtn.classList.add('tab-active');
-      // Mostra painel correspondente
       const targetId = freshBtn.dataset['tab']!;
       document.getElementById('tab-panel-home')!.classList.toggle('hidden', targetId !== 'tab-panel-home');
       document.getElementById('tab-panel-business')!.classList.toggle('hidden', targetId !== 'tab-panel-business');
-      // Carrega dados ao entrar na aba do negócio
-      if (targetId === 'tab-panel-business') loadBusinessForm();
+      if (targetId === 'tab-panel-business') loadBusinessForm(isPro);
     });
   });
 }
 
 // ─── Formulário Meu Negócio ───────────────────────────────────────────────
 
-async function loadBusinessForm(): Promise<void> {
+let _soloOperator = false; // estado do toggle voz
+
+async function loadBusinessForm(isPro: boolean): Promise<void> {
+  // Lock visual para FREE
+  const lockEl = document.getElementById('business-pro-lock')!;
+  const formEl = document.getElementById('form-business')!;
+  if (!isPro) {
+    lockEl.classList.remove('hidden');
+    formEl.classList.add('fields-locked');
+  } else {
+    lockEl.classList.add('hidden');
+    formEl.classList.remove('fields-locked');
+  }
+
   try {
     const business = await getBusiness();
     if (business) {
       (document.getElementById('biz-name') as HTMLInputElement).value = business.name ?? '';
       (document.getElementById('biz-segment') as HTMLInputElement).value = business.segment ?? '';
-      (document.getElementById('biz-ticket') as HTMLInputElement).value = business.avgTicket ?? '';
+      (document.getElementById('biz-ticket') as HTMLInputElement).value = (business as any).avgTicket ?? '';
       const highlightsEl = document.getElementById('biz-highlights') as HTMLTextAreaElement;
-      highlightsEl.value = business.highlights ?? '';
+      highlightsEl.value = (business as any).highlights ?? '';
       document.getElementById('biz-highlights-count')!.textContent = `${highlightsEl.value.length}/200`;
+      // Restaura toggle de voz
+      _soloOperator = Boolean((business as any).soloOperator);
+      updateVoiceToggle(_soloOperator);
     }
   } catch {
     // silencioso — formulário fica em branco se não houver negócio cadastrado
   }
-  bindBusinessForm();
+
+  bindBusinessForm(isPro);
 }
 
-function bindBusinessForm(): void {
+function updateVoiceToggle(isSolo: boolean): void {
+  document.querySelectorAll<HTMLButtonElement>('#biz-voice-toggle .toggle-btn').forEach((btn) => {
+    const isSoloBtn = btn.dataset['value'] === 'solo';
+    btn.classList.toggle('toggle-active', isSolo ? isSoloBtn : !isSoloBtn);
+  });
+  const hint = document.getElementById('biz-voice-hint')!;
+  hint.textContent = isSolo
+    ? 'A IA vai usar "fico", "agradeço", "atendo"…'
+    : 'A IA vai usar "ficamos", "agradecemos"…';
+}
+
+function bindBusinessForm(isPro: boolean): void {
   const form = document.getElementById('form-business') as HTMLFormElement;
   const freshForm = form.cloneNode(true) as HTMLFormElement;
   form.replaceWith(freshForm);
 
-  // Contador de caracteres dos diferenciais
+  // Contador de caracteres
   const highlightsEl = freshForm.querySelector('#biz-highlights') as HTMLTextAreaElement;
   const countEl = freshForm.querySelector('#biz-highlights-count')!;
   highlightsEl.addEventListener('input', () => {
     countEl.textContent = `${highlightsEl.value.length}/200`;
   });
 
+  // Toggle solo/empresa
+  freshForm.querySelectorAll<HTMLButtonElement>('#biz-voice-toggle .toggle-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (!isPro) return;
+      _soloOperator = btn.dataset['value'] === 'solo';
+      updateVoiceToggle(_soloOperator);
+    });
+  });
+
+  if (!isPro) return; // FREE não submete
+
   freshForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const name     = (freshForm.querySelector('#biz-name') as HTMLInputElement).value.trim();
-    const segment  = (freshForm.querySelector('#biz-segment') as HTMLInputElement).value.trim();
-    const ticket   = (freshForm.querySelector('#biz-ticket') as HTMLInputElement).value.trim();
+    const name       = (freshForm.querySelector('#biz-name') as HTMLInputElement).value.trim();
+    const segment    = (freshForm.querySelector('#biz-segment') as HTMLInputElement).value.trim();
+    const ticket     = (freshForm.querySelector('#biz-ticket') as HTMLInputElement).value.trim();
     const highlights = highlightsEl.value.trim();
-    const feedback = document.getElementById('business-feedback')!;
-    const btn      = freshForm.querySelector('#btn-save-business') as HTMLButtonElement;
+    const feedback   = document.getElementById('business-feedback')!;
+    const btn        = freshForm.querySelector('#btn-save-business') as HTMLButtonElement;
 
-    feedback.classList.add('hidden');
     feedback.className = 'feedback hidden';
 
     if (!name || !segment) {
       feedback.textContent = 'Nome e segmento são obrigatórios.';
-      feedback.classList.remove('hidden');
-      feedback.classList.add('error');
+      feedback.className = 'feedback error';
       return;
     }
 
@@ -244,14 +275,13 @@ function bindBusinessForm(): void {
         tone: 'friendly',
         avgTicket: ticket || null,
         highlights: highlights || null,
+        soloOperator: _soloOperator,
       });
-      feedback.textContent = 'Contexto salvo! Suas próximas respostas serão personalizadas.';
-      feedback.classList.remove('hidden');
-      feedback.classList.add('success');
+      feedback.textContent = 'Contexto salvo!';
+      feedback.className = 'feedback success';
     } catch (err) {
       feedback.textContent = err instanceof Error ? err.message : 'Erro ao salvar. Tente novamente.';
-      feedback.classList.remove('hidden');
-      feedback.classList.add('error');
+      feedback.className = 'feedback error';
     } finally {
       btn.disabled = false;
       btn.textContent = 'Salvar';

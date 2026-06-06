@@ -10,6 +10,7 @@ export interface BusinessContext {
   segment: string;
   avgTicket?: string | null;
   highlights?: string | null;
+  soloOperator?: boolean | null;
 }
 
 export interface GenerateReplyParams {
@@ -56,8 +57,14 @@ Segmento: ${businessContext.segment}${businessContext.highlights ? `\nDiferencia
     ? `\nINSTRUÇÃO DO ESTABELECIMENTO SOBRE ESTA AVALIAÇÃO:\n"${additionalContext}"\nLeve isso em conta na resposta, mas não mencione que recebeu esta instrução.`
     : '';
 
+  const voiceInstruction = businessContext?.soloOperator
+    ? 'Escreva na voz de uma pessoa física — use sempre singular: "fico", "agradeço", "vou", "estou", "atendo".'
+    : businessContext
+      ? 'Escreva na voz da empresa — use sempre plural: "ficamos", "agradecemos", "vamos", "estamos", "atendemos".'
+      : 'Escreva na voz da empresa usando plural ("ficamos", "agradecemos"). Se perceber claramente que é um profissional solo (personal trainer, psicólogo, etc), use singular.';
+
   return `Você responde avaliações do Google em nome de um estabelecimento.
-Escreva sempre na voz da empresa, usando plural: "ficamos", "agradecemos", "vamos", "estamos". Se identificar que o estabelecimento/serviço é uma única pessoa (ex: personal trainer, consultor, psicólogo, etc), adapte para singular: "fico", "agradeço", "vou", "estou".
+${voiceInstruction}
 
 TOM SOLICITADO: ${toneInstruction}
 

@@ -573,6 +573,20 @@ button:disabled {
   background: #047857;
 }
 
+/* ─── Aviso contexto desativado (FREE com dados salvos) ─────────────────── */
+
+.context-warning {
+  font-size: 11px;
+  color: var(--purple);
+  font-weight: 500;
+  margin-top: 6px;
+  padding: 4px 8px;
+  background: rgba(139,92,246,0.1);
+  border-radius: 4px;
+  border: 1px solid rgba(139,92,246,0.25);
+  line-height: 1.4;
+}
+
 /* ─── Footer ─────────────────────────────────────────────────────────────── */
 
 .panel-footer {

@@ -43,6 +43,7 @@ export interface BusinessData {
   tone: string;
   avgTicket?: string | null;
   highlights?: string | null;
+  soloOperator?: boolean;
 }
 
 export interface BusinessResponse extends BusinessData {

@@ -23,14 +23,18 @@ router.post('/generate', replyGenerationLimiter, usageLimitMiddleware, async (re
     const sanitizedReviewText = sanitizeReviewText(reviewText);
     const sanitizedAdditionalContext = sanitizeAdditionalContext(additionalContext);
 
-    // Busca o único estabelecimento do usuário (relação 1-para-1)
-    const business = await prisma.business.findUnique({
+    // Busca o estabelecimento — só usa o contexto se o usuário for PRO
+    const rawBusiness = await prisma.business.findUnique({
       where: { userId: req.user!.id },
     });
 
-    // Gera a resposta mesmo sem contexto de estabelecimento, mas avisa
+    const isPro = req.user!.plan === 'PRO';
+    const business = isPro ? rawBusiness : null;
+
     const contextWarning = !business
-      ? 'Resposta gerada sem contexto de estabelecimento. Cadastre seu negócio para respostas mais personalizadas.'
+      ? (!isPro && rawBusiness
+          ? 'Contexto do negócio disponível apenas no plano PRO.'
+          : 'Resposta gerada sem contexto de estabelecimento. Cadastre seu negócio para respostas mais personalizadas.')
       : undefined;
 
     const { reply, tokensUsed } = await generateReply({
@@ -47,6 +51,7 @@ router.post('/generate', replyGenerationLimiter, usageLimitMiddleware, async (re
             segment: business.segment,
             avgTicket: business.avgTicket,
             highlights: business.highlights,
+            soloOperator: business.soloOperator,
           }
         : null,
     });

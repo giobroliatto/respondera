@@ -37,6 +37,11 @@ body {
   font-size: 13px;
 }
 
+/* Impede scrollbar vertical no popup — o conteúdo deve caber sem overflow */
+html {
+  overflow-y: hidden;
+}
+
 #app {
   padding: 16px;
 }
@@ -303,6 +308,93 @@ button:disabled {
   border: 1px solid rgba(16,185,129,0.2);
 }
 
+/* ─── PRO lock overlay (roxo — igual ao panel pro-required-msg) ──────────── */
+
+.pro-lock {
+  background: rgba(139,92,246,0.1);
+  border: 1px solid rgba(139,92,246,0.25);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.pro-lock-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #8b5cf6;
+  background: rgba(139,92,246,0.15);
+  border: 1px solid rgba(139,92,246,0.3);
+  border-radius: 4px;
+  padding: 2px 6px;
+  align-self: flex-start;
+}
+
+.pro-lock p {
+  font-size: 11.5px;
+  color: #a78bfa;
+  line-height: 1.45;
+}
+
+/* Campos bloqueados para FREE */
+.fields-locked input,
+.fields-locked textarea,
+.fields-locked .toggle-btn {
+  opacity: 0.35;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+.fields-locked #btn-save-business {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+/* ─── Toggle solo/empresa ────────────────────────────────────────────────── */
+
+.toggle-group {
+  display: flex;
+  gap: 4px;
+}
+
+.toggle-btn {
+  flex: 1;
+  padding: 7px 6px;
+  font-size: 11.5px;
+  font-weight: 500;
+  font-family: var(--font-body);
+  background: var(--bg-input);
+  color: var(--text-muted);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  margin-top: 0;
+  text-align: center;
+}
+
+.toggle-btn:hover:not(.toggle-active) {
+  border-color: var(--border-mid);
+  color: var(--text-mid);
+}
+
+.toggle-btn.toggle-active {
+  background: var(--accent-dim);
+  color: var(--accent);
+  border-color: rgba(16,185,129,0.3);
+  font-weight: 600;
+}
+
+.toggle-hint {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 3px;
+  line-height: 1.4;
+}
+
 /* ─── Formulário do negócio ──────────────────────────────────────────────── */
 
 .field-group {
@@ -341,6 +433,10 @@ button:disabled {
   transition: border-color 0.15s;
   width: 100%;
   resize: none;
+}
+
+.field-group textarea {
+  max-height: 56px; /* 2 linhas visíveis — mantém popup dentro do limite sem scroll */
 }
 
 .field-group input[type="text"]::placeholder,
