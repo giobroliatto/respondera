@@ -107,6 +107,18 @@
             <textarea id="biz-highlights" class="biz-context-textarea" placeholder="Ex: especialistas em realismo, 10 anos no mercado" maxlength="200" rows="3"></textarea>
             <span id="biz-highlights-count" class="char-count">0/200</span>
           </div>
+          <div class="field-group">
+            <label>Tom padrão</label>
+            <div class="biz-tone-grid" id="biz-tone-grid">
+              <button type="button" class="biz-tone-btn biz-tone-active" data-value="friendly">Amigável</button>
+              <button type="button" class="biz-tone-btn" data-value="formal">Formal</button>
+              <button type="button" class="biz-tone-btn" data-value="empathetic">Empático</button>
+              <button type="button" class="biz-tone-btn" data-value="direct">Direto</button>
+              <button type="button" class="biz-tone-btn" data-value="casual">Descontraído</button>
+              <button type="button" class="biz-tone-btn" data-value="assertive">Assertivo</button>
+            </div>
+            <p class="toggle-hint">Tom pré-selecionado ao abrir o painel</p>
+          </div>
           <p id="business-feedback" class="feedback hidden"></p>
           <button type="submit" id="btn-save-business" class="btn-primary">Salvar</button>
         </form>

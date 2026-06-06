@@ -8,7 +8,7 @@ import {
   saveBusiness,
   logout as apiLogout,
 } from '../shared/api';
-import { AuthResponse } from '../shared/types';
+import { AuthResponse, ToneOption } from '../shared/types';
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
 
@@ -184,6 +184,7 @@ function bindTabs(isPro: boolean): void {
 
 let _soloOperator = false;
 let _soloGender: 'M' | 'F' = 'M';
+let _bizTone: ToneOption = 'friendly';
 
 async function loadBusinessForm(isPro: boolean): Promise<void> {
   // Lock visual para FREE
@@ -209,8 +210,10 @@ async function loadBusinessForm(isPro: boolean): Promise<void> {
       // Restaura toggle de voz e gênero
       _soloOperator = Boolean((business as any).soloOperator);
       _soloGender = (business as any).soloGender === 'F' ? 'F' : 'M';
+      _bizTone = ((business as any).tone || 'friendly') as ToneOption;
       updateVoiceToggle(_soloOperator);
       updateGenderToggle(_soloGender);
+      updateToneToggle(_bizTone);
     }
   } catch {
     // silencioso — formulário fica em branco se não houver negócio cadastrado
@@ -235,6 +238,12 @@ function updateVoiceToggle(isSolo: boolean): void {
 function updateGenderToggle(gender: 'M' | 'F'): void {
   document.querySelectorAll<HTMLButtonElement>('.gender-btn').forEach((btn) => {
     btn.classList.toggle('gender-active', btn.dataset['value'] === gender);
+  });
+}
+
+function updateToneToggle(tone: string): void {
+  document.querySelectorAll<HTMLButtonElement>('#biz-tone-grid .biz-tone-btn').forEach((btn) => {
+    btn.classList.toggle('biz-tone-active', btn.dataset['value'] === tone);
   });
 }
 
@@ -268,6 +277,15 @@ function bindBusinessForm(isPro: boolean): void {
     });
   });
 
+  // Seletor de tom padrão
+  freshForm.querySelectorAll<HTMLButtonElement>('.biz-tone-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (!isPro) return;
+      _bizTone = btn.dataset['value'] as ToneOption;
+      updateToneToggle(_bizTone);
+    });
+  });
+
   if (!isPro) return; // FREE não submete
 
   freshForm.addEventListener('submit', async (e) => {
@@ -294,12 +312,13 @@ function bindBusinessForm(isPro: boolean): void {
       await saveBusiness({
         name,
         segment,
-        tone: 'friendly',
+        tone: _bizTone,
         avgTicket: ticket || null,
         highlights: highlights || null,
         soloOperator: _soloOperator,
         soloGender: _soloOperator ? _soloGender : null,
       });
+      await setStorage('defaultTone', _bizTone);
       feedback.textContent = 'Contexto salvo!';
       feedback.className = 'feedback success';
     } catch (err) {

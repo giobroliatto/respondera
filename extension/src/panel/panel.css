@@ -217,6 +217,56 @@ body {
   font-weight: 600;
 }
 
+/* ─── Tooltips nos botões de tom ────────────────────────────────────────── */
+
+.tone-btn,
+.tone-custom-toggle {
+  position: relative;
+}
+
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 7px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #202020;
+  color: var(--text-mid);
+  font-size: 10.5px;
+  font-weight: 400;
+  font-family: var(--font-body);
+  line-height: 1.45;
+  padding: 5px 8px;
+  border-radius: 5px;
+  border: 1px solid var(--border-mid);
+  width: max-content;
+  max-width: 150px;
+  text-align: center;
+  white-space: normal;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 200;
+}
+
+[data-tooltip]:hover::after {
+  opacity: 1;
+}
+
+/* Tooltip do botão esquerdo alinha à esquerda para não sair do painel */
+.tone-group .tone-btn:first-child::after,
+.tone-custom-toggle::after {
+  left: 0;
+  transform: none;
+}
+
+/* Tooltip do botão direito alinha à direita */
+.tone-group .tone-btn:last-child::after {
+  left: auto;
+  right: 0;
+  transform: none;
+}
+
 /* Tom personalizado */
 
 .custom-tone-row {
@@ -250,17 +300,19 @@ body {
 }
 
 .tone-btn-pro--locked {
-  opacity: 0.45;
+  color: rgba(90,90,90,0.6);
+  border-color: rgba(139,92,246,0.12);
   cursor: not-allowed;
 }
 
 .tone-btn-pro--locked:hover {
-  border-color: rgba(139,92,246,0.3);
-  color: var(--text-muted);
+  border-color: rgba(139,92,246,0.12);
+  color: rgba(90,90,90,0.6);
 }
 
 .tone-custom-toggle--locked {
-  opacity: 0.45;
+  color: rgba(90,90,90,0.6);
+  border-color: rgba(255,255,255,0.06);
   cursor: not-allowed;
 }
 

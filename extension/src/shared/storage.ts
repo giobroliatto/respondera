@@ -4,6 +4,7 @@ export interface StorageData {
   userPlan: 'FREE' | 'PRO' | null;
   usageCount: number | null;
   emailVerified: boolean | null;
+  defaultTone: string | null;
 }
 
 type StorageKey = keyof StorageData;

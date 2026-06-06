@@ -350,7 +350,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // ─── Mensagens recebidas do content script ────────────────────────────────────
 
-window.addEventListener('message', (e) => {
+window.addEventListener('message', async (e) => {
   const msg = e.data as { type?: string; data?: ReviewData };
 
   if (msg?.type === 'RESPONDERA_DATA' && msg.data) {
@@ -360,15 +360,20 @@ window.addEventListener('message', (e) => {
     el.additionalContext().value = '';
     el.charCount().textContent = '0/300';
     el.charCount().classList.remove('rg-char-count--warn', 'rg-char-count--full');
-    // Limpa tom personalizado e restaura tom padrão
+    // Limpa tom personalizado
     customToneValue = null;
     el.customToneInput().value = '';
     el.customToneCharCount().textContent = '0/100';
     el.btnCustomTone().classList.remove('active');
     el.customToneInputWrap().classList.add('hidden');
+    // Aplica tom padrão salvo (ou friendly como fallback)
+    const proTones = ['direct', 'casual', 'assertive'];
+    const savedTone = await getFromStorage('defaultTone') as string | null;
+    const canApply = savedTone && (userPlan === 'PRO' || !proTones.includes(savedTone));
+    const toneToApply = canApply ? savedTone! : 'friendly';
     document.querySelectorAll('.tone-btn').forEach((b) => b.classList.remove('active'));
-    document.querySelector<HTMLButtonElement>('.tone-btn[data-tone="friendly"]')?.classList.add('active');
-    selectedTone = 'friendly';
+    document.querySelector<HTMLButtonElement>(`.tone-btn[data-tone="${toneToApply}"]`)?.classList.add('active');
+    selectedTone = toneToApply as ToneOption;
     setState('idle');
   }
 
