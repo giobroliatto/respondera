@@ -75,14 +75,14 @@ ${voiceInstruction}
 NEGÓCIO:
 ${contextBlock}
 
-COMPRIMENTO — proporcional à avaliação:
+COMPRIMENTO: proporcional à avaliação:
 • 5★ com texto: 2-3 frases
 • 5★ sem texto: 1 frase
 • 4★: 2 frases
 • 3★: 2 frases, reconheça o ponto e abra espaço para contato
-• 1-2★: 3 frases — reconheça o erro, peça desculpas, ofereça canal de contato offline (nunca reembolso direto)
+• 1-2★: 3 frases: reconheça o erro, peça desculpas, ofereça canal de contato offline (nunca reembolso direto)
 
-ESTILO — escreva como uma pessoa real, não como assessoria de imprensa:
+ESTILO: escreva como uma pessoa real, não como assessoria de imprensa:
 Certo: "Que chato ter acontecido isso. Me chama se quiser remarcar."
 Errado: "Lamento profundamente a interrupção e gostaria de alinhar os próximos passos para seu acompanhamento."
 
@@ -134,11 +134,6 @@ export async function generateReply(params: GenerateReplyParams): Promise<Genera
 
   const systemPrompt = buildSystemPrompt(businessContext, tone, additionalContext, customTone);
   const userPrompt = buildUserPrompt(reviewText, rating, reviewerName, detailRatings);
-
-  // DEBUG — remover após validação
-  console.log('\n── businessContext ──\n', JSON.stringify(businessContext, null, 2));
-  console.log('\n── systemPrompt ──\n', systemPrompt);
-  console.log('\n── userPrompt ──\n', userPrompt);
 
   const message = await anthropic.messages.create({
     model: 'claude-sonnet-4-5',

@@ -18,6 +18,8 @@
   --font-display: 'Bebas Neue', sans-serif;
   --font-body:    'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   --radius:    8px;
+  background: var(--bg-input);;
+  scrollbar-color: rgba(150, 150, 150, 0.658)ansparent;
 }
 
 /* ─── Reset ──────────────────────────────────────────────────────────────── */
@@ -30,7 +32,7 @@
 
 body {
   font-family: var(--font-body);
-  width: 300px;
+  width: 320px;
   min-height: 200px;
   background: var(--bg);
   color: var(--text);
@@ -472,7 +474,7 @@ button:disabled {
   resize: none;
 }
 
-.field-group textarea {
+.field-group textarea { 
   max-height: 56px; /* 2 linhas visíveis — mantém popup dentro do limite sem scroll */
 }
 
@@ -485,6 +487,15 @@ button:disabled {
 .field-group textarea:focus {
   border-color: rgba(16,185,129,0.45);
 }
+
+.biz-context-textarea {
+  background: var(--bg-input);  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.12) transparent;
+}
+
+.biz-context-textarea::-webkit-scrollbar { width: 3px; }
+.biz-context-textarea::-webkit-scrollbar-track { background: transparent; }
+.biz-context-textarea::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 2px; }
 
 .char-count {
   font-size: 10.5px;

@@ -350,9 +350,9 @@ body {
   scrollbar-color: rgba(255,255,255,0.12) transparent;
 }
 
-.review-text::-webkit-scrollbar { width: 3px; }
-.review-text::-webkit-scrollbar-track { background: transparent; }
-.review-text::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 2px; }
+.rg-context-textarea::-webkit-scrollbar { width: 3px; }
+.rg-context-textarea::-webkit-scrollbar-track { background: transparent; }
+.rg-context-textarea::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 2px; }
 
 .rg-context-textarea:focus {
   border-color: rgba(16,185,129,0.4);
@@ -430,9 +430,9 @@ body {
   scrollbar-color: rgba(255,255,255,0.12) transparent;
 }
 
-.review-text::-webkit-scrollbar { width: 3px; }
-.review-text::-webkit-scrollbar-track { background: transparent; }
-.review-text::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 2px; }
+#reply-textarea::-webkit-scrollbar { width: 3px; }
+#reply-textarea::-webkit-scrollbar-track { background: transparent; }
+#reply-textarea::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 2px; }
 
 #reply-textarea:focus {
   border-color: rgba(16,185,129,0.35);
