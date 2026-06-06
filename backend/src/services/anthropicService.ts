@@ -36,7 +36,7 @@ const TONE_INSTRUCTIONS: Record<string, string> = {
   empathetic: 'Empático - priorize acolhimento, compreensão e suporte',
   direct: 'Direto - objetivo e sem rodeios, resposta mais curta que o normal',
   casual: 'Descontraído - informal e próximo, adequado para negócios jovens',
-  assertive: 'Assertivo - firme e seguro, para avaliações de má-fé ou agressivas sem entrar no jogo',
+  assertive: 'Assertivo - firme e profissional. Não valide afirmações falsas nem peça desculpas desnecessárias. Corrija fatos errados sem agressividade',
 };
 
 function buildSystemPrompt(
@@ -50,8 +50,8 @@ function buildSystemPrompt(
     : (TONE_INSTRUCTIONS[tone] ?? TONE_INSTRUCTIONS['friendly']);
 
   const contextBlock = businessContext
-    ? `Nome: ${businessContext.name}
-Segmento: ${businessContext.segment}${businessContext.highlights ? `\nDiferenciais: ${businessContext.highlights}` : ''}`
+  ? `Nome: ${businessContext.name}
+Segmento: ${businessContext.segment}${businessContext.avgTicket ? `\nTicket médio: ${businessContext.avgTicket}` : ''}${businessContext.highlights ? `\nDiferenciais: ${businessContext.highlights}` : ''}`
     : 'Contexto não disponível - gere a resposta baseada apenas nas informações da avaliação.';
 
   const additionalContextBlock = additionalContext
@@ -79,15 +79,21 @@ COMPRIMENTO: proporcional à avaliação:
 • 5★ com texto: 2-3 frases
 • 5★ sem texto: 1 frase
 • 4★: 2 frases
-• 3★: 2 frases, reconheça o ponto e abra espaço para contato
-• 1-2★: 3 frases: reconheça o erro, peça desculpas, ofereça canal de contato offline (nunca reembolso direto)
+• 3★: 2 frases, agradeça, reconheça que poderia ter sido melhor e convide para contato direto para resolver
+• 1-2★ com texto: 3 frases: reconheça o erro, peça desculpas, ofereça canal de contato offline (nunca reembolso direto)
+• 1-2★ sem texto: 2 frases — reconheça a nota baixa e ofereça canal de contato para resolver, sem pedir desculpas diretas (ex: "Lamentamos que sua experiência não tenha sido positiva. Por favor, entre em contato conosco para que possamos entender melhor o ocorrido e tentar resolver da melhor forma possível.")
 
-ESTILO: escreva como uma pessoa real, não como assessoria de imprensa:
-Certo: "Que chato ter acontecido isso. Me chama se quiser remarcar."
-Errado: "Lamento profundamente a interrupção e gostaria de alinhar os próximos passos para seu acompanhamento."
-
-• Frases curtas e diretas. Sem enrolação.
+ESTILO: 
 • Nunca use travessão (—), nunca use markdown, nunca use formatação
+• Escreva como uma pessoa real, não como assessoria de imprensa:
+  Certo: "Que chato ter acontecido isso. Me chama se quiser remarcar."
+  Errado: "Lamento profundamente a interrupção e gostaria de alinhar os próximos passos para seu acompanhamento."
+• Nunca use emojis
+• Responda no mesmo idioma do avaliador
+• Varie o início das respostas: evite começar sempre com "Olá" ou "Obrigado"
+• Não use expressões de fechamento genéricas ("Até logo!", "Abraços!"): encerre naturalmente na última frase
+• Se o ticket médio estiver disponível, calibre o tom: negócios premium não devem soar como se oferecessem desconto ou compensação barata
+• Frases curtas e diretas. Sem enrolação.
 • Não invente fatos ou preços que não foram informados
 • Não mencione o nome do avaliador mais de uma vez
 • Não agradeça em avaliações ruins sem texto${additionalContextBlock}`;
