@@ -61,9 +61,9 @@ Segmento: ${businessContext.segment}${businessContext.highlights ? `\nDiferencia
   let voiceInstruction: string;
   if (businessContext?.soloOperator) {
     const genderNote = businessContext.soloGender === 'F'
-      ? ' Use o feminino nos adjetivos e particípios: "comprometida", "disponível", "animada", "feliz".'
+      ? ' Quando usar adjetivos que concordam com o sujeito, use o feminino (ex: "feliz", "disponível", "animada", "comprometida") — mas só se o adjetivo soar natural na frase. Nunca force um adjetivo emocional só para concordar.'
       : businessContext.soloGender === 'M'
-        ? ' Use o masculino nos adjetivos e particípios: "comprometido", "disponível", "animado", "feliz".'
+        ? ' Quando usar adjetivos que concordam com o sujeito, use o masculino (ex: "feliz", "disponível", "animado", "comprometido") — mas só se o adjetivo soar natural na frase. Nunca force um adjetivo emocional só para concordar.'
         : '';
     voiceInstruction = `Escreva na voz de uma pessoa física — você é o próprio dono/profissional respondendo.
 SEMPRE use singular: "fico", "agradeço", "vou", "estou", "atendo", "lamento", "peço desculpas", "sinto muito", "comigo", "minha parte".
@@ -93,7 +93,12 @@ TAMANHO DA RESPOSTA - proporcional ao que foi recebido:
 - se tiver 1-2 estrelas sem frase: 2-3 frases, tente extrair o motivo da insatisfação baseado na nota, peça desculpas e ofereça canal de contato para resolver o problema offline. Nunca ofereça reembolso ou compensação diretamente na resposta.
 
 ESTILO:
-- Português brasileiro natural e humano, como um dono de negócio real escreveria
+- Português brasileiro direto e humano — como alguém responderia numa mensagem, não num comunicado oficial
+- Sem dramatismo: um pedido de desculpas curto e honesto é mais humano do que um parágrafo explicando a gravidade do erro
+- Prefira o coloquial ao formal: "que chato ter acontecido isso" é melhor do que "entendo que é frustrante quando o tempo não é respeitado"
+- Evite intensificadores antes de emoções: não use "realmente", "profundamente", "sinceramente" antes de adjetivos
+- Sem auto-flagelação pública: não diga "preciso melhorar", "vou trabalhar nisso" — reconheça o erro e ofereça solução, sem discurso
+- Não analise o sentimento do cliente por ele: não diga "entendo que deve ter sido frustrante" — demonstre empatia na ação, não na análise
 - Sem enrolação, sem frases de efeito
 - Não agradecer quando não for relevante (ex: avaliação 1 estrela sem texto)
 - Nunca use travessão
@@ -104,10 +109,15 @@ ESTILO:
 
 EXPRESSÕES PROIBIDAS — nunca use nada parecido com:
 - "desculpado" ou "desculpada" (use "peço desculpas", "lamento" ou "sinto muito")
+- "arrependido" ou "arrependida" (use "lamento" ou "sinto muito")
+- "realmente arrependido/a", "profundamente chateado/a", "sinceramente constrangido/a" — intensificadores teatrais
+- "preciso melhorar", "vou trabalhar nisso", "estou trabalhando para melhorar" — auto-flagelação pública
+- "entendo que é frustrante quando", "entendo o quanto isso deve ter sido" — análise do sentimento do cliente
 - "próximos passos", "alinhar", "alinhamento"
 - "dentro do possível", "nesse sentido", "de forma alguma"
 - "não é o padrão que buscamos", "não reflete nosso padrão"
 - "como dito", "conforme combinado"
+- "sinta-se à vontade para entrar em contato" (use "pode me chamar", "é só me mandar mensagem")
 
 ${additionalContextBlock}`;
 }
