@@ -4,6 +4,8 @@ import {
   login as apiLogin,
   register as apiRegister,
   resendVerificationEmail,
+  getBusiness,
+  saveBusiness,
 } from '../shared/api';
 import { AuthResponse } from '../shared/types';
 
@@ -144,6 +146,12 @@ async function showHome(): Promise<void> {
       usage !== null ? `${usage} de 10 respostas este mês` : '';
   }
 
+  // Abas PRO
+  if (plan === 'PRO') {
+    document.getElementById('tabs')!.classList.remove('hidden');
+    bindTabs();
+  }
+
   const btnLogout = document.getElementById('btn-logout')!;
   const freshBtn = btnLogout.cloneNode(true) as HTMLButtonElement;
   btnLogout.replaceWith(freshBtn);
@@ -154,6 +162,101 @@ async function showHome(): Promise<void> {
   });
 
   bindVerificationActions();
+}
+
+// ─── Abas ─────────────────────────────────────────────────────────────────
+
+function bindTabs(): void {
+  document.querySelectorAll<HTMLButtonElement>('.tab-btn').forEach((btn) => {
+    const freshBtn = btn.cloneNode(true) as HTMLButtonElement;
+    btn.replaceWith(freshBtn);
+    freshBtn.addEventListener('click', () => {
+      // Ativa aba clicada
+      document.querySelectorAll('.tab-btn').forEach((b) => b.classList.remove('tab-active'));
+      freshBtn.classList.add('tab-active');
+      // Mostra painel correspondente
+      const targetId = freshBtn.dataset['tab']!;
+      document.getElementById('tab-panel-home')!.classList.toggle('hidden', targetId !== 'tab-panel-home');
+      document.getElementById('tab-panel-business')!.classList.toggle('hidden', targetId !== 'tab-panel-business');
+      // Carrega dados ao entrar na aba do negócio
+      if (targetId === 'tab-panel-business') loadBusinessForm();
+    });
+  });
+}
+
+// ─── Formulário Meu Negócio ───────────────────────────────────────────────
+
+async function loadBusinessForm(): Promise<void> {
+  try {
+    const business = await getBusiness();
+    if (business) {
+      (document.getElementById('biz-name') as HTMLInputElement).value = business.name ?? '';
+      (document.getElementById('biz-segment') as HTMLInputElement).value = business.segment ?? '';
+      (document.getElementById('biz-ticket') as HTMLInputElement).value = business.avgTicket ?? '';
+      const highlightsEl = document.getElementById('biz-highlights') as HTMLTextAreaElement;
+      highlightsEl.value = business.highlights ?? '';
+      document.getElementById('biz-highlights-count')!.textContent = `${highlightsEl.value.length}/200`;
+    }
+  } catch {
+    // silencioso — formulário fica em branco se não houver negócio cadastrado
+  }
+  bindBusinessForm();
+}
+
+function bindBusinessForm(): void {
+  const form = document.getElementById('form-business') as HTMLFormElement;
+  const freshForm = form.cloneNode(true) as HTMLFormElement;
+  form.replaceWith(freshForm);
+
+  // Contador de caracteres dos diferenciais
+  const highlightsEl = freshForm.querySelector('#biz-highlights') as HTMLTextAreaElement;
+  const countEl = freshForm.querySelector('#biz-highlights-count')!;
+  highlightsEl.addEventListener('input', () => {
+    countEl.textContent = `${highlightsEl.value.length}/200`;
+  });
+
+  freshForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name     = (freshForm.querySelector('#biz-name') as HTMLInputElement).value.trim();
+    const segment  = (freshForm.querySelector('#biz-segment') as HTMLInputElement).value.trim();
+    const ticket   = (freshForm.querySelector('#biz-ticket') as HTMLInputElement).value.trim();
+    const highlights = highlightsEl.value.trim();
+    const feedback = document.getElementById('business-feedback')!;
+    const btn      = freshForm.querySelector('#btn-save-business') as HTMLButtonElement;
+
+    feedback.classList.add('hidden');
+    feedback.className = 'feedback hidden';
+
+    if (!name || !segment) {
+      feedback.textContent = 'Nome e segmento são obrigatórios.';
+      feedback.classList.remove('hidden');
+      feedback.classList.add('error');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Salvando...';
+
+    try {
+      await saveBusiness({
+        name,
+        segment,
+        tone: 'friendly',
+        avgTicket: ticket || null,
+        highlights: highlights || null,
+      });
+      feedback.textContent = 'Contexto salvo! Suas próximas respostas serão personalizadas.';
+      feedback.classList.remove('hidden');
+      feedback.classList.add('success');
+    } catch (err) {
+      feedback.textContent = err instanceof Error ? err.message : 'Erro ao salvar. Tente novamente.';
+      feedback.classList.remove('hidden');
+      feedback.classList.add('error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Salvar';
+    }
+  });
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
