@@ -60,66 +60,37 @@ Segmento: ${businessContext.segment}${businessContext.highlights ? `\nDiferencia
 
   let voiceInstruction: string;
   if (businessContext?.soloOperator) {
-    const genderNote = businessContext.soloGender === 'F'
-      ? ' Quando usar adjetivos que concordam com o sujeito, use o feminino (ex: "feliz", "disponível", "animada", "comprometida") — mas só se o adjetivo soar natural na frase. Nunca force um adjetivo emocional só para concordar.'
-      : businessContext.soloGender === 'M'
-        ? ' Quando usar adjetivos que concordam com o sujeito, use o masculino (ex: "feliz", "disponível", "animado", "comprometido") — mas só se o adjetivo soar natural na frase. Nunca force um adjetivo emocional só para concordar.'
-        : '';
-    voiceInstruction = `Escreva na voz de uma pessoa física — você é o próprio dono/profissional respondendo.
-SEMPRE use singular: "fico", "agradeço", "vou", "estou", "atendo", "lamento", "peço desculpas", "sinto muito", "comigo", "minha parte".
-NUNCA use plural nem pronomes de grupo: "ficamos", "agradecemos", "lamentamos", "pedimos", "estamos", "vamos", "conosco", "nosso", "nossa", "nós", "nossa parte".
-NUNCA use construções "fico + gerúndio" (ex: "fico lamentando", "fico me desculpando") — use o verbo direto: "lamento", "peço desculpas", "sinto muito".${genderNote}`;
+    const pronoun = businessContext.soloGender === 'F' ? 'uma profissional autônoma (fale no sexo feminino)' : 'um profissional autônomo (fale no sexo masculino)';
+    voiceInstruction = `Você é ${pronoun} respondendo na primeira pessoa do singular. Use "agradeço", "lamento", "peço desculpas", "atendo", "comigo". Nunca use plural: "ficamos", "agradecemos", "conosco", "nosso", "nossa", "nós".`;
   } else if (businessContext) {
-    voiceInstruction = 'Escreva na voz da empresa — use sempre plural: "ficamos", "agradecemos", "vamos", "estamos", "atendemos".';
+    voiceInstruction = 'Escreva na voz da empresa, na primeira pessoa do plural: "ficamos", "agradecemos", "atendemos", "conosco".';
   } else {
-    voiceInstruction = 'Escreva na voz da empresa usando plural ("ficamos", "agradecemos"). Se perceber claramente que é um profissional solo (personal trainer, psicólogo, etc), use singular.';
+    voiceInstruction = 'Escreva na voz da empresa, na primeira pessoa do plural ("ficamos", "agradecemos"). Se for claramente um profissional solo pelo segmento (ex: psicólogo, personal trainer), use singular.';
   }
 
-  return `Você responde avaliações do Google em nome de um estabelecimento.
+  return `Escreva uma resposta para uma avaliação do Google. Tom: ${toneInstruction}.
+
 ${voiceInstruction}
 
-TOM SOLICITADO: ${toneInstruction}
-
-CONTEXTO DO ESTABELECIMENTO:
+NEGÓCIO:
 ${contextBlock}
 
-TAMANHO DA RESPOSTA - proporcional ao que foi recebido:
-- se tiver 5 estrelas com texto longo: 3-4 frases
-- se tiver 5 estrelas sem texto: 1-2 frases
-- se tiver 4 estrelas com texto: 2-3 frases, reconheça o ponto mais relevante
-- se tiver 4 estrelas sem texto: 1 frase
-- se tiver 3 estrelas: 2 frases, agradeça e abra espaço para feedback
-- se tiver 1-2 estrelas com frase: 3-4 frases, reconheça o erro com seriedade, peça desculpas, ofereça canal de contato para resolver o problema offline. Nunca ofereça reembolso ou compensação diretamente na resposta.
-- se tiver 1-2 estrelas sem frase: 2-3 frases, tente extrair o motivo da insatisfação baseado na nota, peça desculpas e ofereça canal de contato para resolver o problema offline. Nunca ofereça reembolso ou compensação diretamente na resposta.
+COMPRIMENTO — proporcional à avaliação:
+• 5★ com texto: 2-3 frases
+• 5★ sem texto: 1 frase
+• 4★: 2 frases
+• 3★: 2 frases, reconheça o ponto e abra espaço para contato
+• 1-2★: 3 frases — reconheça o erro, peça desculpas, ofereça canal de contato offline (nunca reembolso direto)
 
-ESTILO:
-- Português brasileiro direto e humano — como alguém responderia numa mensagem, não num comunicado oficial
-- Sem dramatismo: um pedido de desculpas curto e honesto é mais humano do que um parágrafo explicando a gravidade do erro
-- Prefira o coloquial ao formal: "que chato ter acontecido isso" é melhor do que "entendo que é frustrante quando o tempo não é respeitado"
-- Evite intensificadores antes de emoções: não use "realmente", "profundamente", "sinceramente" antes de adjetivos
-- Sem auto-flagelação pública: não diga "preciso melhorar", "vou trabalhar nisso" — reconheça o erro e ofereça solução, sem discurso
-- Não analise o sentimento do cliente por ele: não diga "entendo que deve ter sido frustrante" — demonstre empatia na ação, não na análise
-- Sem enrolação, sem frases de efeito
-- Não agradecer quando não for relevante (ex: avaliação 1 estrela sem texto)
-- Nunca use travessão
-- Nunca use markdown, asteriscos ou qualquer formatação
-- Nunca invente fatos ou detalhes que não estão no contexto do estabelecimento
-- Nunca mencione preços ou valores que não foram fornecidos no contexto
-- Nunca mencione o nome do avaliador mais de uma vez
+ESTILO — escreva como uma pessoa real, não como assessoria de imprensa:
+Certo: "Que chato ter acontecido isso. Me chama se quiser remarcar."
+Errado: "Lamento profundamente a interrupção e gostaria de alinhar os próximos passos para seu acompanhamento."
 
-EXPRESSÕES PROIBIDAS — nunca use nada parecido com:
-- "desculpado" ou "desculpada" (use "peço desculpas", "lamento" ou "sinto muito")
-- "arrependido" ou "arrependida" (use "lamento" ou "sinto muito")
-- "realmente arrependido/a", "profundamente chateado/a", "sinceramente constrangido/a" — intensificadores teatrais
-- "preciso melhorar", "vou trabalhar nisso", "estou trabalhando para melhorar" — auto-flagelação pública
-- "entendo que é frustrante quando", "entendo o quanto isso deve ter sido" — análise do sentimento do cliente
-- "próximos passos", "alinhar", "alinhamento"
-- "dentro do possível", "nesse sentido", "de forma alguma"
-- "não é o padrão que buscamos", "não reflete nosso padrão"
-- "como dito", "conforme combinado"
-- "sinta-se à vontade para entrar em contato" (use "pode me chamar", "é só me mandar mensagem")
-
-${additionalContextBlock}`;
+• Frases curtas e diretas. Sem enrolação.
+• Nunca use travessão (—), nunca use markdown, nunca use formatação
+• Não invente fatos ou preços que não foram informados
+• Não mencione o nome do avaliador mais de uma vez
+• Não agradeça em avaliações ruins sem texto${additionalContextBlock}`;
 }
 
 function buildUserPrompt(
@@ -164,8 +135,13 @@ export async function generateReply(params: GenerateReplyParams): Promise<Genera
   const systemPrompt = buildSystemPrompt(businessContext, tone, additionalContext, customTone);
   const userPrompt = buildUserPrompt(reviewText, rating, reviewerName, detailRatings);
 
+  // DEBUG — remover após validação
+  console.log('\n── businessContext ──\n', JSON.stringify(businessContext, null, 2));
+  console.log('\n── systemPrompt ──\n', systemPrompt);
+  console.log('\n── userPrompt ──\n', userPrompt);
+
   const message = await anthropic.messages.create({
-    model: 'claude-haiku-4-5',
+    model: 'claude-sonnet-4-5',
     max_tokens: 512,
     system: systemPrompt,
     messages: [{ role: 'user', content: userPrompt }],

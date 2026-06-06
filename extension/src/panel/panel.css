@@ -346,8 +346,13 @@ body {
   font-family: var(--font-body);
   outline: none;
   transition: border-color 0.15s;
-  background: var(--bg-input);
+  background: var(--bg-input);  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.12) transparent;
 }
+
+.review-text::-webkit-scrollbar { width: 3px; }
+.review-text::-webkit-scrollbar-track { background: transparent; }
+.review-text::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 2px; }
 
 .rg-context-textarea:focus {
   border-color: rgba(16,185,129,0.4);
