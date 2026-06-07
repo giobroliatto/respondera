@@ -51,11 +51,19 @@ export async function createSubscription(
     throw new Error(`MP createSubscription failed: ${response.status} ${errBody.slice(0, 300)}`);
   }
 
-  const data = await response.json() as { id: string; init_point: string };
+  const data = await response.json() as {
+    id: string;
+    init_point: string;
+    sandbox_init_point: string;
+  };
+
+  // Se o token for de teste (TEST-...), usa sandbox para não cobrar de verdade
+  const isTestMode = env.MP_ACCESS_TOKEN.startsWith('TEST-');
+  const checkoutUrl = isTestMode ? data.sandbox_init_point : data.init_point;
 
   return {
     subscriptionId: data.id,
-    checkoutUrl: data.init_point,
+    checkoutUrl,
   };
 }
 
