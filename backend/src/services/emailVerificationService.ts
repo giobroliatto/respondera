@@ -47,7 +47,7 @@ async function sendEmail(to: string, verificationUrl: string): Promise<void> {
           <tr>
             <td align="center" style="padding-bottom:32px">
               <span style="font-size:26px;font-weight:700;color:#FFFFFF;letter-spacing:-0.5px">
-                Respond<span style="color:#10B981">era</span>
+                RESPOND<span style="color:#10B981">ERA</span>
               </span>
             </td>
           </tr>
