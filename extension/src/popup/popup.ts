@@ -97,8 +97,8 @@ function showRegister(): void {
       return;
     }
 
-    if (password.length < 6) {
-      errEl.textContent = 'A senha deve ter pelo menos 6 caracteres.';
+    if (password.length < 8) {
+      errEl.textContent = 'A senha deve ter pelo menos 8 caracteres.';
       errEl.classList.remove('hidden');
       return;
     }

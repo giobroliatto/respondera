@@ -2,11 +2,15 @@
  * Funções de sanitização para remover HTML e limpar dados de usuário
  */
 
+import sanitizeHtml from 'sanitize-html';
+
 /**
- * Remove tags HTML de uma string
+ * Remove todas as tags HTML de uma string.
+ * Usa sanitize-html (mais robusto que regex — trata tags malformadas,
+ * entidades encodadas e vetores de injeção como <img onerror=...>).
  */
 export function stripHtml(text: string): string {
-  return text.replace(/<[^>]*>/g, '').trim();
+  return sanitizeHtml(text, { allowedTags: [], allowedAttributes: {} }).trim();
 }
 
 /**

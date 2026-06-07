@@ -17,7 +17,7 @@ app.use(helmet());
 // CORS
 app.use(cors({
   origin: getCorsOrigin(),
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 

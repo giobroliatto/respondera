@@ -71,6 +71,7 @@ if (NODE_ENV === 'production') {
   requireEnv('PUBLIC_API_URL');
   requireEnv('RESEND_API_KEY');
   requireEnv('EMAIL_FROM');
+  requireEnv('CORS_ORIGIN');
 }
 
 export const env: RuntimeEnv = {
