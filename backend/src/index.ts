@@ -5,6 +5,7 @@ import helmet from 'helmet';
 import { authRouter } from './routes/auth';
 import { businessRouter } from './routes/business';
 import { replyRouter } from './routes/reply';
+import { paymentsRouter } from './routes/payments';
 import { logger } from './utils/logger';
 import { env, getCorsOrigin } from './config/env';
 
@@ -33,6 +34,7 @@ app.get('/health', (_req, res) => {
 app.use('/auth', authRouter);
 app.use('/business', businessRouter);
 app.use('/reply', replyRouter);
+app.use('/payments', paymentsRouter);
 
 // Error handler global
 app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {

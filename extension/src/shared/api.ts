@@ -173,3 +173,12 @@ export async function generateReply(data: GenerateReplyData): Promise<GenerateRe
     { method: 'POST', body: JSON.stringify(data) },
   );
 }
+
+// ─── Pagamentos ───────────────────────────────────────────────────────────────
+
+export async function createSubscription(): Promise<{ checkoutUrl: string }> {
+  return apiFetch<{ checkoutUrl: string }>(
+    '/payments/create-subscription',
+    { method: 'POST', body: JSON.stringify({}) },
+  );
+}

@@ -3,9 +3,10 @@ import { AuthRequest } from './authMiddleware';
 import { prisma } from '../lib/prisma';
 
 // Limites por plano — não expor esses valores nas respostas da API
+// PRO não tem limite prático (999999)
 const PLAN_LIMITS: Record<string, number> = {
   FREE: 10,
-  PRO: 200,
+  PRO: 999999,
 };
 
 export async function usageLimitMiddleware(

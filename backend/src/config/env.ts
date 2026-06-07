@@ -11,6 +11,9 @@ type RuntimeEnv = {
   PUBLIC_API_URL: string;
   RESEND_API_KEY?: string;
   EMAIL_FROM?: string;
+  MP_ACCESS_TOKEN: string;
+  MP_PUBLIC_KEY: string;
+  MP_WEBHOOK_SECRET: string;
 };
 
 function loadDotEnv(): void {
@@ -72,6 +75,9 @@ if (NODE_ENV === 'production') {
   requireEnv('RESEND_API_KEY');
   requireEnv('EMAIL_FROM');
   requireEnv('CORS_ORIGIN');
+  requireEnv('MP_ACCESS_TOKEN');
+  requireEnv('MP_PUBLIC_KEY');
+  requireEnv('MP_WEBHOOK_SECRET');
 }
 
 export const env: RuntimeEnv = {
@@ -84,6 +90,9 @@ export const env: RuntimeEnv = {
   PUBLIC_API_URL: process.env.PUBLIC_API_URL ?? `http://localhost:${process.env.PORT ?? '3333'}`,
   RESEND_API_KEY: process.env.RESEND_API_KEY,
   EMAIL_FROM: process.env.EMAIL_FROM,
+  MP_ACCESS_TOKEN: process.env.MP_ACCESS_TOKEN ?? '',
+  MP_PUBLIC_KEY: process.env.MP_PUBLIC_KEY ?? '',
+  MP_WEBHOOK_SECRET: process.env.MP_WEBHOOK_SECRET ?? '',
 };
 
 export function getCorsOrigin(): string | string[] {

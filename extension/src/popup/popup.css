@@ -180,8 +180,46 @@ button:disabled {
   border: 1px solid rgba(16,185,129,0.18);
   border-radius: var(--radius);
   padding: 7px 10px;
+  margin-bottom: 8px;
+}
+
+/* ─── Upgrade Banner ─────────────────────────────────────────────────────── */
+
+.upgrade-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: rgba(139,92,246,0.08);
+  border: 1px solid rgba(139,92,246,0.22);
+  border-radius: var(--radius);
+  padding: 8px 10px;
   margin-bottom: 12px;
 }
+
+.upgrade-banner-text {
+  font-size: 11px;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.4;
+  flex: 1;
+}
+
+.btn-upgrade {
+  flex-shrink: 0;
+  background: linear-gradient(135deg, #7c3aed, #a78bfa);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.18s;
+}
+
+.btn-upgrade:hover { opacity: 0.88; }
+.btn-upgrade:disabled { opacity: 0.5; cursor: not-allowed; }
 
 #plan-label {
   font-size: 12px;

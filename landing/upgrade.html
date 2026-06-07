@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Assinar PRO · Respondera</title>
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png" />
+  <link rel="shortcut icon" href="/favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg:         #0A0A0A;
+      --bg-card:    #141414;
+      --bg-input:   #1A1A1A;
+      --border:     rgba(255,255,255,0.08);
+      --border-mid: rgba(255,255,255,0.14);
+      --text:       #F0F0F0;
+      --text-muted: #6B6B6B;
+      --text-mid:   #9CA3AF;
+      --accent:     #10B981;
+      --accent-dim: rgba(16,185,129,0.12);
+      --accent-glow:rgba(16,185,129,0.25);
+      --pro:        #7c3aed;
+      --pro-light:  #a78bfa;
+      --pro-dim:    rgba(124,58,237,0.12);
+      --red:        #EF4444;
+      --font-display:'Bebas Neue', sans-serif;
+      --font-body:  'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --radius:     12px;
+      --max-w:      480px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 1rem;
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    /* ─── Grain ────────────────────────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.025;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ─── Nav ──────────────────────────────────────────────────── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 1.25rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(10,10,10,0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      letter-spacing: 0.04em;
+      color: var(--text);
+    }
+    .nav-logo span { color: var(--accent); }
+
+    .nav-back {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: color 0.2s;
+    }
+    .nav-back:hover { color: var(--text); }
+
+    /* ─── Layout ───────────────────────────────────────────────── */
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 120px 1.5rem 60px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .upgrade-wrap {
+      width: 100%;
+      max-width: var(--max-w);
+    }
+
+    /* ─── Header ───────────────────────────────────────────────── */
+    .upgrade-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .pro-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: var(--pro-dim);
+      border: 1px solid rgba(124,58,237,0.3);
+      color: var(--pro-light);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.3rem 0.85rem;
+      border-radius: 100px;
+      margin-bottom: 1rem;
+    }
+
+    .upgrade-title {
+      font-family: var(--font-display);
+      font-size: 2.8rem;
+      letter-spacing: 0.02em;
+      color: var(--text);
+      line-height: 1.1;
+      margin-bottom: 0.75rem;
+    }
+
+    .upgrade-title span { color: var(--accent); }
+
+    .upgrade-sub {
+      font-size: 1rem;
+      color: var(--text-mid);
+      max-width: 380px;
+      margin: 0 auto;
+    }
+
+    /* ─── Benefícios ───────────────────────────────────────────── */
+    .benefits {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      margin-bottom: 2rem;
+    }
+
+    .benefit-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.875rem 1rem;
+    }
+
+    .benefit-icon {
+      flex-shrink: 0;
+      width: 32px;
+      height: 32px;
+      background: var(--accent-dim);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+    }
+
+    .benefit-text strong {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.15rem;
+    }
+
+    .benefit-text span {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    /* ─── Card de checkout ─────────────────────────────────────── */
+    .checkout-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem;
+    }
+
+    .price-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 0.4rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .price-amount {
+      font-family: var(--font-display);
+      font-size: 3rem;
+      color: var(--text);
+      line-height: 1;
+    }
+
+    .price-period {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      padding-bottom: 0.4rem;
+    }
+
+    /* Etapas */
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin-bottom: 1.5rem;
+    }
+
+    .step {
+      display: none;
+    }
+
+    .step.active {
+      display: block;
+    }
+
+    /* Formulários */
+    .form-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 1rem;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      margin-bottom: 0.875rem;
+    }
+
+    .field label {
+      font-size: 0.82rem;
+      color: var(--text-mid);
+    }
+
+    .field input {
+      background: var(--bg-input);
+      border: 1px solid var(--border-mid);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      padding: 0.65rem 0.875rem;
+      outline: none;
+      transition: border-color 0.2s;
+      width: 100%;
+    }
+
+    .field input:focus { border-color: var(--accent); }
+    .field input::placeholder { color: var(--text-muted); }
+
+    .error-msg {
+      font-size: 0.82rem;
+      color: var(--red);
+      margin-bottom: 0.875rem;
+      display: none;
+    }
+    .error-msg.visible { display: block; }
+
+    .success-msg {
+      font-size: 0.82rem;
+      color: var(--accent);
+      margin-bottom: 0.875rem;
+      display: none;
+    }
+    .success-msg.visible { display: block; }
+
+    /* Botões */
+    .btn-primary {
+      width: 100%;
+      background: var(--accent);
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      padding: 0.875rem;
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: #0ea872;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 24px var(--accent-glow);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-pro {
+      background: linear-gradient(135deg, var(--pro), var(--pro-light));
+      color: #fff;
+    }
+
+    .btn-pro:hover:not(:disabled) {
+      background: linear-gradient(135deg, #6d28d9, #9061f9);
+      box-shadow: 0 6px 24px rgba(124,58,237,0.3);
+    }
+
+    .btn-link {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      cursor: pointer;
+      font-family: var(--font-body);
+      text-decoration: underline;
+      margin-top: 0.75rem;
+      display: block;
+      text-align: center;
+      width: 100%;
+      transition: color 0.2s;
+    }
+    .btn-link:hover { color: var(--text); }
+
+    /* Garantia */
+    .guarantee {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 1rem;
+      justify-content: center;
+    }
+
+    /* Sucesso */
+    .success-screen {
+      display: none;
+      text-align: center;
+      padding: 1rem 0;
+    }
+
+    .success-screen.active { display: block; }
+
+    .success-icon {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+
+    .success-screen h2 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .success-screen p {
+      font-size: 0.9rem;
+      color: var(--text-mid);
+      margin-bottom: 1.5rem;
+    }
+
+    /* Divider */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin: 1rem 0;
+      color: var(--text-muted);
+      font-size: 0.78rem;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 2rem;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      position: relative;
+      z-index: 1;
+    }
+
+    footer a { color: var(--text-muted); text-decoration: underline; }
+
+    .hidden { display: none !important; }
+
+    /* Spinner */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="/" class="nav-logo">Respond<span>era</span></a>
+    <a href="/" class="nav-back">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      Voltar
+    </a>
+  </nav>
+
+  <main>
+    <div class="upgrade-wrap">
+
+      <!-- Header -->
+      <div class="upgrade-header">
+        <div class="pro-badge">✦ Plano PRO</div>
+        <h1 class="upgrade-title">Respostas<br/><span>ilimitadas.</span></h1>
+        <p class="upgrade-sub">Cancele quando quiser. Sem contratos, sem taxas ocultas.</p>
+      </div>
+
+      <!-- Benefícios -->
+      <div class="benefits">
+        <div class="benefit-item">
+          <div class="benefit-icon" style="font-size:1.2rem;line-height:1;padding-top:3px">∞</div>
+          <div class="benefit-text">
+            <strong>Respostas ilimitadas</strong>
+            <span>Sem limite mensal. Responda todas as avaliações que precisar.</span>
+          </div>
+        </div>
+        <div class="benefit-item">
+          <div class="benefit-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+          </div>
+          <div class="benefit-text">
+            <strong>Todos os tons + tom personalizado</strong>
+            <span>Direto, Descontraído, Assertivo e qualquer tom que você quiser.</span>
+          </div>
+        </div>
+        <div class="benefit-item">
+          <div class="benefit-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          </div>
+          <div class="benefit-text">
+            <strong>Contexto do negócio</strong>
+            <span>A IA aprende sobre sua empresa e gera respostas ainda mais precisas.</span>
+          </div>
+        </div>
+        <div class="benefit-item">
+          <div class="benefit-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          </div>
+          <div class="benefit-text">
+            <strong>Contexto adicional por resposta</strong>
+            <span>Informe detalhes específicos de cada situação antes de gerar.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card de checkout -->
+      <div class="checkout-card">
+
+        <!-- Preço -->
+        <div class="price-row">
+          <div class="price-amount">R$&nbsp;19</div>
+          <div class="price-period">,90&nbsp;/&nbsp;mês</div>
+        </div>
+
+        <!-- Tela de sucesso -->
+        <div class="success-screen" id="success-screen">
+          <div class="success-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg>
+          </div>
+          <h2>Pagamento confirmado!</h2>
+          <p>Seu plano PRO está ativo. Abra a extensão Respondera no Chrome e aproveite.</p>
+          <button class="btn-primary" onclick="window.close()">Fechar esta aba</button>
+        </div>
+
+        <!-- Etapa 1: Login / Cadastro -->
+        <div class="step active" id="step-auth">
+          <p class="form-title" id="auth-form-title">Entre na sua conta para continuar</p>
+
+          <div class="field">
+            <label for="input-email">E-mail</label>
+            <input type="email" id="input-email" placeholder="seu@email.com" autocomplete="email" />
+          </div>
+          <div class="field">
+            <label for="input-password">Senha</label>
+            <input type="password" id="input-password" placeholder="Mínimo 8 caracteres" autocomplete="current-password" />
+          </div>
+          <div class="field hidden" id="field-confirm">
+            <label for="input-confirm">Confirmar senha</label>
+            <input type="password" id="input-confirm" placeholder="Repita a senha" autocomplete="new-password" />
+          </div>
+
+          <div class="error-msg" id="auth-error"></div>
+
+          <button class="btn-primary btn-pro" id="btn-auth" type="button">
+            Continuar para pagamento
+          </button>
+          <button class="btn-link" id="btn-toggle-mode" type="button">Não tem conta? Criar agora</button>
+        </div>
+
+        <!-- Etapa 2: Redirecionando -->
+        <div class="step" id="step-redirect">
+          <p class="form-title">Redirecionando para o pagamento…</p>
+          <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:1.5rem">
+            Você será levado ao checkout seguro do Mercado Pago. Após o pagamento, volte aqui para confirmar.
+          </p>
+          <div class="error-msg" id="redirect-error"></div>
+          <button class="btn-primary btn-pro" id="btn-open-checkout" type="button" disabled>
+            <span class="spinner" id="checkout-spinner"></span> Abrindo checkout…
+          </button>
+          <button class="btn-link" id="btn-check-payment" type="button" style="display:none">
+            Já paguei, verificar plano
+          </button>
+        </div>
+
+        <!-- Garantia -->
+        <div class="guarantee">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Pagamento seguro via Mercado Pago. Cancele quando quiser.
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 Respondera · <a href="/">Página inicial</a></p>
+  </footer>
+
+  <script>
+    const BACKEND_URL = 'https://api.respondera.com.br';
+
+    // ─── Estado ───────────────────────────────────────────────────
+    let isRegisterMode = false;
+    let authToken = null;
+    let checkoutUrl = null;
+
+    // ─── Elementos ────────────────────────────────────────────────
+    const $ = (id) => document.getElementById(id);
+
+    // Verifica se veio de redirect do MP com status
+    const params = new URLSearchParams(window.location.search);
+    const status = params.get('status');
+    if (status === 'approved' || status === 'authorized') {
+      showSuccess();
+    }
+
+    // ─── Toggle login / cadastro ──────────────────────────────────
+    $('btn-toggle-mode').addEventListener('click', () => {
+      isRegisterMode = !isRegisterMode;
+      $('auth-form-title').textContent = isRegisterMode
+        ? 'Crie sua conta para continuar'
+        : 'Entre na sua conta para continuar';
+      $('btn-auth').textContent = isRegisterMode
+        ? 'Criar conta e continuar'
+        : 'Continuar para pagamento';
+      $('btn-toggle-mode').textContent = isRegisterMode
+        ? 'Já tem conta? Fazer login'
+        : 'Não tem conta? Criar agora';
+      $('field-confirm').classList.toggle('hidden', !isRegisterMode);
+      $('input-password').placeholder = isRegisterMode ? 'Mínimo 8 caracteres' : 'Sua senha';
+      $('input-password').autocomplete = isRegisterMode ? 'new-password' : 'current-password';
+      clearError('auth-error');
+    });
+
+    // ─── Etapa 1: Autenticação ────────────────────────────────────
+    $('btn-auth').addEventListener('click', async () => {
+      clearError('auth-error');
+      const email    = $('input-email').value.trim();
+      const password = $('input-password').value;
+      const confirm  = $('input-confirm').value;
+
+      if (!email || !password) return showError('auth-error', 'Preencha e-mail e senha.');
+      if (isRegisterMode && password.length < 8)
+        return showError('auth-error', 'A senha deve ter pelo menos 8 caracteres.');
+      if (isRegisterMode && password !== confirm)
+        return showError('auth-error', 'As senhas não coincidem.');
+
+      setLoading('btn-auth', true, isRegisterMode ? 'Criando conta…' : 'Entrando…');
+
+      try {
+        const endpoint = isRegisterMode ? '/auth/register' : '/auth/login';
+        const res = await fetch(`${BACKEND_URL}${endpoint}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || data.message || 'Erro ao autenticar.');
+
+        authToken = data.token;
+        await goToCheckout();
+      } catch (err) {
+        showError('auth-error', err.message);
+      } finally {
+        setLoading('btn-auth', false, isRegisterMode ? 'Criar conta e continuar' : 'Continuar para pagamento');
+      }
+    });
+
+    // ─── Etapa 2: Criar assinatura e redirecionar ─────────────────
+    async function goToCheckout() {
+      showStep('step-redirect');
+
+      try {
+        const res = await fetch(`${BACKEND_URL}/payments/create-subscription`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`,
+          },
+          body: JSON.stringify({}),
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          // Já é PRO
+          if (res.status === 400) {
+            showSuccess();
+            return;
+          }
+          throw new Error(data.error || 'Erro ao criar assinatura.');
+        }
+
+        checkoutUrl = data.checkoutUrl;
+
+        // Redireciona automaticamente
+        window.location.href = checkoutUrl;
+
+        // Fallback: botão manual se o redirect não ocorrer
+        setTimeout(() => {
+          const btn = $('btn-open-checkout');
+          btn.disabled = false;
+          btn.innerHTML = '↗ Abrir checkout do Mercado Pago';
+          $('btn-check-payment').style.display = 'block';
+        }, 3000);
+
+      } catch (err) {
+        showError('redirect-error', err.message);
+        $('btn-open-checkout').disabled = false;
+        $('btn-open-checkout').innerHTML = 'Tentar novamente';
+        $('btn-open-checkout').addEventListener('click', goToCheckout, { once: true });
+      }
+    }
+
+    // Botão manual de checkout
+    $('btn-open-checkout').addEventListener('click', () => {
+      if (checkoutUrl) window.location.href = checkoutUrl;
+    });
+
+    // Verificar plano após pagamento
+    $('btn-check-payment').addEventListener('click', async () => {
+      if (!authToken) { showStep('step-auth'); return; }
+      try {
+        const res = await fetch(`${BACKEND_URL}/auth/me`, {
+          headers: { 'Authorization': `Bearer ${authToken}` },
+        });
+        const data = await res.json();
+        if (data.plan === 'PRO') {
+          showSuccess();
+        } else {
+          showError('redirect-error', 'Pagamento ainda não confirmado. Aguarde alguns instantes e tente novamente.');
+        }
+      } catch {
+        showError('redirect-error', 'Erro ao verificar plano. Tente novamente.');
+      }
+    });
+
+    // ─── Helpers ──────────────────────────────────────────────────
+    function showStep(id) {
+      document.querySelectorAll('.step').forEach((s) => s.classList.remove('active'));
+      $(id).classList.add('active');
+    }
+
+    function showSuccess() {
+      document.querySelectorAll('.step').forEach((s) => s.classList.remove('active'));
+      $('success-screen').classList.add('active');
+    }
+
+    function showError(id, msg) {
+      const el = $(id);
+      el.textContent = msg;
+      el.classList.add('visible');
+    }
+
+    function clearError(id) {
+      const el = $(id);
+      el.textContent = '';
+      el.classList.remove('visible');
+    }
+
+    function setLoading(btnId, loading, label) {
+      const btn = $(btnId);
+      btn.disabled = loading;
+      if (label) {
+        if (loading) {
+          btn.innerHTML = '<span class="spinner"></span> ' + label;
+        } else {
+          btn.textContent = label;
+        }
+      }
+    }
+  </script>
+</body>
+</html>

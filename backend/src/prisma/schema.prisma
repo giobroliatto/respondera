@@ -22,6 +22,8 @@ model User {
   emailVerificationExpiresAt  DateTime?
   tokenInvalidatedAt          DateTime?
   createdAt                   DateTime  @default(now())
+  mpSubscriptionId            String?
+  mpSubscriptionStatus        String?   // authorized | paused | cancelled | ended
   business                    Business?
 }
 

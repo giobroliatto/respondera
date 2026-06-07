@@ -7,6 +7,7 @@ import {
   getBusiness,
   saveBusiness,
   logout as apiLogout,
+  createSubscription,
 } from '../shared/api';
 import { AuthResponse, ToneOption } from '../shared/types';
 
@@ -141,11 +142,15 @@ async function showHome(): Promise<void> {
   if (plan === 'PRO') {
     document.getElementById('plan-label')!.textContent = 'Plano PRO';
     document.getElementById('usage-label')!.textContent = '';
+    document.getElementById('upgrade-banner')!.classList.add('hidden');
   } else {
     document.getElementById('plan-label')!.textContent = 'Plano FREE';
     document.getElementById('usage-label')!.textContent =
       usage !== null ? `${usage} de 10 respostas este mês` : '';
+    document.getElementById('upgrade-banner')!.classList.remove('hidden');
   }
+
+  bindUpgradeButton();
 
   // Abas visíveis para todos; painel bloqueado para FREE
   bindTabs(plan === 'PRO');
@@ -408,6 +413,28 @@ function bindVerificationActions(): void {
     } finally {
       freshRefresh.disabled = false;
       freshRefresh.textContent = 'Atualizar';
+    }
+  });
+}
+
+function bindUpgradeButton(): void {
+  const btn = document.getElementById('btn-upgrade') as HTMLButtonElement;
+  if (!btn) return;
+  const fresh = btn.cloneNode(true) as HTMLButtonElement;
+  btn.replaceWith(fresh);
+
+  fresh.addEventListener('click', async () => {
+    fresh.disabled = true;
+    fresh.textContent = 'Aguarde...';
+    try {
+      const { checkoutUrl } = await createSubscription();
+      chrome.tabs.create({ url: checkoutUrl });
+    } catch (err) {
+      // Fallback: abre a landing page de upgrade
+      chrome.tabs.create({ url: 'https://respondera.com.br/upgrade.html' });
+    } finally {
+      fresh.disabled = false;
+      fresh.textContent = 'Assinar PRO';
     }
   });
 }

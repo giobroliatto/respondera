@@ -311,20 +311,18 @@ async function initToneSection(): Promise<void> {
     el.additionalContext().disabled = true;
     el.contextProMsg().classList.remove('hidden');
 
-    // Tons PRO: visíveis mas bloqueados para FREE
+    // Tons PRO: visíveis mas bloqueados para FREE — clique abre upgrade
     document.querySelectorAll<HTMLButtonElement>('.tone-btn-pro').forEach((btn) => {
       btn.classList.add('tone-btn-pro--locked');
       btn.addEventListener('click', () => {
-        el.proRequiredMsg().classList.remove('hidden');
-        setTimeout(() => el.proRequiredMsg().classList.add('hidden'), 3000);
+        chrome.tabs.create({ url: 'https://respondera.com.br/upgrade.html' });
       });
     });
 
-    // Tom personalizado: visível mas bloqueado para FREE
+    // Tom personalizado: visível mas bloqueado para FREE — clique abre upgrade
     el.btnCustomTone().classList.add('tone-custom-toggle--locked');
     el.btnCustomTone().addEventListener('click', () => {
-      el.proRequiredMsg().classList.remove('hidden');
-      setTimeout(() => el.proRequiredMsg().classList.add('hidden'), 3000);
+      chrome.tabs.create({ url: 'https://respondera.com.br/upgrade.html' });
     });
   }
 }
