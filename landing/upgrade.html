@@ -565,7 +565,7 @@
 
     // ─── Estado ───────────────────────────────────────────────────
     let isRegisterMode = false;
-    let authToken = null;
+    let authToken = localStorage.getItem('respondera_token');
     let checkoutUrl = null;
 
     // ─── Elementos ────────────────────────────────────────────────
@@ -576,6 +576,9 @@
     const status = params.get('status');
     if (status === 'approved' || status === 'authorized') {
       showSuccess();
+    } else if (authToken) {
+      // Token salvo: pula login e vai direto pro checkout
+      goToCheckout();
     }
 
     // ─── Toggle login / cadastro ──────────────────────────────────
@@ -624,6 +627,7 @@
         if (!res.ok) throw new Error(data.error || data.message || 'Erro ao autenticar.');
 
         authToken = data.token;
+        localStorage.setItem('respondera_token', authToken);
         await goToCheckout();
       } catch (err) {
         showError('auth-error', err.message);
