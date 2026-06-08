@@ -860,8 +860,7 @@
           <br />A resposta também<br />poderia estar.
         </h1>
         <p class="hero-sub reveal reveal-delay-2">
-          O Respondera gera respostas profissionais para avaliações do Google com um clique,
-          <strong>direto na página</strong>, sem copiar, sem colar.
+          Cada avaliação sem resposta diz alguma coisa.<br>Mesmo quando você não escreve nada.
         </p>
         <div class="hero-buttons reveal reveal-delay-3">
           <a href="#" class="btn btn-primary btn-lg">
@@ -899,8 +898,8 @@
               <div class="review-text">Fui jantar com a família e fui muito bem atendido. A comida estava impecável, especialmente o risoto. Com certeza voltarei!</div>
             </div>
             <div class="mockup-tone">
-              <div class="tone-chip">Formal</div>
               <div class="tone-chip active">Amigável</div>
+              <div class="tone-chip">Formal</div>
               <div class="tone-chip">Empático</div>
             </div>
             <div class="mockup-response">
@@ -963,8 +962,8 @@
     <div class="container">
       <div style="text-align:center; margin-bottom: var(--space-lg)">
         <div class="section-label reveal">Interativo</div>
-        <h2 class="section-title reveal reveal-delay-1">Veja na prática</h2>
-        <p class="section-sub reveal reveal-delay-2" style="margin: 0 auto; max-width: 500px;">Clique em "Gerar resposta" para simular o que seus clientes vão ver.</p>
+        <h2 class="section-title reveal reveal-delay-1">O que você responderia?</h2>
+        <p class="section-sub reveal reveal-delay-2" style="margin: 0 auto; max-width: 500px;">Clique em "Gerar resposta" para comparar com a resposta do Respondera.</p>
       </div>
       <div class="demo-wrapper reveal">
         <div class="demo-card">
@@ -989,8 +988,8 @@
             <div class="demo-panel">
               <div class="demo-panel-label">Resposta do Respondera</div>
               <div class="demo-tone-row">
-                <div class="tone-chip" onclick="selectTone(this)">Formal</div>
                 <div class="tone-chip active" onclick="selectTone(this)">Amigável</div>
+                <div class="tone-chip" onclick="selectTone(this)">Formal</div>
                 <div class="tone-chip" onclick="selectTone(this)">Empático</div>
               </div>
               <div class="demo-response-area" id="demo-response">
@@ -1015,7 +1014,7 @@
     <div class="container">
       <div style="text-align:center; margin-bottom: var(--space-lg)">
         <div class="section-label reveal">Depoimentos</div>
-        <h2 class="section-title reveal reveal-delay-1">Quem já usa, não volta<br />a responder manualmente.</h2>
+        <h2 class="section-title reveal reveal-delay-1">O problema nunca foi responder uma avaliação.<br />Foi responder cinquenta.</h2>
       </div>
       <div class="testimonials-grid">
         <div class="testimonial-card reveal">
@@ -1060,8 +1059,8 @@
     <div class="container">
       <div class="plans-header">
         <div class="section-label reveal">Planos</div>
-        <h2 class="section-title reveal reveal-delay-1">Simples assim</h2>
-        <p class="section-sub reveal reveal-delay-2">Comece grátis, sem cartão de crédito. Faça upgrade quando quiser.</p>
+        <h2 class="section-title reveal reveal-delay-1">Nem todo negócio precisa de respostas ilimitadas.</h2>
+        <p class="section-sub reveal reveal-delay-2">Talvez dez respostas por mês já resolvam seu problema. Descubra grátis.</p>
       </div>
       <div class="plans-grid">
         <!-- FREE -->
@@ -1182,6 +1181,15 @@
             <p>Não. O texto das avaliações é enviado à IA apenas no momento da geração da resposta e não é armazenado nos nossos servidores. Guardamos somente os dados da sua conta e o perfil do negócio que você cadastrar.</p>
           </div>
         </div>
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(this)">
+            Por que não simplesmente usar o ChatGPT?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <p>Pode usar. A diferença é que o Respondera já está dentro do Google. Você não copia a avaliação, não troca de aba, não cola a resposta, não perde o contexto. Você só responde.</p>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -1192,7 +1200,7 @@
       <div class="footer-inner">
         <div class="footer-left">
           <div class="footer-logo">Respond<span>era</span></div>
-          <div class="footer-tagline">IA que responde. Negócio que cresce.</div>
+          <div class="footer-tagline">A resposta já deveria estar lá.</div>
         </div>
         <div class="footer-links">
           <a href="#" class="footer-link" target="_blank">Chrome Web Store</a>
@@ -1246,10 +1254,24 @@
 
     // ── DEMO: RESPOSTAS ───────────────────────────────────────────
     const demoReplies = {
-      'Amigável': 'Mariana, agradecemos muito o seu retorno e pedimos sinceras desculpas pela experiência que teve conosco. O tempo de espera e a comida fria estão muito abaixo do que queremos oferecer. Encaminharemos seu feedback diretamente para a equipe. Gostaríamos de ter a oportunidade de te atender melhor, entre em contato com a gente pelo (11) 99999-9999.',
-      'Formal': 'Prezada Mariana, agradecemos por compartilhar sua experiência. Lamentamos profundamente que nossa qualidade de serviço não tenha correspondido às suas expectativas. O tempo de espera relatado e a temperatura dos pratos são questões que tomaremos medidas imediatas para corrigir. Solicitamos gentilmente que entre em contato conosco para que possamos tratar este assunto adequadamente.',
-      'Empático': 'Mariana, eu entendo como é frustrante planejar uma refeição com reserva e ser mal recebida. Isso não deveria ter acontecido, e lamentamos muito. Cada detalhe que você descreveu vai ser levado ao nosso gerente hoje. Se der, entre em contato direto com a gente, queremos fazer diferente na próxima vez.'
+      'Amigável': [
+        'Mariana, que pena ler isso! Reserva marcada, expectativa alta, e a experiência não correspondeu. Pedimos desculpas pelo tempo de espera e pela comida fria, isso não é o que queremos pra ninguém. Fala com a gente pelo (11) 99999-9999, queremos resolver.',
+        'Oi Mariana, obrigado por falar com a gente. Isso não deveria ter acontecido e sentimos muito. Espera longa e comida fria numa reserva marcada é inadmissível. Queremos te ouvir melhor, entra em contato pelo (11) 99999-9999.',
+        'Mariana, agradecemos por contar o que aconteceu. Reserva feita, comida fria e espera longa, entendemos a frustração. Já levamos esse retorno pra equipe. Se quiser conversar diretamente, estamos no (11) 99999-9999.',
+      ],
+      'Formal': [
+        'Prezada Mariana, agradecemos por registrar sua experiência. O tempo de espera e a temperatura dos pratos estão abaixo do nosso padrão e tomaremos as medidas necessárias. Colocamo-nos à disposição pelo (11) 99999-9999.',
+        'Prezada Mariana, seu relato foi recebido com atenção. O desempenho descrito não reflete os padrões que nos comprometemos a oferecer. Providências internas serão tomadas. Para tratativas adicionais, entre em contato pelo (11) 99999-9999.',
+        'Prezada Mariana, agradecemos pelo registro. Situações como a descrita, especialmente em reservas previamente confirmadas, são tratadas com prioridade pela gestão. Estamos à disposição pelo (11) 99999-9999 para qualquer esclarecimento.',
+      ],
+      'Empático': [
+        'Mariana, eu entendo como é frustrante planejar uma refeição com reserva e ser mal recebida. Isso não deveria ter acontecido, e lamentamos muito. Cada detalhe que você descreveu vai ser levado ao nosso gerente hoje. Se possível, entre em contato direto com a gente, queremos fazer diferente na próxima vez.',
+        'Mariana, ler isso dói porque a gente sabe o quanto um jantar planejado significa. Reserva feita, e ainda assim a experiência foi essa. Sentimos muito de verdade. Queremos conversar e entender melhor, nos chama no (11) 99999-9999.',
+        'Mariana, obrigado por ter tido a paciência de escrever isso aqui. Sei que não é fácil reclamar, e o que você descreveu, a espera, a comida fria, tudo junto numa reserva, é decepcionante. Isso vai chegar a quem precisa saber. Fala com a gente.',
+      ],
     };
+
+    const demoIndexes = { 'Amigável': 0, 'Formal': 0, 'Empático': 0 };
 
     let typingTimer = null;
     let isGenerating = false;
@@ -1263,7 +1285,10 @@
       btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation:spin 0.8s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Gerando...';
 
       const activeTone = document.querySelector('.demo-tone-row .tone-chip.active')?.textContent || 'Amigável';
-      const text = demoReplies[activeTone] || demoReplies['Amigável'];
+      const variations = demoReplies[activeTone] || demoReplies['Amigável'];
+      const idx = demoIndexes[activeTone] ?? 0;
+      const text = variations[idx];
+      demoIndexes[activeTone] = (idx + 1) % variations.length;
       const area = document.getElementById('demo-response');
       const placeholder = document.getElementById('demo-placeholder');
 

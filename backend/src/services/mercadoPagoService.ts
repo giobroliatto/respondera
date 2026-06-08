@@ -6,7 +6,7 @@ const MP_API_BASE = 'https://api.mercadopago.com';
 // Preço e descrição do plano PRO
 const PRO_PLAN_PRICE = 19.90;
 const PRO_PLAN_CURRENCY = 'BRL';
-const PRO_PLAN_DESCRIPTION = 'Respondera PRO — respostas ilimitadas com IA';
+const PRO_PLAN_DESCRIPTION = 'Respondera PRO';
 
 export interface CreateSubscriptionResult {
   subscriptionId: string;

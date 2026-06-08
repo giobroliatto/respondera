@@ -692,6 +692,9 @@
 
     // Botão manual de checkout — cria assinatura e redireciona
     $('btn-open-checkout').addEventListener('click', () => {
+      const btn = $('btn-open-checkout');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Abrindo checkout…';
       if (checkoutUrl) {
         window.location.href = checkoutUrl;
       } else {
