@@ -5,6 +5,7 @@ export interface StorageData {
   usageCount: number | null;
   emailVerified: boolean | null;
   defaultTone: string | null;
+  renewalDate: string | null;
 }
 
 type StorageKey = keyof StorageData;
