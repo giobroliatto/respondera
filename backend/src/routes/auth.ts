@@ -240,7 +240,7 @@ router.get('/verify-email', async (req: Request, res: Response) => {
   const result = await verifyEmailToken(token);
 
   if (result === 'verified') {
-    page('✅', 'E-mail confirmado!', 'Sua conta está ativa. Você já pode usar a Respondera para gerar respostas profissionais com um clique.');
+    page('✅', 'E-mail confirmado!', 'Estamos prontos quando você estiver.');
     return;
   }
 
