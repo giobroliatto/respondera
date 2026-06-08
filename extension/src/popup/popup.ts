@@ -131,23 +131,34 @@ async function showHome(): Promise<void> {
   document.getElementById('screen-register')!.classList.add('hidden');
   document.getElementById('screen-home')!.classList.remove('hidden');
 
-  const email = await getStorage('userEmail');
-  const plan  = await getStorage('userPlan');
-  const usage = await getStorage('usageCount');
+  const email       = await getStorage('userEmail');
+  const plan        = await getStorage('userPlan');
+  const usage       = await getStorage('usageCount');
   const emailVerified = await getStorage('emailVerified');
+  const renewalDate = await getStorage('renewalDate');
 
   document.getElementById('user-email')!.textContent = email ?? '';
   renderVerificationBox(Boolean(emailVerified));
 
+  const renewalEl = document.getElementById('renewal-label')!;
   if (plan === 'PRO') {
     document.getElementById('plan-label')!.textContent = 'Plano PRO';
     document.getElementById('usage-label')!.textContent = '';
     document.getElementById('upgrade-banner')!.classList.add('hidden');
+    if (renewalDate) {
+      const date = new Date(renewalDate as string);
+      const formatted = date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      renewalEl.textContent = `Renova em ${formatted}`;
+      renewalEl.classList.remove('hidden');
+    } else {
+      renewalEl.classList.add('hidden');
+    }
   } else {
     document.getElementById('plan-label')!.textContent = 'Plano FREE';
     document.getElementById('usage-label')!.textContent =
       usage !== null ? `${usage} de 10 respostas este mês` : '';
     document.getElementById('upgrade-banner')!.classList.remove('hidden');
+    renewalEl.classList.add('hidden');
   }
 
   bindUpgradeButton();
@@ -350,6 +361,7 @@ async function storeUserData(data: AuthResponse): Promise<void> {
   await setStorage('userPlan',   data.user.plan);
   await setStorage('usageCount', data.user.usageCount);
   await setStorage('emailVerified', data.user.emailVerified);
+  await setStorage('renewalDate', (data.user as any).mpNextBillingDate ?? null);
 }
 
 function setVerificationMessage(message: string, isError = false): void {
@@ -402,6 +414,7 @@ function bindVerificationActions(): void {
       await setStorage('userPlan', user.plan);
       await setStorage('usageCount', user.usageCount);
       await setStorage('emailVerified', user.emailVerified);
+      await setStorage('renewalDate', (user as any).mpNextBillingDate ?? null);
       renderVerificationBox(user.emailVerified);
       if (!user.emailVerified) {
         setVerificationMessage('E-mail ainda não confirmado.');

@@ -36,7 +36,7 @@ async function sendEmail(to: string, verificationUrl: string): Promise<void> {
       subject: 'Confirme seu e-mail na Respondera',
       html: `<!DOCTYPE html>
 <html lang="pt-BR">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet"></head>
 <body style="margin:0;padding:0;background:#0D0D0D;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
   <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#0D0D0D;min-height:100vh">
     <tr>
@@ -46,7 +46,7 @@ async function sendEmail(to: string, verificationUrl: string): Promise<void> {
           <!-- Logo / marca -->
           <tr>
             <td align="center" style="padding-bottom:32px">
-              <span style="font-size:26px;font-weight:700;color:#FFFFFF;letter-spacing:-0.5px">
+              <span style="font-family:'Bebas Neue',Arial Black,sans-serif;font-size:30px;letter-spacing:0.04em;color:#FFFFFF">
                 RESPOND<span style="color:#10B981">ERA</span>
               </span>
             </td>

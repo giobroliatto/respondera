@@ -1,0 +1,1 @@
+ALTER TABLE "User" ADD COLUMN "mpNextBillingDate" TIMESTAMP(3);

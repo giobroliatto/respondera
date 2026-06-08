@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { authMiddleware, AuthRequest } from '../middlewares/authMiddleware';
 import { createSubscription, getSubscription, verifyWebhookSignature } from '../services/mercadoPagoService';
+import { sendProWelcomeEmail } from '../services/proWelcomeEmailService';
 import { prisma } from '../lib/prisma';
 import { logger } from '../utils/logger';
 
@@ -67,15 +68,19 @@ router.post('/webhook', async (req: Request, res: Response) => {
     if (!dataId) return;
 
     const subscription = await getSubscription(dataId);
-    const { status, external_reference: userId } = subscription;
+    const { status, external_reference: userId, next_payment_date } = subscription;
 
     if (!userId) {
       logger.warn('Webhook missing external_reference', { dataId });
       return;
     }
 
-    // Determina novo plano com base no status da assinatura
     const isPro = status === 'authorized';
+
+    const currentUser = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { plan: true, email: true },
+    });
 
     await prisma.user.update({
       where: { id: userId },
@@ -83,8 +88,14 @@ router.post('/webhook', async (req: Request, res: Response) => {
         plan: isPro ? 'PRO' : 'FREE',
         mpSubscriptionId: subscription.id,
         mpSubscriptionStatus: status,
+        mpNextBillingDate: next_payment_date ? new Date(next_payment_date) : null,
       },
     });
+
+    // Envia email de boas-vindas na primeira vez que vira PRO
+    if (isPro && currentUser?.plan !== 'PRO' && currentUser?.email) {
+      await sendProWelcomeEmail(currentUser.email);
+    }
 
     logger.info('Webhook processed', {
       userId: userId.slice(0, 8),

@@ -24,6 +24,7 @@ model User {
   createdAt                   DateTime  @default(now())
   mpSubscriptionId            String?
   mpSubscriptionStatus        String?   // authorized | paused | cancelled | ended
+  mpNextBillingDate           DateTime?
   business                    Business?
 }
 

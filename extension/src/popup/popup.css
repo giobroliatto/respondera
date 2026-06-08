@@ -233,6 +233,14 @@ button:disabled {
   color: var(--text-muted);
 }
 
+.renewal {
+  font-size: 10px;
+  color: var(--text-muted);
+  display: block;
+  margin-top: -6px;
+  margin-bottom: 4px;
+}
+
 .hint {
   font-size: 12px;
   color: var(--text-mid);
