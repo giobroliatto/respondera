@@ -18,7 +18,7 @@ async function sendEmail(to: string): Promise<void> {
     body: JSON.stringify({
       from: env.EMAIL_FROM,
       to,
-      subject: 'Você é PRO. Nenhuma avaliação vai ficar sem resposta.',
+      subject: 'Você é PRO.',
       html: `<!DOCTYPE html>
 <html lang="pt-BR">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet"></head>
