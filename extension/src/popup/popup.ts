@@ -141,24 +141,22 @@ async function showHome(): Promise<void> {
   renderVerificationBox(Boolean(emailVerified));
 
   const renewalEl = document.getElementById('renewal-label')!;
+  renewalEl.classList.add('hidden');
   if (plan === 'PRO') {
     document.getElementById('plan-label')!.textContent = 'Plano PRO';
-    document.getElementById('usage-label')!.textContent = '';
     document.getElementById('upgrade-banner')!.classList.add('hidden');
     if (renewalDate) {
       const date = new Date(renewalDate as string);
       const formatted = date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-      renewalEl.textContent = `Renova em ${formatted}`;
-      renewalEl.classList.remove('hidden');
+      document.getElementById('usage-label')!.textContent = `Renova em ${formatted}`;
     } else {
-      renewalEl.classList.add('hidden');
+      document.getElementById('usage-label')!.textContent = '';
     }
   } else {
     document.getElementById('plan-label')!.textContent = 'Plano FREE';
     document.getElementById('usage-label')!.textContent =
       usage !== null ? `${usage} de 10 respostas este mês` : '';
     document.getElementById('upgrade-banner')!.classList.remove('hidden');
-    renewalEl.classList.add('hidden');
   }
 
   bindUpgradeButton();
