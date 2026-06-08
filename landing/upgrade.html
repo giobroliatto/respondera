@@ -521,6 +521,7 @@
           </div>
           <h2 id="success-title">Pagamento confirmado!</h2>
           <p id="success-desc">Seu plano PRO está ativo. Abra a extensão Respondera no Chrome e aproveite.</p>
+          <p id="renewal-info" style="font-size:0.8rem;color:var(--text-muted);margin-bottom:1.5rem;display:none"></p>
           <button class="btn-primary" onclick="window.close()">Fechar esta aba</button>
         </div>
 
@@ -783,7 +784,7 @@
       $(id).classList.add('active');
     }
 
-    function showSuccess(alreadyPro = false) {
+    async function showSuccess(alreadyPro = false) {
       document.querySelectorAll('.step').forEach((s) => s.classList.remove('active'));
       if (alreadyPro) {
         $('success-title').textContent = 'Você já é PRO!';
@@ -793,6 +794,23 @@
         $('success-desc').textContent = 'Seu plano PRO está ativo. Abra a extensão Respondera no Chrome e aproveite.';
       }
       $('success-screen').classList.add('active');
+
+      // Busca data de renovação se tiver token
+      if (authToken) {
+        try {
+          const res = await fetch(`${BACKEND_URL}/auth/me`, {
+            headers: { 'Authorization': `Bearer ${authToken}` },
+          });
+          const data = await res.json();
+          if (data.mpNextBillingDate) {
+            const date = new Date(data.mpNextBillingDate);
+            const formatted = date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            const el = $('renewal-info');
+            el.textContent = `Próxima renovação: ${formatted}`;
+            el.style.display = 'block';
+          }
+        } catch {}
+      }
     }
 
     function showError(id, msg) {
