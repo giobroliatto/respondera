@@ -346,6 +346,25 @@
     }
     .btn-link:hover { color: var(--text); }
 
+    .btn-secondary {
+      width: 100%;
+      background: transparent;
+      color: var(--text-mid);
+      border: 1px solid var(--border-mid);
+      border-radius: 8px;
+      padding: 0.75rem;
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 0.75rem;
+    }
+    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
     /* Garantia */
     .guarantee {
       display: flex;
@@ -500,8 +519,8 @@
           <div class="success-icon">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg>
           </div>
-          <h2>Pagamento confirmado!</h2>
-          <p>Seu plano PRO está ativo. Abra a extensão Respondera no Chrome e aproveite.</p>
+          <h2 id="success-title">Pagamento confirmado!</h2>
+          <p id="success-desc">Seu plano PRO está ativo. Abra a extensão Respondera no Chrome e aproveite.</p>
           <button class="btn-primary" onclick="window.close()">Fechar esta aba</button>
         </div>
 
@@ -546,10 +565,10 @@
           <button class="btn-primary btn-pro" id="btn-open-checkout" type="button" disabled>
             <span class="spinner" id="checkout-spinner"></span> Abrindo checkout…
           </button>
-          <button class="btn-link" id="btn-check-payment" type="button" style="display:none">
+          <button class="btn-secondary" id="btn-check-payment" type="button" style="display:none">
             Já paguei, verificar plano
           </button>
-          <button class="btn-link" id="btn-logout" type="button" style="display:none;margin-top:4px;opacity:0.5;font-size:0.78rem">
+          <button class="btn-link" id="btn-logout" type="button" style="display:none">
             Sair / Trocar conta
           </button>
         </div>
@@ -583,9 +602,24 @@
     const params = new URLSearchParams(window.location.search);
     const status = params.get('status');
     if (status === 'approved' || status === 'authorized') {
-      showSuccess();
+      showSuccess(false);
     } else if (authToken) {
-      // Token salvo: mostra tela de redirect com botão manual (não auto-redireciona)
+      // Token salvo: checa se já é PRO antes de mostrar qualquer tela
+      checkPlanOnLoad();
+    }
+
+    async function checkPlanOnLoad() {
+      try {
+        const res = await fetch(`${BACKEND_URL}/auth/me`, {
+          headers: { 'Authorization': `Bearer ${authToken}` },
+        });
+        const data = await res.json();
+        if (data.plan === 'PRO') {
+          showSuccess(true);
+          return;
+        }
+      } catch {}
+      // Não é PRO: mostra tela de checkout com botão manual
       showStep('step-redirect');
       $('redirect-title').textContent = 'Continue para o pagamento';
       $('btn-open-checkout').disabled = false;
@@ -734,7 +768,7 @@
         });
         const data = await res.json();
         if (data.plan === 'PRO') {
-          showSuccess();
+          showSuccess(false);
         } else {
           showError('redirect-error', 'Pagamento ainda não confirmado. Aguarde alguns instantes e tente novamente.');
         }
@@ -749,8 +783,15 @@
       $(id).classList.add('active');
     }
 
-    function showSuccess() {
+    function showSuccess(alreadyPro = false) {
       document.querySelectorAll('.step').forEach((s) => s.classList.remove('active'));
+      if (alreadyPro) {
+        $('success-title').textContent = 'Você já é PRO!';
+        $('success-desc').textContent = 'Sua assinatura está ativa. Abra a extensão Respondera no Chrome e aproveite.';
+      } else {
+        $('success-title').textContent = 'Pagamento confirmado!';
+        $('success-desc').textContent = 'Seu plano PRO está ativo. Abra a extensão Respondera no Chrome e aproveite.';
+      }
       $('success-screen').classList.add('active');
     }
 
