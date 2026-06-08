@@ -69,6 +69,7 @@ export async function getSubscription(subscriptionId: string): Promise<{
   status: string;
   external_reference: string;
   payer_email: string;
+  next_payment_date: string | null;
 }> {
   const response = await fetch(`${MP_API_BASE}/preapproval/${subscriptionId}`, {
     headers: {
