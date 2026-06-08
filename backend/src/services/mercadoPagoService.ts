@@ -31,7 +31,6 @@ export async function createSubscription(
       transaction_amount: PRO_PLAN_PRICE,
       currency_id: PRO_PLAN_CURRENCY,
     },
-    payer_email: userEmail,
     external_reference: userId,
     back_url: backUrl,
     status: 'pending',
