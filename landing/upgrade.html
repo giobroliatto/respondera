@@ -523,6 +523,7 @@
           <p id="success-desc">Seu plano PRO está ativo. Abra a extensão Respondera no Chrome e aproveite.</p>
           <p id="renewal-info" style="font-size:0.8rem;color:var(--text-muted);margin-bottom:1.5rem;display:none"></p>
           <button class="btn-primary" onclick="window.close()">Fechar esta aba</button>
+          <button class="btn-link" id="btn-success-logout" type="button" style="display:none">Sair / Trocar conta</button>
         </div>
 
         <!-- Etapa 1: Login / Cadastro -->
@@ -695,6 +696,18 @@
       showStep('step-redirect');
 
       try {
+        // Checa se já é PRO antes de criar nova assinatura
+        const meRes = await fetch(`${BACKEND_URL}/auth/me`, {
+          headers: { 'Authorization': `Bearer ${authToken}` },
+        });
+        if (meRes.ok) {
+          const meData = await meRes.json();
+          if (meData.plan === 'PRO') {
+            showSuccess(true);
+            return;
+          }
+        }
+
         const res = await fetch(`${BACKEND_URL}/payments/create-subscription`, {
           method: 'POST',
           headers: {
@@ -747,7 +760,7 @@
       }
     });
 
-    // Sair / trocar conta
+    // Sair / trocar conta (tela de redirect)
     $('btn-logout').addEventListener('click', () => {
       authToken = null;
       checkoutUrl = null;
@@ -758,6 +771,16 @@
       $('btn-open-checkout').innerHTML = '<span class="spinner"></span> Abrindo checkout…';
       $('btn-check-payment').style.display = 'none';
       $('btn-logout').style.display = 'none';
+    });
+
+    // Sair / trocar conta (tela de sucesso PRO)
+    $('btn-success-logout').addEventListener('click', () => {
+      authToken = null;
+      checkoutUrl = null;
+      localStorage.removeItem('respondera_token');
+      $('success-screen').classList.remove('active');
+      $('btn-success-logout').style.display = 'none';
+      showStep('step-auth');
     });
 
     // Verificar plano após pagamento
@@ -789,9 +812,11 @@
       if (alreadyPro) {
         $('success-title').textContent = 'Você já é PRO!';
         $('success-desc').textContent = 'Sua assinatura está ativa. O resto acontece no Google.';
+        $('btn-success-logout').style.display = 'block';
       } else {
         $('success-title').textContent = 'Pagamento confirmado!';
         $('success-desc').textContent = 'Seu plano PRO está ativo. O resto acontece no Google.';
+        $('btn-success-logout').style.display = 'none';
       }
       $('success-screen').classList.add('active');
 
