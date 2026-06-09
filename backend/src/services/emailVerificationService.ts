@@ -35,10 +35,22 @@ async function sendEmail(to: string, verificationUrl: string): Promise<void> {
       to,
       subject: 'Confirme seu e-mail na Respondera',
       html: `<!DOCTYPE html>
-<html lang="pt-BR">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet"></head>
-<body style="margin:0;padding:0;background:#0D0D0D;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#0D0D0D;min-height:100vh">
+<html lang="pt-BR" style="background-color:#0D0D0D">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="supported-color-schemes" content="dark">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+  <style>
+    :root { color-scheme: dark; }
+    body { background-color: #0D0D0D !important; margin: 0 !important; padding: 0 !important; }
+    .email-wrapper { background-color: #0D0D0D !important; }
+    .email-card { background-color: #161616 !important; }
+  </style>
+</head>
+<body style="margin:0;padding:0;background:#0D0D0D;background-color:#0D0D0D;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+  <table class="email-wrapper" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#0D0D0D;background-color:#0D0D0D;min-height:100vh">
     <tr>
       <td align="center" style="padding:48px 16px">
         <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:480px">
@@ -54,7 +66,7 @@ async function sendEmail(to: string, verificationUrl: string): Promise<void> {
 
           <!-- Card principal -->
           <tr>
-            <td style="background:#161616;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:40px 36px">
+            <td class="email-card" style="background:#161616;background-color:#161616;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:40px 36px">
 
               <!-- Ícone -->
               <table width="100%" cellpadding="0" cellspacing="0" border="0">

@@ -7,8 +7,6 @@ async function sendEmail(to: string): Promise<void> {
     return;
   }
 
-  const landingUrl = env.PUBLIC_API_URL.replace('api.', '');
-
   const response = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: {
@@ -20,10 +18,22 @@ async function sendEmail(to: string): Promise<void> {
       to,
       subject: 'Você é PRO.',
       html: `<!DOCTYPE html>
-<html lang="pt-BR">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet"></head>
-<body style="margin:0;padding:0;background:#0D0D0D;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#0D0D0D;min-height:100vh">
+<html lang="pt-BR" style="background-color:#0D0D0D">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="supported-color-schemes" content="dark">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+  <style>
+    :root { color-scheme: dark; }
+    body { background-color: #0D0D0D !important; margin: 0 !important; padding: 0 !important; }
+    .email-wrapper { background-color: #0D0D0D !important; }
+    .email-card { background-color: #161616 !important; }
+  </style>
+</head>
+<body style="margin:0;padding:0;background:#0D0D0D;background-color:#0D0D0D;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+  <table class="email-wrapper" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#0D0D0D;background-color:#0D0D0D;min-height:100vh">
     <tr>
       <td align="center" style="padding:48px 16px">
         <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:480px">
@@ -39,7 +49,7 @@ async function sendEmail(to: string): Promise<void> {
 
           <!-- Card principal -->
           <tr>
-            <td style="background:#161616;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:40px 36px">
+            <td class="email-card" style="background:#161616;background-color:#161616;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:40px 36px">
 
               <!-- Badge PRO -->
               <table width="100%" cellpadding="0" cellspacing="0" border="0">
@@ -84,18 +94,6 @@ async function sendEmail(to: string): Promise<void> {
                 <tr>
                   <td style="padding:6px 0;font-size:14px;color:rgba(255,255,255,0.7)">
                     <span style="color:#10B981;margin-right:8px">✓</span> Contexto do negócio personalizado
-                  </td>
-                </tr>
-              </table>
-
-              <!-- CTA -->
-              <table width="100%" cellpadding="0" cellspacing="0" border="0">
-                <tr>
-                  <td align="center" style="padding-bottom:28px">
-                    <a href="${landingUrl}"
-                       style="display:inline-block;background:linear-gradient(135deg,#7c3aed,#a78bfa);color:#FFFFFF;padding:13px 32px;border-radius:8px;text-decoration:none;font-weight:700;font-size:15px;letter-spacing:0.2px">
-                      Abrir Respondera
-                    </a>
                   </td>
                 </tr>
               </table>
