@@ -130,10 +130,11 @@ async function syncPlanFromServer(): Promise<void> {
   try {
     const user = await getMe();
     await setToStorage({
-      userPlan:    user.plan,
-      usageCount:  user.usageCount,
-      emailVerified: user.emailVerified,
-      renewalDate: (user as any).mpNextBillingDate ?? null,
+      userPlan:           user.plan,
+      usageCount:         user.usageCount,
+      emailVerified:      user.emailVerified,
+      renewalDate:        (user as any).mpNextBillingDate ?? null,
+      subscriptionStatus: (user as any).mpSubscriptionStatus ?? null,
     });
   } catch {
     // Offline ou token expirado — usa cache local

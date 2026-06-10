@@ -138,15 +138,17 @@ async function showHome(): Promise<void> {
     await setStorage('usageCount', user.usageCount);
     await setStorage('emailVerified', user.emailVerified);
     await setStorage('renewalDate', (user as any).mpNextBillingDate ?? null);
+    await setStorage('subscriptionStatus', (user as any).mpSubscriptionStatus ?? null);
   } catch {
     // Offline ou token expirado — usa cache local
   }
 
-  const email       = await getStorage('userEmail');
-  const plan        = await getStorage('userPlan');
-  const usage       = await getStorage('usageCount');
-  const emailVerified = await getStorage('emailVerified');
-  const renewalDate = await getStorage('renewalDate');
+  const email             = await getStorage('userEmail');
+  const plan              = await getStorage('userPlan');
+  const usage             = await getStorage('usageCount');
+  const emailVerified     = await getStorage('emailVerified');
+  const renewalDate       = await getStorage('renewalDate');
+  const subscriptionStatus = await getStorage('subscriptionStatus');
 
   document.getElementById('user-email')!.textContent = email ?? '';
   renderVerificationBox(Boolean(emailVerified));
@@ -159,7 +161,10 @@ async function showHome(): Promise<void> {
     if (renewalDate) {
       const date = new Date(renewalDate as string);
       const formatted = date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-      document.getElementById('usage-label')!.textContent = `Renova em ${formatted}`;
+      const isPaused = subscriptionStatus === 'paused';
+      document.getElementById('usage-label')!.textContent = isPaused
+        ? `Acesso até ${formatted}`
+        : `Renova em ${formatted}`;
     } else {
       document.getElementById('usage-label')!.textContent = '';
     }
@@ -371,6 +376,7 @@ async function storeUserData(data: AuthResponse): Promise<void> {
   await setStorage('usageCount', data.user.usageCount);
   await setStorage('emailVerified', data.user.emailVerified);
   await setStorage('renewalDate', (data.user as any).mpNextBillingDate ?? null);
+  await setStorage('subscriptionStatus', (data.user as any).mpSubscriptionStatus ?? null);
 }
 
 function setVerificationMessage(message: string, isError = false): void {

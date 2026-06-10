@@ -6,6 +6,7 @@ export interface StorageData {
   emailVerified: boolean | null;
   defaultTone: string | null;
   renewalDate: string | null;
+  subscriptionStatus: string | null;
 }
 
 type StorageKey = keyof StorageData;
