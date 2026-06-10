@@ -40,6 +40,33 @@ body {
   background: var(--bg);
 }
 
+/* ─── Loading overlay ────────────────────────────────────────────────────── */
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.panel-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  z-index: 100;
+}
+
+.panel-loading.hidden {
+  display: none;
+}
+
+.panel-spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid rgba(255,255,255,0.12);
+  border-top-color: rgba(255,255,255,0.6);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
 /* ─── Painel raiz ─────────────────────────────────────────────────────────── */
 
 #panel {
@@ -48,6 +75,7 @@ body {
   height: 100%;
   overflow: hidden;
   background: var(--bg);
+  position: relative;
 }
 
 /* ─── Header ─────────────────────────────────────────────────────────────── */

@@ -24,6 +24,7 @@ async function init(): Promise<void> {
 // ─── Tela de login ────────────────────────────────────────────────────────────
 
 function showLogin(): void {
+  document.getElementById('screen-loading')!.classList.add('hidden');
   document.getElementById('screen-login')!.classList.remove('hidden');
   document.getElementById('screen-register')!.classList.add('hidden');
   document.getElementById('screen-home')!.classList.add('hidden');
@@ -69,6 +70,7 @@ function showLogin(): void {
 // ─── Tela de registro ─────────────────────────────────────────────────────────
 
 function showRegister(): void {
+  document.getElementById('screen-loading')!.classList.add('hidden');
   document.getElementById('screen-login')!.classList.add('hidden');
   document.getElementById('screen-register')!.classList.remove('hidden');
   document.getElementById('screen-home')!.classList.add('hidden');
@@ -127,9 +129,9 @@ function showRegister(): void {
 // ─── Tela logado ──────────────────────────────────────────────────────────────
 
 async function showHome(): Promise<void> {
+  // Mantém loading visível enquanto sincroniza e carrega os dados
   document.getElementById('screen-login')!.classList.add('hidden');
   document.getElementById('screen-register')!.classList.add('hidden');
-  document.getElementById('screen-home')!.classList.remove('hidden');
 
   // Sincroniza com o servidor para pegar plano/uso atualizados (ex: auto-downgrade)
   try {
@@ -191,6 +193,10 @@ async function showHome(): Promise<void> {
   });
 
   bindVerificationActions();
+
+  // Tudo pronto: esconde loading e mostra a tela home
+  document.getElementById('screen-loading')!.classList.add('hidden');
+  document.getElementById('screen-home')!.classList.remove('hidden');
 
   // Repopula defaultTone no storage em background (necessário após logout/login,
   // já que clearStorage() apaga tudo e storeUserData não salva o tom).

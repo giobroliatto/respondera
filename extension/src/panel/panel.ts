@@ -440,6 +440,7 @@ window.addEventListener('message', async (e) => {
   const msg = e.data as { type?: string; data?: ReviewData };
 
   if (msg?.type === 'RESPONDERA_DATA' && msg.data) {
+    document.getElementById('panel-loading')?.classList.add('hidden');
     currentReviewData = msg.data;
     renderReview(currentReviewData);
     // Limpa contexto adicional
