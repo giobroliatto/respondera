@@ -131,6 +131,17 @@ async function showHome(): Promise<void> {
   document.getElementById('screen-register')!.classList.add('hidden');
   document.getElementById('screen-home')!.classList.remove('hidden');
 
+  // Sincroniza com o servidor para pegar plano/uso atualizados (ex: auto-downgrade)
+  try {
+    const user = await getMe();
+    await setStorage('userPlan', user.plan);
+    await setStorage('usageCount', user.usageCount);
+    await setStorage('emailVerified', user.emailVerified);
+    await setStorage('renewalDate', (user as any).mpNextBillingDate ?? null);
+  } catch {
+    // Offline ou token expirado — usa cache local
+  }
+
   const email       = await getStorage('userEmail');
   const plan        = await getStorage('userPlan');
   const usage       = await getStorage('usageCount');

@@ -3,6 +3,7 @@
 // devolve a resposta ao content script para inserção no DOM da página.
 
 import { PanelState, ToneOption, ReviewData } from '../shared/types';
+import { getMe } from '../shared/api';
 
 // ─── Estado do painel ─────────────────────────────────────────────────────────
 
@@ -119,6 +120,24 @@ function getFromStorage(key: string): Promise<string | number | null> {
       resolve(result[key] ?? null);
     });
   });
+}
+
+function setToStorage(data: Record<string, unknown>): Promise<void> {
+  return new Promise((resolve) => chrome.storage.local.set(data, resolve));
+}
+
+async function syncPlanFromServer(): Promise<void> {
+  try {
+    const user = await getMe();
+    await setToStorage({
+      userPlan:    user.plan,
+      usageCount:  user.usageCount,
+      emailVerified: user.emailVerified,
+      renewalDate: (user as any).mpNextBillingDate ?? null,
+    });
+  } catch {
+    // Offline ou token expirado — usa cache local
+  }
 }
 
 async function updateUsageFooter(): Promise<void> {
@@ -330,6 +349,9 @@ async function initToneSection(): Promise<void> {
 // ─── Inicialização ────────────────────────────────────────────────────────────
 
 document.addEventListener('DOMContentLoaded', async () => {
+  // Sincroniza plano com o servidor antes de renderizar (captura auto-downgrade etc.)
+  await syncPlanFromServer();
+
   await updateUsageFooter();
 
   // Seletor de tom — tons base (FREE + PRO)
