@@ -664,11 +664,15 @@
     }
     .footer-logo span { color: var(--accent); }
     .footer-tagline { font-size: 0.82rem; color: var(--text-muted); }
+
     .footer-links { display: flex; gap: 1.5rem; }
     .footer-link { font-size: 0.85rem; color: var(--text-muted); transition: color 0.2s; }
     .footer-link:hover { color: var(--text); }
     .footer-link-icon { display: flex; align-items: center; }
+    .footer-right { display: flex; flex-direction: column; align-items: flex-end; gap: 0.2rem; }
     .footer-copyright { font-size: 0.78rem; color: var(--text-muted); }
+    .footer-email { font-size: 0.78rem; color: var(--text-muted); opacity: 0.55; transition: opacity 0.2s; }
+    .footer-email:hover { opacity: 1; }
 
     /* ─── DEPOIMENTOS ────────────────────────────────────────────── */
     #depoimentos {
@@ -1211,7 +1215,10 @@
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
           </a>
         </div>
-        <div class="footer-copyright">© 2026 Respondera</div>
+        <div class="footer-right">
+          <div class="footer-copyright">© 2026 Respondera</div>
+          <a href="mailto:oi@respondera.com.br" class="footer-email">oi@respondera.com.br</a>
+        </div>
       </div>
     </div>
   </footer>
