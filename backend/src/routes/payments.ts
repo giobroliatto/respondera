@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { authMiddleware, AuthRequest } from '../middlewares/authMiddleware';
-import { createSubscription, getSubscription, cancelSubscription, verifyWebhookSignature } from '../services/mercadoPagoService';
+import { createSubscription, getSubscription, cancelSubscription, resumeSubscription, verifyWebhookSignature } from '../services/mercadoPagoService';
 import { sendProWelcomeEmail } from '../services/proWelcomeEmailService';
 import { prisma } from '../lib/prisma';
 import { logger } from '../utils/logger';
@@ -82,8 +82,9 @@ router.post('/webhook', async (req: Request, res: Response) => {
       select: { plan: true, email: true },
     });
 
-    // Quando cancelado, mantém PRO até a data de renovação — o auto-downgrade em /auth/me cuida do resto
-    const keepPro = status === 'cancelled' && currentUser?.plan === 'PRO';
+    // paused = cancelado pelo usuário mas ainda no período pago → mantém PRO
+    // cancelled = encerrado definitivamente → FREE
+    const keepPro = status === 'paused' && currentUser?.plan === 'PRO';
     const newPlan = isPro || keepPro ? 'PRO' : 'FREE';
 
     await prisma.user.update({
@@ -124,7 +125,7 @@ router.post('/cancel-subscription', authMiddleware, async (req: AuthRequest, res
       return;
     }
 
-    if (user.mpSubscriptionStatus === 'cancelled') {
+    if (user.mpSubscriptionStatus === 'paused' || user.mpSubscriptionStatus === 'cancelled') {
       res.status(400).json({ error: 'Assinatura já está cancelada.' });
       return;
     }
@@ -136,9 +137,10 @@ router.post('/cancel-subscription', authMiddleware, async (req: AuthRequest, res
 
     await cancelSubscription(user.mpSubscriptionId);
 
+    // Pausa no MP (reversível). Localmente marcamos como 'paused' para poder retomar.
     await prisma.user.update({
       where: { id: req.user!.id },
-      data: { mpSubscriptionStatus: 'cancelled' },
+      data: { mpSubscriptionStatus: 'paused' },
     });
 
     logger.info('Subscription cancelled', { userId: req.user!.id });
@@ -150,6 +152,45 @@ router.post('/cancel-subscription', authMiddleware, async (req: AuthRequest, res
   } catch (err: any) {
     logger.error('Cancel subscription error', { error: err.message });
     res.status(500).json({ error: 'Erro ao cancelar assinatura. Tente novamente.' });
+  }
+});
+
+// ─── POST /payments/resume-subscription ──────────────────────────────────────
+router.post('/resume-subscription', authMiddleware, async (req: AuthRequest, res: Response) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: req.user!.id },
+      select: { plan: true, mpSubscriptionId: true, mpSubscriptionStatus: true },
+    });
+
+    if (!user || user.plan !== 'PRO') {
+      res.status(400).json({ error: 'Nenhuma assinatura PRO encontrada.' });
+      return;
+    }
+
+    if (user.mpSubscriptionStatus !== 'paused') {
+      res.status(400).json({ error: 'Assinatura não está pausada.' });
+      return;
+    }
+
+    if (!user.mpSubscriptionId) {
+      res.status(400).json({ error: 'ID da assinatura não encontrado.' });
+      return;
+    }
+
+    await resumeSubscription(user.mpSubscriptionId);
+
+    await prisma.user.update({
+      where: { id: req.user!.id },
+      data: { mpSubscriptionStatus: 'authorized' },
+    });
+
+    logger.info('Subscription resumed', { userId: req.user!.id });
+
+    res.json({ message: 'Assinatura retomada. A cobrança volta no próximo ciclo.' });
+  } catch (err: any) {
+    logger.error('Resume subscription error', { error: err.message });
+    res.status(500).json({ error: 'Erro ao retomar assinatura. Tente novamente.' });
   }
 });
 

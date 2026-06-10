@@ -136,19 +136,21 @@ router.get('/me', authMiddleware, async (req: AuthRequest, res: Response) => {
     return;
   }
 
-  // Auto-downgrade: assinatura cancelada e período já expirou
+  // Auto-downgrade: assinatura pausada/cancelada e período já expirou
+  const isInactive = user.mpSubscriptionStatus === 'paused' || user.mpSubscriptionStatus === 'cancelled';
   if (
     user.plan === 'PRO' &&
-    user.mpSubscriptionStatus === 'cancelled' &&
+    isInactive &&
     user.mpNextBillingDate &&
     new Date() > user.mpNextBillingDate
   ) {
+    // Marca localmente como cancelled (ciclo encerrado) e downgrade para FREE
     user = await prisma.user.update({
       where: { id: user.id },
-      data: { plan: 'FREE' },
+      data: { plan: 'FREE', mpSubscriptionStatus: 'cancelled' },
       select: { id: true, email: true, plan: true, usageCount: true, usageResetAt: true, emailVerifiedAt: true, mpNextBillingDate: true, mpSubscriptionStatus: true },
     });
-    logger.info('User downgraded to FREE (subscription expired)', { userId: user.id });
+    logger.info('User downgraded to FREE (subscription period expired)', { userId: user.id });
   }
 
   res.json({

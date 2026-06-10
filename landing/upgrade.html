@@ -626,6 +626,7 @@
     let authToken = localStorage.getItem('respondera_token');
     let checkoutUrl = null;
     let managedRenewalDate = null;
+    let currentSubStatus = null;
 
     // ─── Elementos ────────────────────────────────────────────────
     const $ = (id) => document.getElementById(id);
@@ -846,20 +847,30 @@
       clearError('manage-error');
       $('manage-cancel-confirm').style.display = 'none';
 
-      const isCancelled = userData.mpSubscriptionStatus === 'cancelled';
+      currentSubStatus = userData.mpSubscriptionStatus;
       managedRenewalDate = userData.mpNextBillingDate
         ? new Date(userData.mpNextBillingDate).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
         : null;
 
-      $('manage-status-label').textContent = isCancelled ? 'Cancelada' : 'Ativa';
-
-      if (isCancelled) {
+      if (currentSubStatus === 'paused') {
+        // Cancelado mas ainda no período pago — pode retomar
+        $('manage-status-label').textContent = 'Cancelada';
         $('manage-renewal-text').textContent = managedRenewalDate
           ? `Acesso PRO até ${managedRenewalDate}`
           : 'Acesso PRO encerrado em breve';
         $('btn-cancel-sub').style.display = 'none';
+        $('btn-resume-sub').textContent = 'Retomar assinatura';
+        $('btn-resume-sub').style.display = '';
+      } else if (currentSubStatus === 'cancelled') {
+        // Ciclo encerrado — precisa de nova assinatura
+        $('manage-status-label').textContent = 'Encerrada';
+        $('manage-renewal-text').textContent = 'Seu período PRO foi encerrado.';
+        $('btn-cancel-sub').style.display = 'none';
+        $('btn-resume-sub').textContent = 'Assinar novamente';
         $('btn-resume-sub').style.display = '';
       } else {
+        // authorized — ativa
+        $('manage-status-label').textContent = 'Ativa';
         $('manage-renewal-text').textContent = managedRenewalDate
           ? `Próxima renovação: ${managedRenewalDate}`
           : '';
@@ -868,9 +879,41 @@
       }
     }
 
-    // Retomar assinatura (inicia novo checkout)
-    $('btn-resume-sub').addEventListener('click', () => {
-      goToCheckout(true);
+    // Retomar assinatura — paused: chama API; cancelled: nova assinatura
+    $('btn-resume-sub').addEventListener('click', async () => {
+      if (currentSubStatus === 'cancelled') {
+        goToCheckout(true);
+        return;
+      }
+
+      // paused → retoma via API
+      const btn = $('btn-resume-sub');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Retomando…';
+      clearError('manage-error');
+
+      try {
+        const res = await fetch(`${BACKEND_URL}/payments/resume-subscription`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${authToken}` },
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Erro ao retomar assinatura.');
+
+        // Atualiza UI para estado ativo
+        currentSubStatus = 'authorized';
+        $('manage-status-label').textContent = 'Ativa';
+        $('manage-renewal-text').textContent = managedRenewalDate
+          ? `Próxima renovação: ${managedRenewalDate}`
+          : '';
+        $('btn-resume-sub').style.display = 'none';
+        $('btn-cancel-sub').style.display = '';
+      } catch (err) {
+        showError('manage-error', err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Retomar assinatura';
+      }
     });
 
     // Mostrar confirmação de cancelamento
@@ -902,13 +945,16 @@
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Erro ao cancelar assinatura.');
 
-        // Atualiza UI para estado cancelado
+        // Atualiza UI para estado cancelado (paused no MP — pode retomar)
+        currentSubStatus = 'paused';
         $('manage-cancel-confirm').style.display = 'none';
         $('manage-status-label').textContent = 'Cancelada';
         $('manage-renewal-text').textContent = managedRenewalDate
           ? `Acesso PRO até ${managedRenewalDate}`
           : 'Acesso PRO encerrado em breve';
         $('btn-cancel-sub').style.display = 'none';
+        $('btn-resume-sub').textContent = 'Retomar assinatura';
+        $('btn-resume-sub').style.display = '';
       } catch (err) {
         showError('manage-error', err.message);
         $('manage-cancel-confirm').style.display = 'none';
