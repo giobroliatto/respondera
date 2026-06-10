@@ -218,7 +218,7 @@ function createButton(): HTMLButtonElement {
     'gap:6px',
     'background:transparent',
     'color:#1a73e8',
-    'border:1px solid #dadce0',
+    'border:none',
     'border-radius:4px',
     'padding:7px 15px',
     'font-size:14px',
@@ -228,21 +228,19 @@ function createButton(): HTMLButtonElement {
     'font-family:Google Sans,Roboto,Arial,sans-serif',
     'letter-spacing:0.0107em',
     'line-height:1.25',
-    'transition:background 0.2s,border-color 0.2s,color 0.2s',
+    'transition:background 0.2s,color 0.2s',
     'white-space:nowrap',
     'vertical-align:middle',
   ].join(';');
 
   btn.addEventListener('mouseenter', () => {
     btn.style.background = '#f3e8ff';
-    btn.style.borderColor = '#9333ea';
     btn.style.color = '#7c3aed';
     const svg = btn.querySelector('svg') as SVGElement | null;
     if (svg) svg.style.fill = '#7c3aed';
   });
   btn.addEventListener('mouseleave', () => {
     btn.style.background = 'transparent';
-    btn.style.borderColor = '#dadce0';
     btn.style.color = '#1a73e8';
     const svg = btn.querySelector('svg') as SVGElement | null;
     if (svg) svg.style.fill = '#1a73e8';
@@ -313,8 +311,17 @@ function injectReplyFormButton(): void {
   if (cancelEl) {
     cancelEl.insertAdjacentElement('beforebegin', btn);
   } else {
-    // Fallback: insere após o campo de texto
-    replyField.insertAdjacentElement('afterend', btn);
+    // Caso e-mail (sem "Cancelar"): ancora antes do botão submit "Responder"
+    const submitBtn = Array.from(document.querySelectorAll<HTMLButtonElement>('button'))
+      .find(b =>
+        !b.classList.contains('respondera-trigger-btn') &&
+        RESPOND_BTN_LABELS.some(l => b.textContent?.trim() === l)
+      );
+    if (submitBtn) {
+      submitBtn.insertAdjacentElement('beforebegin', btn);
+    } else {
+      replyField.insertAdjacentElement('afterend', btn);
+    }
   }
 
   btn.addEventListener('click', (e) => {
