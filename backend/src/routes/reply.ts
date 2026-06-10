@@ -70,8 +70,14 @@ router.post('/generate', replyGenerationLimiter, usageLimitMiddleware, async (re
       tokensUsed,
     });
 
+    // Remove travessões que o modelo insiste em usar apesar do prompt
+    const cleanReply = reply
+      .replace(/\s*—\s*/g, ', ')
+      .replace(/\s*–\s*/g, ', ')
+      .trim();
+
     res.json({
-      reply,
+      reply: cleanReply,
       tokensUsed,
       remainingUsage: Math.max(0, remainingUsage),
       ...(contextWarning && { contextWarning }),
