@@ -1,4 +1,5 @@
-// content.ts — injetado nas páginas do Google Business
+// content.ts — injetado nos iframes do Google Avaliações
+// URL alvo: https://www.google.com/local/business/*/customers/reviews*
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
@@ -12,120 +13,137 @@ interface ReviewData {
 }
 
 // ─── Seletores ────────────────────────────────────────────────────────────────
-// O Google atualiza o DOM sem aviso. Listamos múltiplos candidatos em ordem de
-// preferência; a primeira correspondência vence.
 
-// Cards de avaliação
-const CARD_SELECTORS = [
-  // Estrutura conhecida do Google Business (2024-2025)
-  '[data-review-id]',                    // atributo presente em ambientes reais
-  '.review-card',                        // mock local
-  '[jscontroller][jsaction*="review"]',  // padrão JSAction do Google
-  '.jfk-scrollbar-content > div > div', // padrão antigo
-];
+// Texto visível dos botões "Responder" do Google (list view e reply view)
+const RESPOND_BTN_LABELS = ['Responder', 'Reply'];
 
-// Texto da avaliação
-const TEXT_SELECTORS = [
-  '[data-review-text]',          // mock
-  '.review-full-text',           // Google (texto expandido)
-  'span[data-expandable-section]',
-  '.k8MTF',
-  '.wiI7pd',
-];
-
-// Nome do avaliador
-const REVIEWER_SELECTORS = [
-  '[data-reviewer-name]',   // mock
-  '.d4r55',
-  '.iV2VEc',
-  '.TSUbDb',
-];
-
-// Estrelas
-const RATING_SELECTORS = [
-  '[data-star-rating]',     // mock — lemos via getAttribute
+const STAR_SELECTORS = [
+  '[data-star-rating]',
   '[aria-label*="estrela"]',
   '[aria-label*="star"]',
   'span[role="img"][aria-label]',
 ];
 
-// Campo de resposta (textarea)
-const REPLY_FIELD_SELECTORS = [
-  '[data-reply-field]',     // mock
-  'textarea.reply-field',
-  'textarea[aria-label]',
-  'textarea[placeholder]',
+const REVIEWER_SELECTORS = [
+  '[data-reviewer-name]',
+  '.d4r55',
+  '.iV2VEc',
+  '.TSUbDb',
 ];
 
-// Indicador de que já existe resposta do dono
-const EXISTING_REPLY_SELECTORS = [
-  '.respondera-trigger-btn',  // nosso próprio botão já injetado
-  '[data-owner-reply]',
-  '.owner-response',
-  '.DU9Pgb',
+const TEXT_SELECTORS = [
+  '[data-review-text]',
+  '.wiI7pd',
+  '.review-full-text',
+  'span[data-expandable-section]',
+  '.k8MTF',
+];
+
+// "Resposta pública" / "Public response" textarea
+const REPLY_FIELD_SELECTORS = [
+  'textarea[aria-label*="pública"]',
+  'textarea[aria-label*="publica"]',
+  'textarea[aria-label*="esposta"]',
+  'textarea[aria-label*="esponse"]',
+  '[data-reply-field]',
+  'textarea[aria-label]',
+  'textarea[placeholder]',
 ];
 
 // ─── Utilitários ──────────────────────────────────────────────────────────────
 
 function findFirst(root: Element | Document, selectors: string[]): Element | null {
   for (const sel of selectors) {
-    const el = root.querySelector(sel);
-    if (el) return el;
+    try {
+      const el = root.querySelector(sel);
+      if (el) return el;
+    } catch { /* seletor inválido */ }
   }
   return null;
 }
 
-// ─── Detecção de cards ────────────────────────────────────────────────────────
+// ─── Detecção de botões "Responder" do Google ─────────────────────────────────
+// Usa aria-label como estratégia principal; cai para texto visível como fallback,
+// pois Google não garante aria-label em todos os builds.
 
-function findReviewCards(): Element[] {
-  for (const sel of CARD_SELECTORS) {
-    const found = Array.from(document.querySelectorAll(sel));
-    if (found.length > 0) {
+function findGoogleRespondButtons(): HTMLButtonElement[] {
+  const result: HTMLButtonElement[] = [];
+  const seen = new Set<HTMLButtonElement>();
 
-      return found;
-    }
+  // Estratégia 1: aria-label (mais estável)
+  for (const label of RESPOND_BTN_LABELS) {
+    document.querySelectorAll<HTMLButtonElement>(`button[aria-label="${label}"]`)
+      .forEach(btn => { if (!seen.has(btn)) { seen.add(btn); result.push(btn); } });
   }
-  return [];
+
+  // Estratégia 2: texto visível (fallback para builds sem aria-label)
+  // Ignora o botão submit da reply form (que também tem texto "Responder")
+  // verificando se o campo de resposta já está visível
+  if (!findFirst(document, REPLY_FIELD_SELECTORS)) {
+    document.querySelectorAll<HTMLButtonElement>('button').forEach(btn => {
+      if (seen.has(btn)) return;
+      if (btn.classList.contains('respondera-trigger-btn')) return;
+      const text = btn.textContent?.trim();
+      if (RESPOND_BTN_LABELS.some(l => text === l)) {
+        seen.add(btn);
+        result.push(btn);
+      }
+    });
+  }
+
+  return result;
+}
+
+// ─── Container da avaliação ───────────────────────────────────────────────────
+
+function findReviewContainer(btn: HTMLButtonElement): Element {
+  const byAttr = btn.closest('[data-review-id]');
+  if (byAttr) return byAttr;
+
+  let el: Element | null = btn.parentElement;
+  for (let i = 0; i < 8 && el; i++) {
+    const hasRating = !!findFirst(el, STAR_SELECTORS);
+    const hasText = (el.textContent?.trim().length ?? 0) > 30;
+    if (hasRating && hasText) return el;
+    el = el.parentElement;
+  }
+
+  return btn.parentElement?.parentElement?.parentElement
+    ?? btn.parentElement
+    ?? btn;
 }
 
 // ─── Extração de dados ────────────────────────────────────────────────────────
 
-function extractReviewData(card: Element): ReviewData {
-  // Texto
-  const textEl = findFirst(card, TEXT_SELECTORS);
+function extractReviewData(container: Element): ReviewData {
+  const textEl = findFirst(container, TEXT_SELECTORS);
   const text = textEl?.textContent?.trim() || null;
 
-  // Avaliador
-  const reviewerEl = findFirst(card, REVIEWER_SELECTORS);
+  const reviewerEl = findFirst(container, REVIEWER_SELECTORS);
   const reviewerName = reviewerEl?.textContent?.trim() || null;
 
-  // Estrelas — tenta data-attribute primeiro, depois aria-label
   let rating: number | null = null;
-  const ratingEl = findFirst(card, RATING_SELECTORS);
+  const ratingEl = findFirst(container, STAR_SELECTORS);
   if (ratingEl) {
     const dataAttr = ratingEl.getAttribute('data-star-rating');
     if (dataAttr) {
       rating = parseInt(dataAttr, 10);
     } else {
-      // Extrai número de strings tipo "5 estrelas" / "4 stars"
       const label = ratingEl.getAttribute('aria-label') ?? '';
       const match = label.match(/(\d)/);
       if (match) rating = parseInt(match[1], 10);
     }
   }
 
-  // Já tem resposta?
-  const hasExistingReply = EXISTING_REPLY_SELECTORS.some(
-    (sel) => card.querySelector(sel) !== null
-  );
+  const hasExistingReply =
+    !!container.querySelector('.respondera-trigger-btn') ||
+    !!container.querySelector('[data-owner-reply]') ||
+    !!container.querySelector('button[aria-label*="Editar resposta"]') ||
+    !!container.querySelector('button[aria-label*="Edit reply"]');
 
-  // ─── Sub-notas detalhadas (comida, serviço, ambiente etc.) ─────────────────
-  // Mock: atributo data-details com JSON diretamente no card
-  // Google Business: pares label+valor em contêineres de subtópico
   const detailRatings: Record<string, string> = {};
 
-  // Mock
-  const rawDetails = card.getAttribute('data-details');
+  const rawDetails = (container as HTMLElement).dataset?.details;
   if (rawDetails) {
     try {
       const parsed = JSON.parse(rawDetails) as Record<string, unknown>;
@@ -134,32 +152,13 @@ function extractReviewData(card: Element): ReviewData {
           detailRatings[k] = String(v);
         }
       }
-    } catch { /* JSON inválido — ignora */ }
+    } catch { /* JSON inválido */ }
   }
 
-  // Google Business Management (DOM real)
-  // Padrão 1: .UzThIf contém label + nota por aspecto
-  card.querySelectorAll('.UzThIf').forEach((el) => {
+  container.querySelectorAll('.UzThIf').forEach((el) => {
     const label = el.querySelector('.KF1hCb')?.textContent?.trim();
     const value = el.querySelector('.lTi8oc')?.getAttribute('aria-label')
       ?? el.querySelector('.lTi8oc')?.textContent?.trim();
-    if (label && value) detailRatings[label] = value;
-  });
-
-  // Padrão 2: tabelas de detalhes (.hGLX6d rows com label + valor)
-  card.querySelectorAll('.hGLX6d').forEach((row) => {
-    const cells = row.querySelectorAll('td, th');
-    if (cells.length === 2) {
-      const label = cells[0]!.textContent?.trim();
-      const value = cells[1]!.textContent?.trim();
-      if (label && value) detailRatings[label] = value;
-    }
-  });
-
-  // Padrão 3: .review-snippet-details span pairs
-  card.querySelectorAll('.review-snippet-detail').forEach((el) => {
-    const label = el.querySelector('.detail-label')?.textContent?.trim();
-    const value = el.querySelector('.detail-value')?.textContent?.trim();
     if (label && value) detailRatings[label] = value;
   });
 
@@ -173,25 +172,25 @@ function extractReviewData(card: Element): ReviewData {
 }
 
 // ─── Inserção de resposta no campo ────────────────────────────────────────────
-// Usar nativeInputValueSetter para compatibilidade com React/Angular que
-// monitoram eventos do DOM e ignoram atribuições diretas a .value
 
-export function insertReplyIntoField(replyText: string, card?: Element | null): boolean {
-  // Busca dentro do card específico primeiro, depois no documento inteiro
-  const root = card ?? document;
+export function insertReplyIntoField(replyText: string, container?: Element | null): boolean {
+  // Se o container foi removido do DOM (transição de view), usa document
+  const root = (container && document.body.contains(container))
+    ? container
+    : document;
+
   const field = findFirst(root, REPLY_FIELD_SELECTORS) as HTMLTextAreaElement | null;
   if (!field) {
     console.warn('[Respondera] campo de resposta não encontrado');
     return false;
   }
 
-  const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
-    window.HTMLTextAreaElement.prototype,
-    'value'
+  const nativeSetter = Object.getOwnPropertyDescriptor(
+    window.HTMLTextAreaElement.prototype, 'value'
   )?.set;
 
-  if (nativeInputValueSetter) {
-    nativeInputValueSetter.call(field, replyText);
+  if (nativeSetter) {
+    nativeSetter.call(field, replyText);
   } else {
     field.value = replyText;
   }
@@ -202,89 +201,152 @@ export function insertReplyIntoField(replyText: string, card?: Element | null): 
   return true;
 }
 
-// ─── Injeção do botão ─────────────────────────────────────────────────────────
+// ─── Criação do botão "Responder com IA" ─────────────────────────────────────
+// Visual idêntico ao botão "Responder" do Google (outlined, Google Blue)
+// com diferencial no hover (bordas roxas — identidade IA).
 
 function createButton(): HTMLButtonElement {
   const btn = document.createElement('button');
   btn.className = 'respondera-trigger-btn';
-  btn.innerHTML = '<svg style="fill:#1f2937;transition:fill 0.25s ease" width="15" height="15" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg"><path d="M 26.6875 12.6602 C 26.9687 12.6602 27.1094 12.4961 27.1797 12.2383 C 27.9062 8.3242 27.8594 8.2305 31.9375 7.4570 C 32.2187 7.4102 32.3828 7.2461 32.3828 6.9648 C 32.3828 6.6836 32.2187 6.5195 31.9375 6.4726 C 27.8828 5.6524 28.0000 5.5586 27.1797 1.6914 C 27.1094 1.4336 26.9687 1.2695 26.6875 1.2695 C 26.4062 1.2695 26.2656 1.4336 26.1953 1.6914 C 25.3750 5.5586 25.5156 5.6524 21.4375 6.4726 C 21.1797 6.5195 20.9922 6.6836 20.9922 6.9648 C 20.9922 7.2461 21.1797 7.4102 21.4375 7.4570 C 25.5156 8.2774 25.4687 8.3242 26.1953 12.2383 C 26.2656 12.4961 26.4062 12.6602 26.6875 12.6602 Z M 15.3438 28.7852 C 15.7891 28.7852 16.0938 28.5039 16.1406 28.0821 C 16.9844 21.8242 17.1953 21.8242 23.6641 20.5821 C 24.0860 20.5117 24.3906 20.2305 24.3906 19.7852 C 24.3906 19.3633 24.0860 19.0586 23.6641 18.9883 C 17.1953 18.0977 16.9609 17.8867 16.1406 11.5117 C 16.0938 11.0899 15.7891 10.7852 15.3438 10.7852 C 14.9219 10.7852 14.6172 11.0899 14.5703 11.5352 C 13.7969 17.8164 13.4687 17.7930 7.0469 18.9883 C 6.6250 19.0821 6.3203 19.3633 6.3203 19.7852 C 6.3203 20.2539 6.6250 20.5117 7.1406 20.5821 C 13.5156 21.6133 13.7969 21.7774 14.5703 28.0352 C 14.6172 28.5039 14.9219 28.7852 15.3438 28.7852 Z M 31.2344 54.7305 C 31.8438 54.7305 32.2891 54.2852 32.4062 53.6524 C 34.0703 40.8086 35.8750 38.8633 48.5781 37.4570 C 49.2344 37.3867 49.6797 36.8945 49.6797 36.2852 C 49.6797 35.6758 49.2344 35.2070 48.5781 35.1133 C 35.8750 33.7070 34.0703 31.7617 32.4062 18.9180 C 32.2891 18.2852 31.8438 17.8633 31.2344 17.8633 C 30.6250 17.8633 30.1797 18.2852 30.0860 18.9180 C 28.4219 31.7617 26.5938 33.7070 13.9140 35.1133 C 13.2344 35.2070 12.7891 35.6758 12.7891 36.2852 C 12.7891 36.8945 13.2344 37.3867 13.9140 37.4570 C 26.5703 39.1211 28.3281 40.8321 30.0860 53.6524 C 30.1797 54.2852 30.6250 54.7305 31.2344 54.7305 Z"/></svg><span>Responder com IA</span>';
+  btn.type = 'button';
+  // Ícone sparkle (identidade visual Respondera) + texto
+  btn.innerHTML = `<svg style="fill:#1a73e8;flex-shrink:0;transition:fill 0.2s" width="14" height="14" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg"><path d="M 26.6875 12.6602 C 26.9687 12.6602 27.1094 12.4961 27.1797 12.2383 C 27.9062 8.3242 27.8594 8.2305 31.9375 7.4570 C 32.2187 7.4102 32.3828 7.2461 32.3828 6.9648 C 32.3828 6.6836 32.2187 6.5195 31.9375 6.4726 C 27.8828 5.6524 28.0000 5.5586 27.1797 1.6914 C 27.1094 1.4336 26.9687 1.2695 26.6875 1.2695 C 26.4062 1.2695 26.2656 1.4336 26.1953 1.6914 C 25.3750 5.5586 25.5156 5.6524 21.4375 6.4726 C 21.1797 6.5195 20.9922 6.6836 20.9922 6.9648 C 20.9922 7.2461 21.1797 7.4102 21.4375 7.4570 C 25.5156 8.2774 25.4687 8.3242 26.1953 12.2383 C 26.2656 12.4961 26.4062 12.6602 26.6875 12.6602 Z M 15.3438 28.7852 C 15.7891 28.7852 16.0938 28.5039 16.1406 28.0821 C 16.9844 21.8242 17.1953 21.8242 23.6641 20.5821 C 24.0860 20.5117 24.3906 20.2305 24.3906 19.7852 C 24.3906 19.3633 24.0860 19.0586 23.6641 18.9883 C 17.1953 18.0977 16.9609 17.8867 16.1406 11.5117 C 16.0938 11.0899 15.7891 10.7852 15.3438 10.7852 C 14.9219 10.7852 14.6172 11.0899 14.5703 11.5352 C 13.7969 17.8164 13.4687 17.7930 7.0469 18.9883 C 6.6250 19.0821 6.3203 19.3633 6.3203 19.7852 C 6.3203 20.2539 6.6250 20.5117 7.1406 20.5821 C 13.5156 21.6133 13.7969 21.7774 14.5703 28.0352 C 14.6172 28.5039 14.9219 28.7852 15.3438 28.7852 Z M 31.2344 54.7305 C 31.8438 54.7305 32.2891 54.2852 32.4062 53.6524 C 34.0703 40.8086 35.8750 38.8633 48.5781 37.4570 C 49.2344 37.3867 49.6797 36.8945 49.6797 36.2852 C 49.6797 35.6758 49.2344 35.2070 48.5781 35.1133 C 35.8750 33.7070 34.0703 31.7617 32.4062 18.9180 C 32.2891 18.2852 31.8438 17.8633 31.2344 17.8633 C 30.6250 17.8633 30.1797 18.2852 30.0860 18.9180 C 28.4219 31.7617 26.5938 33.7070 13.9140 35.1133 C 13.2344 35.2070 12.7891 35.6758 12.7891 36.2852 C 12.7891 36.8945 13.2344 37.3867 13.9140 37.4570 C 26.5703 39.1211 28.3281 40.8321 30.0860 53.6524 C 30.1797 54.2852 30.6250 54.7305 31.2344 54.7305 Z"/></svg><span>Responder com IA</span>`;
+
   btn.style.cssText = [
     'display:inline-flex',
     'align-items:center',
     'gap:6px',
-    'background:#ffffff',
-    'color:#1f2937',
-    'border:1.5px solid #e2e8f0',
-    'border-radius:7px',
-    'padding:8px 13px',
-    'font-size:13px',
-    'font-weight:600',
+    'background:transparent',
+    'color:#1a73e8',
+    'border:1px solid #dadce0',
+    'border-radius:4px',
+    'padding:7px 15px',
+    'font-size:14px',
+    'font-weight:500',
     'cursor:pointer',
-    'margin-top:8px',
-    'font-family:inherit',
-    'box-shadow:0 1px 3px rgba(0,0,0,0.07)',
-    'transition:border-color 0.25s ease,box-shadow 0.25s ease,background 0.25s ease',
+    'margin-left:8px',
+    'font-family:Google Sans,Roboto,Arial,sans-serif',
+    'letter-spacing:0.0107em',
+    'line-height:1.25',
+    'transition:background 0.2s,border-color 0.2s,color 0.2s',
+    'white-space:nowrap',
+    'vertical-align:middle',
   ].join(';');
 
   btn.addEventListener('mouseenter', () => {
-    btn.style.borderColor = '#a78bfa';
-    btn.style.boxShadow = '0 3px 12px rgba(139,92,246,0.15)';
-    btn.style.background = '#fafaff';
+    btn.style.background = '#f3e8ff';
+    btn.style.borderColor = '#9333ea';
+    btn.style.color = '#7c3aed';
     const svg = btn.querySelector('svg') as SVGElement | null;
-    if (svg) svg.style.fill = '#10B981';
+    if (svg) svg.style.fill = '#7c3aed';
   });
   btn.addEventListener('mouseleave', () => {
-    btn.style.borderColor = '#e2e8f0';
-    btn.style.boxShadow = '0 1px 3px rgba(0,0,0,0.07)';
-    btn.style.background = '#ffffff';
+    btn.style.background = 'transparent';
+    btn.style.borderColor = '#dadce0';
+    btn.style.color = '#1a73e8';
     const svg = btn.querySelector('svg') as SVGElement | null;
-    if (svg) svg.style.fill = '#1f2937';
+    if (svg) svg.style.fill = '#1a73e8';
   });
 
   return btn;
 }
 
-function injectButtons(): void {
-  const cards = findReviewCards();
+// ─── Injeção: List View (reviews list com botões "Responder") ─────────────────
 
-  for (const card of cards) {
-    // Não reinjetar
-    if (card.querySelector('.respondera-trigger-btn')) continue;
+function injectListButtons(): void {
+  const googleBtns = findGoogleRespondButtons();
 
-    const data = extractReviewData(card);
+  for (const googleBtn of googleBtns) {
+    if (
+      googleBtn.nextElementSibling?.classList.contains('respondera-trigger-btn') ||
+      googleBtn.previousElementSibling?.classList.contains('respondera-trigger-btn')
+    ) continue;
 
-    // Não injetar em cards que já têm resposta do dono
-    // (exceto se o único seletor que bateu foi o nosso próprio botão — já tratado acima)
+    const container = findReviewContainer(googleBtn);
+    const data = extractReviewData(container);
+
     if (data.hasExistingReply) continue;
-
-    // Encontra a área de resposta dentro do card para ancorar o botão
-    const replyArea = card.querySelector('.reply-area, [data-reply-field]')?.parentElement
-      ?? card.querySelector('textarea')?.parentElement
-      ?? card;
 
     const btn = createButton();
 
     btn.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
-      openPanel(data, card);
+
+      // Abre o campo "Resposta pública" do Google antes de abrir nosso painel,
+      // para que o usuário veja onde a resposta vai parar ao clicar "Usar".
+      const replyFieldAlreadyOpen = !!findFirst(container, REPLY_FIELD_SELECTORS);
+      if (!replyFieldAlreadyOpen) {
+        googleBtn.click();
+      }
+
+      openPanel(data, container);
     });
 
-    replyArea.appendChild(btn);
+    googleBtn.insertAdjacentElement('afterend', btn);
   }
 }
 
-// ─── Painel lateral (iframe overlay) ───────────────────────────────────────
+// ─── Injeção: Reply Form View (textarea "Resposta pública" já visível) ────────
+// Cobre dois cenários: (a) usuário clicou "Responder" sem usar nosso botão,
+// (b) modal aberto via link de e-mail (iframe /reviews/reply direto).
+
+function injectReplyFormButton(): void {
+  if (document.querySelector('.respondera-reply-form-btn')) return;
+
+  const replyField = findFirst(document, REPLY_FIELD_SELECTORS) as HTMLElement | null;
+  if (!replyField) return;
+
+  // Encontra o botão de cancelar para ancorar nossa posição
+  const cancelEl = Array.from(
+    document.querySelectorAll<HTMLElement>('button, a[role="button"]')
+  ).find(el => {
+    const t = el.textContent?.trim();
+    return t === 'Cancelar' || t === 'Cancel';
+  });
+
+  const btn = createButton();
+  btn.classList.add('respondera-reply-form-btn');
+  btn.style.marginLeft = '0';
+  btn.style.marginRight = '8px';
+
+  if (cancelEl) {
+    cancelEl.insertAdjacentElement('beforebegin', btn);
+  } else {
+    // Fallback: insere após o campo de texto
+    replyField.insertAdjacentElement('afterend', btn);
+  }
+
+  btn.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Extrai dados da avaliação visível na reply form view
+    const data = extractReviewData(document.body);
+    openPanel(data, null);
+  });
+}
+
+// ─── Injeção unificada (chamada pelo MutationObserver) ────────────────────────
+
+function injectButtons(): void {
+  if (findFirst(document, REPLY_FIELD_SELECTORS)) {
+    injectReplyFormButton();
+  } else {
+    injectListButtons();
+  }
+}
+
+// ─── Painel lateral (iframe overlay) ─────────────────────────────────────────
 
 let panelIframe: HTMLIFrameElement | null = null;
 let pendingPanelData: ReviewData | null = null;
 let activeCard: Element | null = null;
 
-function openPanel(data: ReviewData, card: Element): void {
-  // Fecha painel anterior se estiver aberto
+function openPanel(data: ReviewData, container: Element | null): void {
   closePanel();
 
-  activeCard = card;
+  activeCard = container;
 
   const iframe = document.createElement('iframe');
   iframe.id = 'respondera-panel-frame';
@@ -315,7 +377,8 @@ function closePanel(): void {
   activeCard = null;
 }
 
-// Mensagens recebidas do iframe do painel
+// ─── Mensagens do painel ──────────────────────────────────────────────────────
+
 window.addEventListener('message', (e) => {
   if (!panelIframe || e.source !== panelIframe.contentWindow) return;
 
@@ -323,7 +386,6 @@ window.addEventListener('message', (e) => {
 
   switch (msg?.type) {
     case 'RESPONDERA_READY':
-      // Painel carregado — envia os dados da avaliação
       if (pendingPanelData) {
         panelIframe.contentWindow?.postMessage(
           { type: 'RESPONDERA_DATA', data: pendingPanelData },
@@ -334,7 +396,31 @@ window.addEventListener('message', (e) => {
       break;
 
     case 'RESPONDERA_INSERT':
-      if (msg.reply) insertReplyIntoField(msg.reply, activeCard);
+      if (msg.reply) {
+        const root = (activeCard && document.body.contains(activeCard))
+          ? activeCard
+          : document;
+
+        const field = findFirst(root, REPLY_FIELD_SELECTORS);
+
+        if (!field && activeCard) {
+          // Textarea ainda não apareceu — abre o campo do Google e tenta de novo
+          const googleBtn = (activeCard as Element).querySelector<HTMLButtonElement>(
+            'button[aria-label="Responder"], button[aria-label="Reply"]'
+          ) ?? Array.from((activeCard as Element).querySelectorAll<HTMLButtonElement>('button'))
+              .find(b => RESPOND_BTN_LABELS.some(l => b.textContent?.trim() === l));
+
+          if (googleBtn) {
+            googleBtn.click();
+            const reply = msg.reply;
+            setTimeout(() => insertReplyIntoField(reply, activeCard), 350);
+            closePanel();
+            break;
+          }
+        }
+
+        insertReplyIntoField(msg.reply, root instanceof Document ? null : root as Element);
+      }
       closePanel();
       break;
 
@@ -344,7 +430,8 @@ window.addEventListener('message', (e) => {
   }
 });
 
-// Notificação de login enviada pelo popup
+// ─── Login notificado pelo popup ──────────────────────────────────────────────
+
 chrome.runtime.onMessage.addListener((message: { type?: string }) => {
   if (message.type === 'RESPONDERA_LOGGED_IN' && panelIframe) {
     panelIframe.contentWindow?.postMessage({ type: 'RESPONDERA_AUTH_UPDATE' }, '*');
@@ -352,10 +439,9 @@ chrome.runtime.onMessage.addListener((message: { type?: string }) => {
   return false;
 });
 
-// ─── MutationObserver — detecta novos cards em SPA ───────────────────────────
+// ─── MutationObserver ─────────────────────────────────────────────────────────
 
 function startObserver(): void {
-  // Tenta injetar imediatamente (caso os cards já estejam no DOM)
   injectButtons();
 
   const observer = new MutationObserver(() => {
@@ -366,10 +452,8 @@ function startObserver(): void {
     childList: true,
     subtree: true,
   });
-
 }
 
-// Aguarda o body estar disponível
 if (document.body) {
   startObserver();
 } else {

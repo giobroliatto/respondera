@@ -49,11 +49,20 @@ module.exports = (env, argv) => {
             transform(content) {
               const manifest = JSON.parse(content.toString());
               const apiHost = isDev ? 'http://localhost:3333/*' : 'https://api.respondera.com.br/*';
+
               manifest.host_permissions = [
-                'https://business.google.com/*',
-                'https://www.google.com/business/*',
+                'https://www.google.com/local/business/*',
                 apiHost,
+                ...(isDev ? ['http://localhost:8080/*'] : []),
               ];
+
+              if (!isDev) {
+                // Remove entradas localhost dos content_scripts em builds de produção
+                manifest.content_scripts = manifest.content_scripts.filter(
+                  cs => !cs.matches.some(m => m.includes('localhost'))
+                );
+              }
+
               return JSON.stringify(manifest, null, 2);
             },
           },

@@ -10,8 +10,7 @@
   ],
 
   "host_permissions": [
-    "https://business.google.com/*",
-    "https://www.google.com/business/*",
+    "https://www.google.com/local/business/*",
     "https://api.respondera.com.br/*"
   ],
 
@@ -22,12 +21,10 @@
 
   "content_scripts": [
     {
-      "matches": [
-        "https://business.google.com/*",
-        "https://www.google.com/business/*"
-      ],
+      "matches": ["https://www.google.com/local/business/*"],
       "js": ["content.js"],
-      "run_at": "document_idle"
+      "run_at": "document_idle",
+      "all_frames": true
     }
   ],
 
