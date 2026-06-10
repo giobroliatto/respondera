@@ -82,10 +82,14 @@ router.post('/webhook', async (req: Request, res: Response) => {
       select: { plan: true, email: true },
     });
 
+    // Quando cancelado, mantém PRO até a data de renovação — o auto-downgrade em /auth/me cuida do resto
+    const keepPro = status === 'cancelled' && currentUser?.plan === 'PRO';
+    const newPlan = isPro || keepPro ? 'PRO' : 'FREE';
+
     await prisma.user.update({
       where: { id: userId },
       data: {
-        plan: isPro ? 'PRO' : 'FREE',
+        plan: newPlan,
         mpSubscriptionId: subscription.id,
         mpSubscriptionStatus: status,
         mpNextBillingDate: next_payment_date ? new Date(next_payment_date) : null,

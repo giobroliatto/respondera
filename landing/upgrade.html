@@ -581,6 +581,7 @@
             <button class="btn-link" id="btn-abort-cancel" type="button">Voltar</button>
           </div>
 
+          <button class="btn-primary btn-pro" id="btn-resume-sub" type="button" style="display:none">Retomar assinatura</button>
           <button class="btn-secondary" id="btn-cancel-sub" type="button">Cancelar assinatura</button>
           <button class="btn-link" id="btn-manage-logout" type="button">Sair / Trocar conta</button>
         </div>
@@ -721,19 +722,21 @@
     });
 
     // ─── Etapa 2: Criar assinatura e redirecionar ─────────────────
-    async function goToCheckout() {
+    async function goToCheckout(forceCheckout = false) {
       showStep('step-redirect');
 
       try {
-        // Checa se já é PRO antes de criar nova assinatura
-        const meRes = await fetch(`${BACKEND_URL}/auth/me`, {
-          headers: { 'Authorization': `Bearer ${authToken}` },
-        });
-        if (meRes.ok) {
-          const meData = await meRes.json();
-          if (meData.plan === 'PRO') {
-            showManage(meData);
-            return;
+        // Checa se já é PRO antes de criar nova assinatura (a não ser que seja "retomar")
+        if (!forceCheckout) {
+          const meRes = await fetch(`${BACKEND_URL}/auth/me`, {
+            headers: { 'Authorization': `Bearer ${authToken}` },
+          });
+          if (meRes.ok) {
+            const meData = await meRes.json();
+            if (meData.plan === 'PRO') {
+              showManage(meData);
+              return;
+            }
           }
         }
 
@@ -855,13 +858,20 @@
           ? `Acesso PRO até ${managedRenewalDate}`
           : 'Acesso PRO encerrado em breve';
         $('btn-cancel-sub').style.display = 'none';
+        $('btn-resume-sub').style.display = '';
       } else {
         $('manage-renewal-text').textContent = managedRenewalDate
           ? `Próxima renovação: ${managedRenewalDate}`
           : '';
         $('btn-cancel-sub').style.display = '';
+        $('btn-resume-sub').style.display = 'none';
       }
     }
+
+    // Retomar assinatura (inicia novo checkout)
+    $('btn-resume-sub').addEventListener('click', () => {
+      goToCheckout(true);
+    });
 
     // Mostrar confirmação de cancelamento
     $('btn-cancel-sub').addEventListener('click', () => {
