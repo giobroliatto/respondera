@@ -12,7 +12,6 @@
   "host_permissions": [
     "https://business.google.com/*",
     "https://www.google.com/business/*",
-    "http://localhost:3333/*",
     "https://api.respondera.com.br/*"
   ],
 
@@ -27,11 +26,6 @@
         "https://business.google.com/*",
         "https://www.google.com/business/*"
       ],
-      "js": ["content.js"],
-      "run_at": "document_idle"
-    },
-    {
-      "matches": ["file://*/*mock-reviews*"],
       "js": ["content.js"],
       "run_at": "document_idle"
     }
