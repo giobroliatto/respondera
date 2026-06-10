@@ -93,7 +93,12 @@ async function sendEmail(to: string): Promise<void> {
                 </tr>
                 <tr>
                   <td style="padding:6px 0;font-size:14px;color:rgba(255,255,255,0.7)">
-                    <span style="color:#10B981;margin-right:8px">✓</span> Contexto do negócio personalizado
+                    <span style="color:#10B981;margin-right:8px">✓</span> Perfil do negócio
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:6px 0;font-size:14px;color:rgba(255,255,255,0.7)">
+                    <span style="color:#10B981;margin-right:8px">✓</span> Contexto adicional por avaliação
                   </td>
                 </tr>
               </table>

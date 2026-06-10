@@ -92,6 +92,25 @@ export async function getSubscription(subscriptionId: string): Promise<{
 }
 
 /**
+ * Cancela uma assinatura no MP (para renovações futuras, acesso continua até o fim do período).
+ */
+export async function cancelSubscription(subscriptionId: string): Promise<void> {
+  const response = await fetch(`${MP_API_BASE}/preapproval/${subscriptionId}`, {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${env.MP_ACCESS_TOKEN}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ status: 'cancelled' }),
+  });
+
+  if (!response.ok) {
+    const errBody = await response.text().catch(() => '');
+    throw new Error(`MP cancelSubscription failed: ${response.status} ${errBody.slice(0, 300)}`);
+  }
+}
+
+/**
  * Verifica a assinatura do webhook usando o secret configurado no painel do MP.
  * Retorna true se a assinatura for válida.
  */

@@ -528,7 +528,7 @@
 
         <!-- Etapa 1: Login / Cadastro -->
         <div class="step active" id="step-auth">
-          <p class="form-title" id="auth-form-title">Entre na sua conta para continuar</p>
+          <p class="form-title" id="auth-form-title">Entre na sua conta</p>
 
           <form id="auth-form" novalidate>
             <div class="field">
@@ -551,10 +551,38 @@
             <div class="error-msg" id="auth-error"></div>
 
             <button class="btn-primary btn-pro" id="btn-auth" type="submit">
-              Continuar para pagamento
+              Entrar
             </button>
           </form>
           <button class="btn-link" id="btn-toggle-mode" type="button">Não tem conta? Criar agora</button>
+        </div>
+
+        <!-- Etapa 3: Gerenciar assinatura (PRO) -->
+        <div class="step" id="step-manage">
+          <p class="form-title">Minha assinatura</p>
+
+          <!-- Card de status -->
+          <div style="background:rgba(124,58,237,0.08);border:1px solid rgba(124,58,237,0.2);border-radius:10px;padding:1.25rem;margin-bottom:1.25rem">
+            <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.35rem">
+              <span style="background:rgba(124,58,237,0.15);border:1px solid rgba(124,58,237,0.3);color:#a78bfa;font-size:0.7rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;padding:0.2rem 0.6rem;border-radius:100px">✦ PRO</span>
+              <span id="manage-status-label" style="font-size:0.82rem;color:var(--text-muted)"></span>
+            </div>
+            <p id="manage-renewal-text" style="font-size:0.85rem;color:var(--text-mid);margin:0"></p>
+          </div>
+
+          <div class="error-msg" id="manage-error"></div>
+
+          <!-- Confirmação de cancelamento -->
+          <div id="manage-cancel-confirm" style="display:none;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:1rem;margin-bottom:1rem">
+            <p style="font-size:0.85rem;color:var(--text-mid);margin-bottom:1rem;line-height:1.5">
+              Tem certeza? As renovações param, mas você mantém acesso PRO até <strong id="cancel-until-date" style="color:var(--text)"></strong>.
+            </p>
+            <button class="btn-primary" id="btn-confirm-cancel" type="button" style="background:#dc2626;margin-bottom:0.5rem">Sim, cancelar assinatura</button>
+            <button class="btn-link" id="btn-abort-cancel" type="button">Voltar</button>
+          </div>
+
+          <button class="btn-secondary" id="btn-cancel-sub" type="button">Cancelar assinatura</button>
+          <button class="btn-link" id="btn-manage-logout" type="button">Sair / Trocar conta</button>
         </div>
 
         <!-- Etapa 2: Redirecionando -->
@@ -596,6 +624,7 @@
     let isRegisterMode = false;
     let authToken = localStorage.getItem('respondera_token');
     let checkoutUrl = null;
+    let managedRenewalDate = null;
 
     // ─── Elementos ────────────────────────────────────────────────
     const $ = (id) => document.getElementById(id);
@@ -617,7 +646,7 @@
         });
         const data = await res.json();
         if (data.plan === 'PRO') {
-          showSuccess(true);
+          showManage(data);
           return;
         }
       } catch {}
@@ -637,8 +666,8 @@
         ? 'Crie sua conta para continuar'
         : 'Entre na sua conta para continuar';
       $('btn-auth').textContent = isRegisterMode
-        ? 'Criar conta e continuar'
-        : 'Continuar para pagamento';
+        ? 'Criar conta'
+        : 'Entrar';
       $('btn-toggle-mode').textContent = isRegisterMode
         ? 'Já tem conta? Fazer login'
         : 'Não tem conta? Criar agora';
@@ -687,7 +716,7 @@
       } catch (err) {
         showError('auth-error', err.message);
       } finally {
-        setLoading('btn-auth', false, isRegisterMode ? 'Criar conta e continuar' : 'Continuar para pagamento');
+        setLoading('btn-auth', false, isRegisterMode ? 'Criar conta' : 'Entrar');
       }
     });
 
@@ -703,7 +732,7 @@
         if (meRes.ok) {
           const meData = await meRes.json();
           if (meData.plan === 'PRO') {
-            showSuccess(true);
+            showManage(meData);
             return;
           }
         }
@@ -804,8 +833,89 @@
     // ─── Helpers ──────────────────────────────────────────────────
     function showStep(id) {
       document.querySelectorAll('.step').forEach((s) => s.classList.remove('active'));
+      $('success-screen').classList.remove('active');
       $(id).classList.add('active');
     }
+
+    // ─── Tela de gerenciar assinatura (PRO) ──────────────────────
+    function showManage(userData) {
+      showStep('step-manage');
+      clearError('manage-error');
+      $('manage-cancel-confirm').style.display = 'none';
+
+      const isCancelled = userData.mpSubscriptionStatus === 'cancelled';
+      managedRenewalDate = userData.mpNextBillingDate
+        ? new Date(userData.mpNextBillingDate).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+        : null;
+
+      $('manage-status-label').textContent = isCancelled ? 'Cancelada' : 'Ativa';
+
+      if (isCancelled) {
+        $('manage-renewal-text').textContent = managedRenewalDate
+          ? `Acesso PRO até ${managedRenewalDate}`
+          : 'Acesso PRO encerrado em breve';
+        $('btn-cancel-sub').style.display = 'none';
+      } else {
+        $('manage-renewal-text').textContent = managedRenewalDate
+          ? `Próxima renovação: ${managedRenewalDate}`
+          : '';
+        $('btn-cancel-sub').style.display = '';
+      }
+    }
+
+    // Mostrar confirmação de cancelamento
+    $('btn-cancel-sub').addEventListener('click', () => {
+      $('cancel-until-date').textContent = managedRenewalDate ?? 'a data de renovação';
+      $('manage-cancel-confirm').style.display = 'block';
+      $('btn-cancel-sub').style.display = 'none';
+      clearError('manage-error');
+    });
+
+    // Abortar cancelamento
+    $('btn-abort-cancel').addEventListener('click', () => {
+      $('manage-cancel-confirm').style.display = 'none';
+      $('btn-cancel-sub').style.display = '';
+    });
+
+    // Confirmar cancelamento
+    $('btn-confirm-cancel').addEventListener('click', async () => {
+      const btn = $('btn-confirm-cancel');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Cancelando…';
+      clearError('manage-error');
+
+      try {
+        const res = await fetch(`${BACKEND_URL}/payments/cancel-subscription`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${authToken}` },
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Erro ao cancelar assinatura.');
+
+        // Atualiza UI para estado cancelado
+        $('manage-cancel-confirm').style.display = 'none';
+        $('manage-status-label').textContent = 'Cancelada';
+        $('manage-renewal-text').textContent = managedRenewalDate
+          ? `Acesso PRO até ${managedRenewalDate}`
+          : 'Acesso PRO encerrado em breve';
+        $('btn-cancel-sub').style.display = 'none';
+      } catch (err) {
+        showError('manage-error', err.message);
+        $('manage-cancel-confirm').style.display = 'none';
+        $('btn-cancel-sub').style.display = '';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Sim, cancelar assinatura';
+      }
+    });
+
+    // Logout da tela de manage
+    $('btn-manage-logout').addEventListener('click', () => {
+      authToken = null;
+      checkoutUrl = null;
+      localStorage.removeItem('respondera_token');
+      showStep('step-auth');
+    });
 
     async function showSuccess(alreadyPro = false) {
       document.querySelectorAll('.step').forEach((s) => s.classList.remove('active'));

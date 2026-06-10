@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { authMiddleware, AuthRequest } from '../middlewares/authMiddleware';
-import { createSubscription, getSubscription, verifyWebhookSignature } from '../services/mercadoPagoService';
+import { createSubscription, getSubscription, cancelSubscription, verifyWebhookSignature } from '../services/mercadoPagoService';
 import { sendProWelcomeEmail } from '../services/proWelcomeEmailService';
 import { prisma } from '../lib/prisma';
 import { logger } from '../utils/logger';
@@ -104,6 +104,48 @@ router.post('/webhook', async (req: Request, res: Response) => {
     });
   } catch (err: any) {
     logger.error('Webhook processing error', { message: err.message });
+  }
+});
+
+// ─── POST /payments/cancel-subscription ──────────────────────────────────────
+router.post('/cancel-subscription', authMiddleware, async (req: AuthRequest, res: Response) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: req.user!.id },
+      select: { plan: true, mpSubscriptionId: true, mpSubscriptionStatus: true, mpNextBillingDate: true },
+    });
+
+    if (!user || user.plan !== 'PRO') {
+      res.status(400).json({ error: 'Nenhuma assinatura PRO ativa encontrada.' });
+      return;
+    }
+
+    if (user.mpSubscriptionStatus === 'cancelled') {
+      res.status(400).json({ error: 'Assinatura já está cancelada.' });
+      return;
+    }
+
+    if (!user.mpSubscriptionId) {
+      res.status(400).json({ error: 'ID da assinatura não encontrado.' });
+      return;
+    }
+
+    await cancelSubscription(user.mpSubscriptionId);
+
+    await prisma.user.update({
+      where: { id: req.user!.id },
+      data: { mpSubscriptionStatus: 'cancelled' },
+    });
+
+    logger.info('Subscription cancelled', { userId: req.user!.id });
+
+    res.json({
+      message: 'Assinatura cancelada. Você mantém acesso PRO até a próxima data de renovação.',
+      accessUntil: user.mpNextBillingDate,
+    });
+  } catch (err: any) {
+    logger.error('Cancel subscription error', { error: err.message });
+    res.status(500).json({ error: 'Erro ao cancelar assinatura. Tente novamente.' });
   }
 });
 

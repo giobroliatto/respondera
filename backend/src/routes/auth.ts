@@ -126,14 +126,29 @@ router.post('/login', authLimiter, async (req: Request, res: Response) => {
 
 // GET /auth/me
 router.get('/me', authMiddleware, async (req: AuthRequest, res: Response) => {
-  const user = await prisma.user.findUnique({
+  let user = await prisma.user.findUnique({
     where: { id: req.user!.id },
-    select: { id: true, email: true, plan: true, usageCount: true, usageResetAt: true, emailVerifiedAt: true, mpNextBillingDate: true },
+    select: { id: true, email: true, plan: true, usageCount: true, usageResetAt: true, emailVerifiedAt: true, mpNextBillingDate: true, mpSubscriptionStatus: true },
   });
 
   if (!user) {
     res.status(401).json({ error: 'Usuário não encontrado.' });
     return;
+  }
+
+  // Auto-downgrade: assinatura cancelada e período já expirou
+  if (
+    user.plan === 'PRO' &&
+    user.mpSubscriptionStatus === 'cancelled' &&
+    user.mpNextBillingDate &&
+    new Date() > user.mpNextBillingDate
+  ) {
+    user = await prisma.user.update({
+      where: { id: user.id },
+      data: { plan: 'FREE' },
+      select: { id: true, email: true, plan: true, usageCount: true, usageResetAt: true, emailVerifiedAt: true, mpNextBillingDate: true, mpSubscriptionStatus: true },
+    });
+    logger.info('User downgraded to FREE (subscription expired)', { userId: user.id });
   }
 
   res.json({
