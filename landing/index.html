@@ -205,7 +205,6 @@
       padding-top: 100px;
       padding-bottom: var(--space-xl);
     }
-    .hero-content {}
     .hero-eyebrow {
       display: inline-flex;
       align-items: center;
@@ -262,7 +261,6 @@
       padding-top: 2rem;
       border-top: 1px solid var(--border);
     }
-    .stat-item {}
     .stat-number {
       font-family: var(--font-display);
       font-size: 2rem;
@@ -544,23 +542,7 @@
     @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
     .demo-panel-footer { display: flex; gap: 0.75rem; }
     .demo-tone-row { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; flex-wrap: wrap; }
-    .demo-tone-section { margin-bottom: 1.25rem; }
     .demo-tone-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 0.5rem; }
-    .demo-pro-badge { display: inline-block; font-size: 0.58rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; background: rgba(139,92,246,0.15); color: #a78bfa; border: 1px solid rgba(139,92,246,0.28); border-radius: 100px; padding: 0.08rem 0.38rem; margin-left: 0.3rem; vertical-align: middle; line-height: 1.8; pointer-events: none; }
-    .tone-chip-custom { border-style: dashed !important; display: inline-flex !important; align-items: center; gap: 0.35rem; }
-    .tone-chip-custom svg { flex-shrink: 0; }
-    .tone-chip.tone-chip-pro.active,
-    .tone-chip.tone-chip-custom.active { border-color: #a78bfa; color: #a78bfa; background: rgba(139,92,246,0.1); }
-    #demo-custom-tone-wrap { margin-top: 0.4rem; }
-    .demo-context-section { margin-bottom: 1rem; }
-    .demo-context-label { font-size: 0.72rem; color: var(--text-muted); margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.25rem; flex-wrap: wrap; }
-    .demo-optional { opacity: 0.65; font-size: 0.68rem; }
-    .demo-field { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: var(--font-body); font-size: 0.82rem; padding: 0.5rem 0.75rem; outline: none; transition: border-color 0.2s; box-sizing: border-box; }
-    .demo-field:focus { border-color: rgba(16,185,129,0.4); }
-    .demo-field-textarea { resize: none; line-height: 1.5; }
-    #demo-pro-cta { text-align: center; margin-top: 1.5rem; }
-    #demo-pro-cta a { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.88rem; color: #a78bfa; border: 1px solid rgba(139,92,246,0.25); background: rgba(139,92,246,0.07); padding: 0.6rem 1.4rem; border-radius: 100px; transition: background 0.22s, border-color 0.22s; }
-    #demo-pro-cta a:hover { background: rgba(139,92,246,0.14); border-color: rgba(139,92,246,0.45); }
 
     /* ─── PLANOS ─────────────────────────────────────────────────── */
     #planos {
@@ -655,7 +637,6 @@
       flex-wrap: wrap;
       gap: 1.5rem;
     }
-    .footer-left {}
     .footer-logo {
       font-family: var(--font-display);
       font-size: 1.4rem;
@@ -831,6 +812,8 @@
       .mockup-card { width: 290px; }
       .hero-stats { flex-direction: column; gap: 1rem; align-items: center; }
     }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
@@ -1356,8 +1339,6 @@
     }
   </script>
 
-  <style>
-    @keyframes spin { to { transform: rotate(360deg); } }
-  </style>
+
 </body>
 </html>
