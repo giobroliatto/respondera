@@ -14,7 +14,7 @@ let _currentUserPlan: string | null = null;
 // ─── Instalação ───────────────────────────────────────────────────────────────
 
 chrome.runtime.onInstalled.addListener(() => {
-  console.log('[Respondera] extensão instalada/atualizada');
+  // extensão instalada/atualizada
 });
 
 // ─── Mensagens simples (sendMessage) ─────────────────────────────────────────

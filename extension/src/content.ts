@@ -1,6 +1,4 @@
-// content.ts — injetado nas páginas do Google Business e no mock local
-
-console.log('[Respondera] content script carregado em', window.location.href);
+// content.ts — injetado nas páginas do Google Business
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
@@ -83,7 +81,7 @@ function findReviewCards(): Element[] {
   for (const sel of CARD_SELECTORS) {
     const found = Array.from(document.querySelectorAll(sel));
     if (found.length > 0) {
-      console.log(`[Respondera] cards encontrados com seletor: "${sel}" (${found.length})`);
+
       return found;
     }
   }
@@ -369,7 +367,6 @@ function startObserver(): void {
     subtree: true,
   });
 
-  console.log('[Respondera] MutationObserver ativo');
 }
 
 // Aguarda o body estar disponível
