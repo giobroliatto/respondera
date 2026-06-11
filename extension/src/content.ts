@@ -228,9 +228,16 @@ function bgLuminance(el: Element): number | null {
   return 0.299 * +m[1] + 0.587 * +m[2] + 0.114 * +m[3];
 }
 
-// Aceita um elemento opcional como ponto de partida para detecção do tema.
-// Quando o botão já está no DOM, passá-lo aqui garante a travessia mais precisa.
 function isDarkMode(anchor?: Element | null): boolean {
+  // [role="dialog"] é o container modal com background sólido em ambos os temas
+  // (rgb(255,255,255) no claro / rgb(32,33,36) no escuro). Verificamos diretamente.
+  const dialog = document.querySelector('[role="dialog"]');
+  if (dialog) {
+    const lum = bgLuminance(dialog);
+    if (lum !== null) return lum < 128;
+  }
+
+  // Fallback: percorre ancestrais do anchor até achar background sólido
   const el: Element | null = anchor
     ?? document.querySelector<HTMLElement>('button[aria-label="Responder"]')
     ?? document.querySelector<HTMLElement>('button[aria-label="Reply"]')
@@ -250,8 +257,6 @@ function isDarkMode(anchor?: Element | null): boolean {
     if (lum !== null) return lum < 128;
   }
 
-  // Não usar matchMedia como fallback: reflete preferência do OS, não o tema do Google.
-  // Se não foi possível detectar nenhum background sólido, assume light mode (padrão do Google).
   return false;
 }
 
@@ -287,16 +292,26 @@ function applyButtonTheme(btn: HTMLButtonElement): void {
   };
 }
 
-// Re-aplica o tema em dois momentos após inserção no DOM:
-// rAF garante que o botão já está no DOM; setTimeout(100) cobre casos onde
-// o Google ainda está aplicando estilos via JS quando o rAF dispara.
+// Polling até o [role="dialog"] ter background sólido (Google aplica via JS, timing variável).
+// Verifica a cada 50ms por até 1 segundo, aplica o tema assim que detecta.
 function reapplyThemeAfterRender(btn: HTMLButtonElement): void {
-  requestAnimationFrame(() => {
-    if (document.body.contains(btn)) applyButtonTheme(btn);
-  });
-  setTimeout(() => {
-    if (document.body.contains(btn)) applyButtonTheme(btn);
-  }, 100);
+  let attempts = 0;
+
+  const tryApply = () => {
+    if (!document.body.contains(btn)) return;
+
+    const dialog = document.querySelector('[role="dialog"]');
+    const dialogReady = dialog && bgLuminance(dialog) !== null;
+
+    if (dialogReady || attempts >= 20) {
+      applyButtonTheme(btn);
+    } else {
+      attempts++;
+      setTimeout(tryApply, 50);
+    }
+  };
+
+  requestAnimationFrame(tryApply);
 }
 
 // ─── Criação do botão "Responder com IA" ─────────────────────────────────────
