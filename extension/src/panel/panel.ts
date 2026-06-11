@@ -335,14 +335,14 @@ async function initToneSection(): Promise<void> {
     document.querySelectorAll<HTMLButtonElement>('.tone-btn-pro').forEach((btn) => {
       btn.classList.add('tone-btn-pro--locked');
       btn.addEventListener('click', () => {
-        chrome.tabs.create({ url: 'https://respondera.com.br/upgrade.html' });
+        chrome.tabs.create({ url: 'https://respondera.com.br/upgrade' });
       });
     });
 
     // Tom personalizado: visível mas bloqueado para FREE — clique abre upgrade
     el.btnCustomTone().classList.add('tone-custom-toggle--locked');
     el.btnCustomTone().addEventListener('click', () => {
-      chrome.tabs.create({ url: 'https://respondera.com.br/upgrade.html' });
+      chrome.tabs.create({ url: 'https://respondera.com.br/upgrade' });
     });
   }
 }
