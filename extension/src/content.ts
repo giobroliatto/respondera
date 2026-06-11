@@ -399,6 +399,7 @@ function injectReplyFormButton(): void {
   btn.style.marginRight = '4px';
 
   if (cancelEl) {
+    btn.style.marginLeft = '2px';
     cancelEl.insertAdjacentElement('beforebegin', btn);
   } else {
     // Caso e-mail (sem "Cancelar"): ancora antes do botão submit "Responder"
