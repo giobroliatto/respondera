@@ -449,12 +449,16 @@ function injectReplyFormButton(): void {
 
   reapplyThemeAfterRender(btn);
 
+  // In situation 2 (inline form with Cancel button), scope extraction to the specific review card.
+  // In sequential/email views (no Cancel button), the whole body has only one review.
+  const reviewContainer: Element = cancelEl
+    ? findReviewContainer(cancelEl as HTMLButtonElement)
+    : document.body;
+
   btn.addEventListener('click', (e) => {
     e.preventDefault();
     e.stopPropagation();
-
-    // Extrai dados da avaliação visível na reply form view
-    const data = extractReviewData(document.body);
+    const data = extractReviewData(reviewContainer);
     openPanel(data, null);
   });
 }
