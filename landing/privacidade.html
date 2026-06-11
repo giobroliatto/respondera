@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Política de Privacidade — Respondera</title>
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png" />
+  <link rel="shortcut icon" href="/favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:         #0A0A0A;
+      --bg-card:    #141414;
+      --border:     rgba(255,255,255,0.08);
+      --text:       #F0F0F0;
+      --text-muted: #6B6B6B;
+      --accent:     #10B981;
+      --font-display: 'Bebas Neue', sans-serif;
+      --font-body:    'DM Sans', sans-serif;
+      --max-w: 760px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      line-height: 1.8;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── NAV ─────────────────────────────────────────────────── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 1px solid var(--border);
+      background: rgba(10,10,10,0.92);
+      backdrop-filter: blur(12px);
+      padding: 0 2rem;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo {
+      font-family: var(--font-display);
+      font-size: 1.35rem;
+      letter-spacing: 0.04em;
+      color: var(--text);
+      text-decoration: none;
+    }
+    .nav-logo span { color: var(--accent); }
+    .nav-back {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: color 0.2s;
+    }
+    .nav-back:hover { color: var(--text); text-decoration: none; }
+
+    /* ── CONTEÚDO ─────────────────────────────────────────────── */
+    main {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 4rem 2rem 6rem;
+    }
+
+    .page-label {
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1rem;
+    }
+
+    h1 {
+      font-family: var(--font-display);
+      font-size: clamp(2.2rem, 5vw, 3rem);
+      letter-spacing: 0.04em;
+      line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+
+    .updated {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 3rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h2 {
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--text);
+      margin: 2.5rem 0 0.75rem;
+      letter-spacing: 0.01em;
+    }
+    h2::before {
+      content: '— ';
+      color: var(--accent);
+    }
+
+    p { color: rgba(240,240,240,0.75); margin-bottom: 0.75rem; }
+
+    ul {
+      list-style: none;
+      margin: 0.5rem 0 0.75rem 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    ul li {
+      color: rgba(240,240,240,0.75);
+      padding-left: 1.2rem;
+      position: relative;
+    }
+    ul li::before {
+      content: '·';
+      color: var(--accent);
+      position: absolute;
+      left: 0;
+      font-weight: 700;
+    }
+
+    .highlight-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-left: 2px solid var(--accent);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      margin: 1rem 0;
+      font-size: 0.88rem;
+      color: rgba(240,240,240,0.65);
+    }
+
+    /* ── FOOTER ──────────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+    footer a { color: var(--text-muted); }
+    footer a:hover { color: var(--text); }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="/" class="nav-logo">Respond<span>era</span></a>
+    <a href="/" class="nav-back">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      Voltar ao início
+    </a>
+  </nav>
+
+  <main>
+    <div class="page-label">Legal</div>
+    <h1>Política de Privacidade</h1>
+    <p class="updated">Última atualização: junho de 2026</p>
+
+    <p>
+      O Respondera é uma extensão do Chrome desenvolvida para ajudar proprietários de negócios a responder avaliações do Google com auxílio de inteligência artificial. Esta política explica quais dados coletamos, como os utilizamos e quais são seus direitos.
+    </p>
+
+    <h2>1. Quem somos</h2>
+    <p>
+      Respondera é um produto desenvolvido de forma independente, com sede no Brasil. Para dúvidas ou solicitações relacionadas à privacidade, entre em contato pelo e-mail <a href="mailto:oi@respondera.com.br">oi@respondera.com.br</a>.
+    </p>
+
+    <h2>2. Dados que coletamos</h2>
+    <p>Coletamos apenas o mínimo necessário para o funcionamento do serviço:</p>
+    <ul>
+      <li><strong>E-mail e senha</strong> — usados para criar e autenticar sua conta. A senha é armazenada de forma criptografada e nunca é lida em texto puro.</li>
+      <li><strong>Perfil do negócio</strong> — nome do estabelecimento, segmento, diferenciais e tom preferido, fornecidos opcionalmente por você no popup da extensão. São usados para personalizar as respostas geradas.</li>
+      <li><strong>Texto das avaliações</strong> — quando você clica em "Responder com IA", o texto da avaliação e a nota (estrelas) são enviados temporariamente à nossa API para gerar a sugestão de resposta. <strong>Esses dados não são armazenados permanentemente em nossos servidores após o processamento.</strong></li>
+    </ul>
+
+    <div class="highlight-box">
+      Não coletamos dados de navegação, histórico do Chrome, informações pessoais dos autores das avaliações nem qualquer dado além do descrito acima.
+    </div>
+
+    <h2>3. Como usamos seus dados</h2>
+    <ul>
+      <li>Autenticar e manter sua sessão ativa na extensão.</li>
+      <li>Personalizar as respostas com IA de acordo com o perfil do seu negócio.</li>
+      <li>Controlar o uso dentro do seu plano (limite de respostas mensais).</li>
+      <li>Enviar e-mails transacionais, como confirmação de cadastro ou redefinição de senha.</li>
+    </ul>
+
+    <h2>4. Como o processamento de IA funciona</h2>
+    <p>
+      O texto da avaliação é enviado ao nosso servidor (<code>api.respondera.com.br</code>), que o processa em tempo real usando um modelo de linguagem (LLM) para gerar uma sugestão de resposta. O texto é descartado após o processamento — não é usado para treinar modelos, não é compartilhado com terceiros para fins comerciais nem armazenado de forma identificável.
+    </p>
+
+    <h2>5. Compartilhamento de dados</h2>
+    <p>
+      Não vendemos nem alugamos seus dados. O único compartilhamento que ocorre é o necessário para o processamento da IA (conforme descrito na seção 4). Podemos compartilhar dados em resposta a exigências legais ou para proteger nossos direitos, se necessário.
+    </p>
+
+    <h2>6. Armazenamento e segurança</h2>
+    <ul>
+      <li>Toda comunicação entre a extensão e nossa API ocorre via HTTPS (TLS).</li>
+      <li>Senhas são armazenadas com hash seguro (bcrypt ou equivalente).</li>
+      <li>Dados do perfil do negócio são armazenados em banco de dados com acesso restrito.</li>
+      <li>Após o cancelamento ou exclusão da conta, seus dados são removidos de nossos servidores em até 30 dias.</li>
+    </ul>
+
+    <h2>7. Cookies e armazenamento local</h2>
+    <p>
+      A extensão usa a API <code>chrome.storage.local</code> para armazenar localmente no seu navegador: o token de sessão e os dados do perfil do negócio. Nenhum cookie de rastreamento é utilizado.
+    </p>
+
+    <h2>8. Seus direitos (LGPD)</h2>
+    <p>Em conformidade com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018), você tem direito a:</p>
+    <ul>
+      <li>Confirmar a existência de tratamento de dados e acessar seus dados.</li>
+      <li>Solicitar a correção de dados incompletos, inexatos ou desatualizados.</li>
+      <li>Solicitar a exclusão dos seus dados pessoais.</li>
+      <li>Revogar o consentimento a qualquer momento, excluindo sua conta.</li>
+      <li>Solicitar a portabilidade dos seus dados em formato estruturado.</li>
+    </ul>
+    <p>Para exercer qualquer um desses direitos, entre em contato pelo e-mail <a href="mailto:oi@respondera.com.br">oi@respondera.com.br</a>.</p>
+
+    <h2>9. Alterações nesta política</h2>
+    <p>
+      Podemos atualizar esta política periodicamente. Em caso de mudanças relevantes, notificaremos por e-mail ou por meio da extensão. O uso continuado do serviço após a notificação implica concordância com a versão atualizada.
+    </p>
+
+    <h2>10. Contato</h2>
+    <p>
+      Dúvidas, solicitações ou reclamações relacionadas à privacidade: <a href="mailto:oi@respondera.com.br">oi@respondera.com.br</a>
+    </p>
+  </main>
+
+  <footer>
+    <p>© 2026 Respondera · <a href="/">Início</a> · <a href="mailto:oi@respondera.com.br">oi@respondera.com.br</a></p>
+  </footer>
+
+</body>
+</html>

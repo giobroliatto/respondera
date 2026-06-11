@@ -317,6 +317,24 @@ button:disabled {
 
 /* ─── Switch link ────────────────────────────────────────────────────────── */
 
+.privacy-notice {
+  font-size: 10.5px;
+  color: var(--text-muted);
+  margin-top: 10px;
+  text-align: center;
+  line-height: 1.5;
+  opacity: 0.7;
+}
+
+.privacy-notice a {
+  color: var(--text-muted);
+  text-decoration: underline;
+}
+
+.privacy-notice a:hover {
+  color: var(--accent);
+}
+
 .switch-link {
   font-size: 12px;
   color: var(--text-muted);
