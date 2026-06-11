@@ -524,7 +524,7 @@ button:disabled {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
   position: relative;
 }
 
