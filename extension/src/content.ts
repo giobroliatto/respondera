@@ -492,7 +492,7 @@ function openPanel(data: ReviewData, container: Element | null): void {
     'right:0',
     'top:0',
     'height:100vh',
-    'width:360px',
+    'width:390px',
     'z-index:999999',
     'border:none',
     'box-shadow:-6px 0 32px rgba(0,0,0,0.18)',

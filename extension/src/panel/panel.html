@@ -17,7 +17,7 @@
     <!-- Header -->
     <div class="panel-header">
       <span class="panel-title"><img src="icons/icon512.png" alt="Respondera" class="panel-logo">Respond<span class="title-accent">era</span></span>
-      <button id="btn-close" class="btn-close" type="button" aria-label="Fechar painel" title="Fechar">✕</button>
+      <button id="btn-close" class="btn-close" type="button" aria-label="Fechar painel" title="Fechar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
 
     <!-- Área com scroll único (tudo exceto header e ações) -->
@@ -114,7 +114,8 @@
 
       <!-- Limite atingido -->
       <div id="limit-section" class="state-section hidden">
-        <p class="limit-msg">⚠ Você atingiu o limite de respostas deste mês.</p>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <p class="limit-msg">Você atingiu o limite de respostas deste mês.</p>
       </div>
 
     </div><!-- /panel-main -->
@@ -129,8 +130,8 @@
     <!-- Ações (fixas) -->
     <div class="panel-actions">
       <button id="btn-generate" class="btn-primary" type="button">Gerar resposta</button>
-      <button id="btn-regenerate" class="btn-secondary hidden" type="button">↺ Regenerar</button>
-      <button id="btn-use" class="btn-success hidden" type="button">✓ Usar esta resposta</button>
+      <button id="btn-regenerate" class="btn-secondary hidden" type="button"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.9"/></svg> Regenerar</button>
+      <button id="btn-use" class="btn-success hidden" type="button"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Usar esta resposta</button>
     </div>
 
   </div>

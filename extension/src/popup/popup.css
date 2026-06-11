@@ -9,7 +9,7 @@
   --border:      rgba(255,255,255,0.08);
   --border-mid:  rgba(255,255,255,0.14);
   --text:        #F0F0F0;
-  --text-muted:  #5A5A5A;
+  --text-muted:  #888888;
   --text-mid:    #9CA3AF;
   --accent:      #10B981;
   --accent-dim:  rgba(16,185,129,0.1);
@@ -100,7 +100,7 @@ body {
 }
 
 .subtitle {
-  font-size: 12.5px;
+  font-size: 13px;
   color: var(--text-muted);
   margin-bottom: 14px;
   font-weight: 300;
@@ -120,7 +120,7 @@ input[type="password"] {
   padding: 9px 12px;
   border: 1.5px solid var(--border);
   border-radius: var(--radius);
-  font-size: 12.5px;
+  font-size: 13px;
   font-family: var(--font-body);
   outline: none;
   background: var(--bg-input);
@@ -184,7 +184,7 @@ button:disabled {
 /* ─── Home screen ─────────────────────────────────────────────────────────── */
 
 .user-email {
-  font-size: 11.5px;
+  font-size: 12.5px;
   color: var(--text-muted);
   margin-bottom: 10px;
   overflow: hidden;
@@ -218,7 +218,7 @@ button:disabled {
 }
 
 .upgrade-banner-text {
-  font-size: 11px;
+  font-size: 12px;
   color: rgba(255,255,255,0.5);
   line-height: 1.4;
   flex: 1;
@@ -231,7 +231,7 @@ button:disabled {
   border: none;
   border-radius: 6px;
   padding: 5px 10px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
@@ -242,19 +242,19 @@ button:disabled {
 .btn-upgrade:disabled { opacity: 0.5; cursor: not-allowed; }
 
 #plan-label {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--accent);
   letter-spacing: 0.04em;
 }
 
 .usage {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-muted);
 }
 
 .renewal {
-  font-size: 10px;
+  font-size: 11px;
   color: var(--text-muted);
   display: block;
   margin-top: -6px;
@@ -262,7 +262,7 @@ button:disabled {
 }
 
 .hint {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-mid);
   line-height: 1.55;
   text-align: center;
@@ -281,7 +281,7 @@ button:disabled {
   border: 1px solid rgba(245,158,11,0.25);
   border-radius: var(--radius);
   color: var(--text-mid);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.45;
   margin-bottom: 12px;
   padding: 10px;
@@ -295,21 +295,21 @@ button:disabled {
 }
 
 .verification-actions .btn-secondary {
-  font-size: 11.5px;
+  font-size: 12px;
   margin-top: 0;
   padding: 7px 8px;
 }
 
 .verification-message {
   color: var(--text);
-  font-size: 11.5px;
+  font-size: 12px;
   margin-top: 8px;
 }
 
 /* ─── Erro ────────────────────────────────────────────────────────────────── */
 
 .error {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--red);
   margin-top: 6px;
   line-height: 1.4;
@@ -318,7 +318,7 @@ button:disabled {
 /* ─── Switch link ────────────────────────────────────────────────────────── */
 
 .privacy-notice {
-  font-size: 10.5px;
+  font-size: 11.5px;
   color: var(--text-muted);
   margin-top: 10px;
   text-align: center;
@@ -336,7 +336,7 @@ button:disabled {
 }
 
 .switch-link {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-muted);
   margin-top: 10px;
   text-align: center;
@@ -367,7 +367,7 @@ button:disabled {
 .tab-btn {
   flex: 1;
   padding: 6px 10px;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   font-family: var(--font-body);
   background: transparent;
@@ -404,7 +404,7 @@ button:disabled {
 }
 
 .pro-lock-badge {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.08em;
   color: #8b5cf6;
@@ -416,7 +416,7 @@ button:disabled {
 }
 
 .pro-lock p {
-  font-size: 11.5px;
+  font-size: 12px;
   color: #a78bfa;
   line-height: 1.45;
 }
@@ -445,7 +445,7 @@ button:disabled {
 .toggle-btn {
   flex: 1;
   padding: 7px 6px;
-  font-size: 11.5px;
+  font-size: 12px;
   font-weight: 500;
   font-family: var(--font-body);
   background: var(--bg-input);
@@ -471,7 +471,7 @@ button:disabled {
 }
 
 .toggle-hint {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-muted);
   margin-top: 3px;
   line-height: 1.4;
@@ -488,7 +488,7 @@ button:disabled {
 .gender-btn {
   flex: 1;
   padding: 5px 6px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 500;
   font-family: var(--font-body);
   background: var(--bg-input);
@@ -529,7 +529,7 @@ button:disabled {
 }
 
 .field-group label {
-  font-size: 11.5px;
+  font-size: 12px;
   font-weight: 500;
   color: var(--text-mid);
 }
@@ -548,7 +548,7 @@ button:disabled {
   padding: 8px 10px;
   border: 1.5px solid var(--border);
   border-radius: var(--radius);
-  font-size: 12.5px;
+  font-size: 13px;
   font-family: var(--font-body);
   outline: none;
   background: var(--bg-input);
@@ -582,7 +582,7 @@ button:disabled {
 .biz-context-textarea::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 2px; }
 
 .char-count {
-  font-size: 10.5px;
+  font-size: 11.5px;
   color: var(--text-muted);
   text-align: right;
   margin-top: 2px;
@@ -601,7 +601,7 @@ button:disabled {
 }
 
 .feedback {
-  font-size: 12px;
+  font-size: 13px;
   margin-top: 8px;
   text-align: center;
   line-height: 1.4;
@@ -620,7 +620,7 @@ button:disabled {
 
 .biz-tone-btn {
   padding: 6px 4px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 500;
   font-family: var(--font-body);
   background: var(--bg-input);
