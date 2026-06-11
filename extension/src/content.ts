@@ -282,25 +282,63 @@ function themeColors(dark: boolean) {
 
 // ─── Tema do botão ────────────────────────────────────────────────────────────
 
-// Aplica (ou re-aplica) cores e handlers de hover no botão.
-// Quando o botão já está no DOM, passá-lo como âncora garante detecção precisa do tema.
+function injectShimmerStyles(): void {
+  if (document.getElementById('respondera-shimmer-styles')) return;
+  const style = document.createElement('style');
+  style.id = 'respondera-shimmer-styles';
+  // 0-20%: pausa fora à esquerda → 20-55%: varredura LINEAR constante (sem desaceleração) → 55-100%: pausa fora à direita
+  style.textContent =
+    '@keyframes respondera-shimmer{' +
+    '0%,20%{background-position:-300px center}' +
+    '55%,100%{background-position:300px center}' +
+    '}';
+  (document.head ?? document.documentElement).appendChild(style);
+}
+
 function applyButtonTheme(btn: HTMLButtonElement): void {
   const svg = btn.querySelector('svg') as SVGElement;
+  const span = btn.querySelector<HTMLElement>('span');
   const anchor = document.body?.contains(btn) ? btn : null;
-  const { base, hover, bgHover } = themeColors(isDarkMode(anchor));
+  const dark = isDarkMode(anchor);
+  const { base, hover, bgHover } = themeColors(dark);
+  // Cor do pico do brilho: superfície azul clarinha do Google (modo claro) e quase-branco neutro (escuro)
+  const shimmer = dark ? '#f1f3f4' : '#e8f0fe';
 
   svg.style.fill = base;
   btn.style.color = base;
 
+  const applySpanShimmer = () => {
+    if (!span) return;
+    span.style.background =
+      `linear-gradient(90deg,${base} 40%,${shimmer} 50%,${base} 60%)`;
+    span.style.backgroundSize = '300px 100%';
+    span.style.backgroundClip = 'text';
+    (span.style as any).webkitBackgroundClip = 'text';
+    (span.style as any).webkitTextFillColor = 'transparent';
+    span.style.animation = 'respondera-shimmer 4s linear infinite';
+  };
+
+  const clearSpanShimmer = (color: string) => {
+    if (!span) return;
+    span.style.background = '';
+    span.style.backgroundSize = '';
+    span.style.backgroundClip = '';
+    (span.style as any).webkitBackgroundClip = '';
+    (span.style as any).webkitTextFillColor = color;
+    span.style.animation = 'none';
+  };
+
+  applySpanShimmer();
+
   btn.onmouseenter = () => {
     btn.style.background = bgHover;
-    btn.style.color = hover;
     svg.style.fill = hover;
+    clearSpanShimmer(hover);
   };
   btn.onmouseleave = () => {
     btn.style.background = 'transparent';
-    btn.style.color = base;
     svg.style.fill = base;
+    applySpanShimmer();
   };
 }
 
@@ -329,6 +367,7 @@ function reapplyThemeAfterRender(btn: HTMLButtonElement): void {
 // ─── Criação do botão "Responder com IA" ─────────────────────────────────────
 
 function createButton(): HTMLButtonElement {
+  injectShimmerStyles();
   const btn = document.createElement('button');
   btn.className = 'respondera-trigger-btn';
   btn.type = 'button';
