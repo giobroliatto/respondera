@@ -64,6 +64,18 @@ function findFirst(root: Element | Document, selectors: string[]): Element | nul
   return null;
 }
 
+// Like findFirst but skips elements inside display:none containers (offsetParent === null)
+function findFirstVisible(root: Element | Document, selectors: string[]): Element | null {
+  for (const sel of selectors) {
+    try {
+      const found = Array.from(root.querySelectorAll(sel))
+        .find(el => (el as HTMLElement).offsetParent !== null);
+      if (found) return found;
+    } catch { /* seletor inválido */ }
+  }
+  return null;
+}
+
 // ─── Detecção de botões "Responder" do Google ─────────────────────────────────
 // Usa aria-label como estratégia principal; cai para texto visível como fallback,
 // pois Google não garante aria-label em todos os builds.
@@ -396,15 +408,19 @@ function injectListButtons(): void {
 // (b) modal aberto via link de e-mail (iframe /reviews/reply direto).
 
 function injectReplyFormButton(): void {
-  if (document.querySelector('.respondera-reply-form-btn')) return;
+  // Skip only if there's already a *visible* button (offsetParent is null inside display:none)
+  const hasVisibleBtn = Array.from(document.querySelectorAll<HTMLElement>('.respondera-reply-form-btn'))
+    .some(b => b.offsetParent !== null);
+  if (hasVisibleBtn) return;
 
-  const replyField = findFirst(document, REPLY_FIELD_SELECTORS) as HTMLElement | null;
+  const replyField = findFirstVisible(document, REPLY_FIELD_SELECTORS) as HTMLElement | null;
   if (!replyField) return;
 
-  // Encontra o botão de cancelar para ancorar nossa posição
+  // Encontra o botão de cancelar para ancorar nossa posição (apenas visível)
   const cancelEl = Array.from(
     document.querySelectorAll<HTMLElement>('button, a[role="button"]')
   ).find(el => {
+    if ((el as HTMLElement).offsetParent === null) return false;
     const t = el.textContent?.trim();
     return t === 'Cancelar' || t === 'Cancel';
   });
@@ -417,9 +433,10 @@ function injectReplyFormButton(): void {
     btn.style.marginLeft = '2px';
     cancelEl.insertAdjacentElement('beforebegin', btn);
   } else {
-    // Caso e-mail (sem "Cancelar"): ancora antes do botão submit "Responder"
+    // Caso sequencial/e-mail (sem "Cancelar"): ancora antes do botão submit "Responder"
     const submitBtn = Array.from(document.querySelectorAll<HTMLButtonElement>('button'))
       .find(b =>
+        b.offsetParent !== null &&
         !b.classList.contains('respondera-trigger-btn') &&
         RESPOND_BTN_LABELS.some(l => b.textContent?.trim() === l)
       );
@@ -445,7 +462,7 @@ function injectReplyFormButton(): void {
 // ─── Injeção unificada (chamada pelo MutationObserver) ────────────────────────
 
 function injectButtons(): void {
-  if (findFirst(document, REPLY_FIELD_SELECTORS)) {
+  if (findFirstVisible(document, REPLY_FIELD_SELECTORS)) {
     injectReplyFormButton();
   } else {
     injectListButtons();
