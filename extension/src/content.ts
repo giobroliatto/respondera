@@ -25,6 +25,7 @@ const STAR_SELECTORS = [
 ];
 
 const REVIEWER_SELECTORS = [
+  'a[href*="/maps/contrib/"]',  // link para perfil do avaliador no Google Maps
   '[data-reviewer-name]',
   '.d4r55',
   '.iV2VEc',
@@ -33,6 +34,7 @@ const REVIEWER_SELECTORS = [
 
 const TEXT_SELECTORS = [
   '[data-review-text]',
+  '.gyKkFe.JhRJje',             // classe observada no Google Business real
   '.wiI7pd',
   '.review-full-text',
   'span[data-expandable-section]',
@@ -97,10 +99,24 @@ function findGoogleRespondButtons(): HTMLButtonElement[] {
 // ─── Container da avaliação ───────────────────────────────────────────────────
 
 function findReviewContainer(btn: HTMLButtonElement): Element {
+  // No Google Business real, o conteúdo da avaliação (article.VaHEVc) e os botões
+  // de ação (div.UP87Yb) são irmãos dentro de um wrapper. Retornamos o wrapper pai
+  // para que dados e o campo de resposta fiquem no mesmo escopo de busca.
+  let el: Element | null = btn.parentElement;
+  while (el && el !== document.body) {
+    if (el.previousElementSibling?.tagName === 'ARTICLE') {
+      return el.parentElement ?? el;
+    }
+    if (el.tagName === 'ARTICLE') {
+      return el.parentElement ?? el;
+    }
+    el = el.parentElement;
+  }
+
   const byAttr = btn.closest('[data-review-id]');
   if (byAttr) return byAttr;
 
-  let el: Element | null = btn.parentElement;
+  el = btn.parentElement;
   for (let i = 0; i < 8 && el; i++) {
     const hasRating = !!findFirst(el, STAR_SELECTORS);
     const hasText = (el.textContent?.trim().length ?? 0) > 30;
