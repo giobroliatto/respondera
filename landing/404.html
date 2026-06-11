@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Página não encontrada — Respondera</title>
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png" />
+  <link rel="shortcut icon" href="/favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:         #0A0A0A;
+      --border:     rgba(255,255,255,0.08);
+      --text:       #F0F0F0;
+      --text-muted: #6B6B6B;
+      --accent:     #10B981;
+      --accent-dim: rgba(16,185,129,0.12);
+      --accent-glow:rgba(16,185,129,0.20);
+      --font-display: 'Bebas Neue', sans-serif;
+      --font-body:    'DM Sans', sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      min-height: 100svh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem;
+      overflow: hidden;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.025;
+      pointer-events: none;
+    }
+    .glow {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -60%);
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(ellipse at center, var(--accent-glow) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .logo {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      letter-spacing: 0.04em;
+      color: var(--text);
+      text-decoration: none;
+      margin-bottom: 3rem;
+      position: relative;
+    }
+    .logo span { color: var(--accent); }
+    .code {
+      font-family: var(--font-display);
+      font-size: clamp(7rem, 20vw, 13rem);
+      line-height: 1;
+      letter-spacing: 0.02em;
+      color: rgba(255,255,255,0.04);
+      position: relative;
+      user-select: none;
+    }
+    .code-accent {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-size: clamp(7rem, 20vw, 13rem);
+      line-height: 1;
+      letter-spacing: 0.02em;
+      background: linear-gradient(135deg, var(--accent) 0%, #0d9668 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      opacity: 0.18;
+    }
+    .message {
+      font-size: 1.15rem;
+      font-weight: 400;
+      color: var(--text);
+      margin-top: 1.5rem;
+      margin-bottom: 0.6rem;
+      position: relative;
+    }
+    .sub {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      font-weight: 300;
+      margin-bottom: 2.5rem;
+      position: relative;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.85rem 1.75rem;
+      border-radius: 12px;
+      font-family: var(--font-body);
+      font-weight: 500;
+      font-size: 0.95rem;
+      cursor: pointer;
+      border: none;
+      text-decoration: none;
+      transition: all 0.22s ease;
+      position: relative;
+      background: var(--accent);
+      color: #000;
+    }
+    .btn:hover {
+      background: #0ea872;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px var(--accent-glow);
+    }
+  </style>
+</head>
+<body>
+  <div class="glow"></div>
+  <a href="/" class="logo">Respond<span>era</span></a>
+  <div style="position:relative">
+    <div class="code">404</div>
+    <div class="code-accent">404</div>
+  </div>
+  <p class="message">Essa página não existe.</p>
+  <p class="sub">Talvez o link esteja errado ou a página tenha sido removida.</p>
+  <a href="/" class="btn">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Voltar ao início
+  </a>
+</body>
+</html>
