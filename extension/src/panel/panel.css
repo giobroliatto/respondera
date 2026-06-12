@@ -446,7 +446,7 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 4px 9px;
+  padding: 6px 9px;
   border: 1.5px solid rgba(139,92,246,0.28);
   border-radius: 100px;
   background: transparent;

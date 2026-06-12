@@ -652,8 +652,21 @@ button:disabled {
 
 /* ─── Tons salvos (Meu negócio) ─────────────────────────────────────────── */
 
-.biz-saved-tones {
+.biz-saved-tones-section {
   margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.biz-saved-tones-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+.biz-saved-tones {
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
@@ -668,7 +681,7 @@ button:disabled {
 }
 
 .biz-saved-tone-btn {
-  padding: 5px 10px;
+  padding: 6px 10px;
   font-size: 12px;
   font-weight: 500;
   font-family: var(--font-body);
