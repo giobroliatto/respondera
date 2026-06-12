@@ -373,6 +373,65 @@
     .mock-btn-primary { background: var(--accent); color: #000; }
     .mock-btn-secondary { background: rgba(255,255,255,0.06); color: var(--text-muted); }
 
+    /* ─── STAT IMPACTO ──────────────────────────────────────────── */
+    #stat-impacto {
+      padding: var(--space-xl) 0;
+      background: var(--bg-2);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .stat-hero {
+      text-align: center;
+      position: relative;
+    }
+    .stat-hero-glow {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 600px;
+      height: 400px;
+      background: radial-gradient(ellipse at center, rgba(16,185,129,0.14) 0%, transparent 68%);
+      pointer-events: none;
+    }
+    .stat-hero-number {
+      font-family: var(--font-display);
+      font-size: clamp(8rem, 20vw, 16rem);
+      line-height: 1;
+      color: var(--accent);
+      letter-spacing: 0.01em;
+      position: relative;
+    }
+    .stat-hero-percent {
+      font-size: 0.5em;
+      vertical-align: super;
+      line-height: 0;
+    }
+    .stat-hero-headline {
+      font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+      font-weight: 400;
+      color: var(--text);
+      line-height: 1.5;
+      margin-top: 0.5rem;
+      margin-bottom: 1.25rem;
+    }
+    .stat-hero-sub {
+      font-size: 1rem;
+      color: var(--text-muted);
+      font-weight: 300;
+      line-height: 1.7;
+      max-width: 480px;
+      margin: 0 auto 1.75rem;
+    }
+    .stat-hero-source {
+      display: inline-block;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      opacity: 0.4;
+      letter-spacing: 0.04em;
+    }
+
     /* ─── SEÇÃO: COMO FUNCIONA ───────────────────────────────────── */
     #como-funciona {
       padding: var(--space-xl) 0;
@@ -900,6 +959,19 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── STAT IMPACTO ────────────────────────────────────────────────── -->
+  <section id="stat-impacto">
+    <div class="container">
+      <div class="stat-hero reveal">
+        <div class="stat-hero-glow"></div>
+        <div class="stat-hero-number">88<span class="stat-hero-percent">%</span></div>
+        <p class="stat-hero-headline">dos consumidores preferem negócios<br>que respondem a todas as avaliações</p>
+        <p class="stat-hero-sub">Avaliações sem resposta não são neutras.<br>Elas dizem que ninguém está ouvindo.</p>
+        <span class="stat-hero-source">Fonte: BrightLocal Consumer Review Survey</span>
       </div>
     </div>
   </section>
