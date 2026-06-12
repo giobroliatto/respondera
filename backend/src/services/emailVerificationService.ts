@@ -33,7 +33,7 @@ async function sendEmail(to: string, verificationUrl: string): Promise<void> {
     body: JSON.stringify({
       from: env.EMAIL_FROM,
       to,
-      subject: 'Respondera - Ative sua conta',
+      subject: 'Ative sua conta',
       html: `<!DOCTYPE html>
 <html lang="pt-BR" style="background-color:#0D0D0D">
 <head>
