@@ -21,6 +21,7 @@ let selectedTone: ToneOption = 'friendly';
 let userPlan: string | null = null;
 let customToneValue: string | null = null;
 let activeSavedToneId: string | null = null;
+let editingToneId: string | null = null;
 
 // ─── Referências DOM ─────────────────────────────────────────────────────────
 
@@ -156,11 +157,17 @@ function renderSavedTones(tones: SavedTone[]): void {
     btn.type = 'button';
     btn.className = 'saved-tone-btn' + (tone.id === activeSavedToneId ? ' active' : '');
     btn.dataset['id'] = tone.id;
-    btn.title = tone.description;
+    btn.dataset['tooltip'] = tone.description;
 
     const nameSpan = document.createElement('span');
     nameSpan.className = 'tone-name';
     nameSpan.textContent = tone.name;
+
+    const editBtn = document.createElement('button');
+    editBtn.type = 'button';
+    editBtn.className = 'saved-tone-edit';
+    editBtn.innerHTML = '<svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><path d="M20.9888 4.28491L19.6405 2.93089C18.4045 1.6897 16.4944 1.6897 15.2584 2.93089L13.0112 5.30042L18.7416 11.055L21.1011 8.68547C21.6629 8.1213 22 7.33145 22 6.54161C22 5.75176 21.5506 4.84908 20.9888 4.28491Z"/><path d="M16.2697 10.9422L11.7753 6.42877L2.89888 15.3427C2.33708 15.9069 2 16.6968 2 17.5994V21.0973C2 21.5487 2.33708 22 2.89888 22H6.49438C7.2809 22 8.06742 21.6615 8.74157 21.0973L17.618 12.1834L16.2697 10.9422Z"/></svg>';
+    editBtn.title = 'Editar tom';
 
     const delBtn = document.createElement('button');
     delBtn.type = 'button';
@@ -169,27 +176,46 @@ function renderSavedTones(tones: SavedTone[]): void {
     delBtn.title = 'Remover tom';
 
     btn.appendChild(nameSpan);
+    btn.appendChild(editBtn);
     btn.appendChild(delBtn);
     list.appendChild(btn);
 
     btn.addEventListener('click', (e) => {
-      if ((e.target as Element).closest('.saved-tone-delete')) return;
+      if ((e.target as Element).closest('.saved-tone-edit, .saved-tone-delete')) return;
       selectSavedTone(tone);
+    });
+
+    editBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openEditForm(tone);
     });
 
     delBtn.addEventListener('click', async (e) => {
       e.stopPropagation();
-      const all = await getSavedTonesFromStorage();
-      const updated = all.filter((t) => t.id !== tone.id);
-      await setSavedTonesInStorage(updated);
-      if (activeSavedToneId === tone.id) {
-        activeSavedToneId = null;
-        customToneValue = null;
-        document.querySelectorAll('.tone-btn').forEach((b) => b.classList.remove('active'));
-        document.querySelector<HTMLButtonElement>('.tone-btn[data-tone="friendly"]')?.classList.add('active');
-        selectedTone = 'friendly';
+      if (delBtn.dataset['confirm'] === '1') {
+        clearTimeout(Number(delBtn.dataset['timer']));
+        const all = await getSavedTonesFromStorage();
+        const updated = all.filter((t) => t.id !== tone.id);
+        await setSavedTonesInStorage(updated);
+        if (activeSavedToneId === tone.id) {
+          activeSavedToneId = null;
+          customToneValue = null;
+          document.querySelectorAll('.tone-btn').forEach((b) => b.classList.remove('active'));
+          document.querySelector<HTMLButtonElement>('.tone-btn[data-tone="friendly"]')?.classList.add('active');
+          selectedTone = 'friendly';
+        }
+        renderSavedTones(updated);
+      } else {
+        delBtn.dataset['confirm'] = '1';
+        delBtn.textContent = '?';
+        delBtn.classList.add('saved-tone-delete--confirm');
+        const timer = window.setTimeout(() => {
+          delete delBtn.dataset['confirm'];
+          delBtn.textContent = '×';
+          delBtn.classList.remove('saved-tone-delete--confirm');
+        }, 2500);
+        delBtn.dataset['timer'] = String(timer);
       }
-      renderSavedTones(updated);
     });
   });
 }
@@ -208,8 +234,24 @@ function closeToneCreateForm(): void {
   form.classList.add('hidden');
   const nameInput = document.getElementById('tone-create-name') as HTMLInputElement | null;
   const descInput = document.getElementById('tone-create-desc') as HTMLTextAreaElement | null;
+  const saveBtn = document.getElementById('btn-tone-save') as HTMLButtonElement | null;
   if (nameInput) nameInput.value = '';
   if (descInput) descInput.value = '';
+  if (saveBtn) saveBtn.textContent = 'Salvar tom';
+  editingToneId = null;
+}
+
+function openEditForm(tone: SavedTone): void {
+  editingToneId = tone.id;
+  const nameInput = document.getElementById('tone-create-name') as HTMLInputElement | null;
+  const descInput = document.getElementById('tone-create-desc') as HTMLTextAreaElement | null;
+  const saveBtn = document.getElementById('btn-tone-save') as HTMLButtonElement | null;
+  if (nameInput) nameInput.value = tone.name;
+  if (descInput) descInput.value = tone.description;
+  if (saveBtn) saveBtn.textContent = 'Atualizar tom';
+  document.getElementById('tone-create-form')?.classList.remove('hidden');
+  nameInput?.focus();
+  nameInput?.select();
 }
 
 // ─── Sincronização e estado ───────────────────────────────────────────────────
@@ -408,14 +450,27 @@ async function initToneSection(): Promise<void> {
       const name = nameInput.value.trim();
       const description = descInput.value.trim();
       if (!name || !description) return;
-      const all = await getSavedTonesFromStorage();
-      if (all.length >= 8) return;
-      const newTone: SavedTone = { id: `t${Date.now()}`, name, description };
-      const updated = [...all, newTone];
-      await setSavedTonesInStorage(updated);
-      closeToneCreateForm();
-      renderSavedTones(updated);
-      selectSavedTone(newTone);
+
+      if (editingToneId !== null) {
+        const all = await getSavedTonesFromStorage();
+        const updated = all.map((t) =>
+          t.id === editingToneId ? { ...t, name, description } : t
+        );
+        const wasActive = activeSavedToneId === editingToneId;
+        await setSavedTonesInStorage(updated);
+        closeToneCreateForm();
+        renderSavedTones(updated);
+        if (wasActive) customToneValue = description;
+      } else {
+        const all = await getSavedTonesFromStorage();
+        if (all.length >= 8) return;
+        const newTone: SavedTone = { id: `t${Date.now()}`, name, description };
+        const updated = [...all, newTone];
+        await setSavedTonesInStorage(updated);
+        closeToneCreateForm();
+        renderSavedTones(updated);
+        selectSavedTone(newTone);
+      }
     });
   } else {
     // FREE: bloqueia o campo de contexto adicional
