@@ -251,6 +251,9 @@ function renderSavedTones(tones: SavedTone[]): void {
       e.stopPropagation();
       if (delBtn.dataset['confirm'] === '1') {
         clearTimeout(Number(delBtn.dataset['timer']));
+        btn.disabled = true;
+        delBtn.textContent = '…';
+        delBtn.classList.remove('saved-tone-delete--confirm');
         try {
           await deleteCustomTone(tone.id);
         } catch { /* offline — cache já atualizado otimisticamente */ }
