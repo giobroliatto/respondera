@@ -5,6 +5,14 @@
 import { PanelState, ToneOption, ReviewData } from '../shared/types';
 import { getMe } from '../shared/api';
 
+// ─── Interfaces ───────────────────────────────────────────────────────────────
+
+interface SavedTone {
+  id: string;
+  name: string;
+  description: string;
+}
+
 // ─── Estado do painel ─────────────────────────────────────────────────────────
 
 let currentReviewData: ReviewData | null = null;
@@ -12,6 +20,7 @@ let currentState: PanelState = 'idle';
 let selectedTone: ToneOption = 'friendly';
 let userPlan: string | null = null;
 let customToneValue: string | null = null;
+let activeSavedToneId: string | null = null;
 
 // ─── Referências DOM ─────────────────────────────────────────────────────────
 
@@ -35,11 +44,6 @@ const el = {
   additionalContext: () => document.getElementById('rg-additional-context') as HTMLTextAreaElement,
   charCount:         () => document.getElementById('rg-char-count')!,
   toneGroupPro:       () => document.getElementById('tone-group-pro')!,
-  customToneRow:      () => document.getElementById('custom-tone-row')!,
-  customToneInputWrap:() => document.getElementById('custom-tone-input-wrap')!,
-  btnCustomTone:      () => document.getElementById('btn-custom-tone') as HTMLButtonElement,
-  customToneInput:    () => document.getElementById('custom-tone-input') as HTMLInputElement,
-  customToneCharCount:() => document.getElementById('custom-tone-char-count')!,
   proRequiredMsg:      () => document.getElementById('pro-required-msg')!,
   contextProMsg:       () => document.getElementById('context-pro-msg')!,
   contextWarningMsg:   () => document.getElementById('context-warning-msg'),
@@ -125,6 +129,90 @@ function getFromStorage(key: string): Promise<string | number | null> {
 function setToStorage(data: Record<string, unknown>): Promise<void> {
   return new Promise((resolve) => chrome.storage.local.set(data, resolve));
 }
+
+// ─── Tons personalizados salvos ───────────────────────────────────────────────
+
+function getSavedTonesFromStorage(): Promise<SavedTone[]> {
+  return new Promise((resolve) => {
+    chrome.storage.sync.get('savedCustomTones', (result) => {
+      resolve((result['savedCustomTones'] as SavedTone[]) ?? []);
+    });
+  });
+}
+
+function setSavedTonesInStorage(tones: SavedTone[]): Promise<void> {
+  return new Promise((resolve) => {
+    chrome.storage.sync.set({ savedCustomTones: tones }, resolve);
+  });
+}
+
+function renderSavedTones(tones: SavedTone[]): void {
+  const list = document.getElementById('saved-tones-list');
+  if (!list) return;
+  list.innerHTML = '';
+
+  tones.forEach((tone) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'saved-tone-btn' + (tone.id === activeSavedToneId ? ' active' : '');
+    btn.dataset['id'] = tone.id;
+    btn.title = tone.description;
+
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'tone-name';
+    nameSpan.textContent = tone.name;
+
+    const delBtn = document.createElement('button');
+    delBtn.type = 'button';
+    delBtn.className = 'saved-tone-delete';
+    delBtn.textContent = '×';
+    delBtn.title = 'Remover tom';
+
+    btn.appendChild(nameSpan);
+    btn.appendChild(delBtn);
+    list.appendChild(btn);
+
+    btn.addEventListener('click', (e) => {
+      if ((e.target as Element).closest('.saved-tone-delete')) return;
+      selectSavedTone(tone);
+    });
+
+    delBtn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const all = await getSavedTonesFromStorage();
+      const updated = all.filter((t) => t.id !== tone.id);
+      await setSavedTonesInStorage(updated);
+      if (activeSavedToneId === tone.id) {
+        activeSavedToneId = null;
+        customToneValue = null;
+        document.querySelectorAll('.tone-btn').forEach((b) => b.classList.remove('active'));
+        document.querySelector<HTMLButtonElement>('.tone-btn[data-tone="friendly"]')?.classList.add('active');
+        selectedTone = 'friendly';
+      }
+      renderSavedTones(updated);
+    });
+  });
+}
+
+function selectSavedTone(tone: SavedTone): void {
+  activeSavedToneId = tone.id;
+  customToneValue = tone.description;
+  document.querySelectorAll('.tone-btn').forEach((b) => b.classList.remove('active'));
+  document.querySelectorAll('.saved-tone-btn').forEach((b) => b.classList.remove('active'));
+  document.querySelector<HTMLButtonElement>(`.saved-tone-btn[data-id="${tone.id}"]`)?.classList.add('active');
+}
+
+function closeToneCreateForm(): void {
+  const form = document.getElementById('tone-create-form');
+  if (!form) return;
+  form.classList.add('hidden');
+  const nameInput = document.getElementById('tone-create-name') as HTMLInputElement | null;
+  const descInput = document.getElementById('tone-create-desc') as HTMLTextAreaElement | null;
+  if (nameInput) nameInput.value = '';
+  if (descInput) descInput.value = '';
+}
+
+// ─── Sincronização e estado ───────────────────────────────────────────────────
 
 async function syncPlanFromServer(): Promise<void> {
   try {
@@ -249,13 +337,16 @@ async function refreshPlanState(): Promise<void> {
     btn.replaceWith(btn.cloneNode(true));
   });
 
-  // Clona o toggle de tom personalizado pelo mesmo motivo
-  const customToggle = el.btnCustomTone();
-  customToggle.replaceWith(customToggle.cloneNode(true));
-
   // Remove classes de bloqueio adicionadas pelo caminho FREE
   document.querySelectorAll('.tone-btn-pro--locked').forEach((b) => b.classList.remove('tone-btn-pro--locked'));
-  el.btnCustomTone().classList.remove('tone-custom-toggle--locked');
+
+  // Desbloqueia o botão "Criar tom"
+  const addToneBtn = document.getElementById('btn-add-tone');
+  if (addToneBtn) {
+    const fresh = addToneBtn.cloneNode(true) as HTMLButtonElement;
+    fresh.classList.remove('btn-add-tone--locked');
+    addToneBtn.replaceWith(fresh);
+  }
 
   // Re-habilita o campo de contexto adicional (desabilitado para FREE)
   el.additionalContext().disabled = false;
@@ -274,57 +365,57 @@ async function refreshPlanState(): Promise<void> {
   selectedTone = toneToApply;
 }
 
-// ─── Inicialização de tons PRO ────────────────────────────────────────────────
+// ─── Inicialização de tons ────────────────────────────────────────────────────
 
 async function initToneSection(): Promise<void> {
   userPlan = await getFromStorage('userPlan') as string | null;
 
   if (userPlan === 'PRO') {
-    // Handlers para tons PRO
+    // Handlers para tons PRO pré-definidos
     document.querySelectorAll<HTMLButtonElement>('.tone-btn-pro').forEach((btn) => {
       btn.addEventListener('click', () => {
-        document.querySelectorAll('.tone-btn').forEach((b) => b.classList.remove('active'));
+        document.querySelectorAll('.tone-btn, .saved-tone-btn').forEach((b) => b.classList.remove('active'));
         btn.classList.add('active');
         selectedTone = btn.dataset['tone'] as ToneOption;
-        // Limpa tom personalizado ao selecionar tom pré-definido
         customToneValue = null;
-        el.customToneInput().value = '';
-        el.customToneCharCount().textContent = '0/100';
-        el.btnCustomTone().classList.remove('active');
-        el.customToneInputWrap().classList.add('hidden');
+        activeSavedToneId = null;
+        closeToneCreateForm();
       });
     });
 
-    // Toggle do campo de tom personalizado
-    el.btnCustomTone().addEventListener('click', () => {
-      const isHidden = el.customToneInputWrap().classList.contains('hidden');
-      if (isHidden) {
-        el.customToneInputWrap().classList.remove('hidden');
-        el.customToneInput().focus();
-        el.btnCustomTone().classList.add('active');
-      } else {
-        el.customToneInputWrap().classList.add('hidden');
-        el.customToneInput().value = '';
-        el.customToneCharCount().textContent = '0/100';
-        customToneValue = null;
-        el.btnCustomTone().classList.remove('active');
-        if (!document.querySelector('.tone-btn.active')) {
-          document.querySelector<HTMLButtonElement>('.tone-btn[data-tone="friendly"]')?.classList.add('active');
-          selectedTone = 'friendly';
-        }
-      }
+    // Tons salvos: carrega e renderiza
+    const savedTones = await getSavedTonesFromStorage();
+    renderSavedTones(savedTones);
+
+    // Clonar para remover listeners antigos de chamadas anteriores (ex: refreshPlanState)
+    ['btn-add-tone', 'btn-tone-cancel', 'btn-tone-save'].forEach((btnId) => {
+      const existing = document.getElementById(btnId);
+      if (existing) existing.replaceWith(existing.cloneNode(true));
     });
 
-    // Input do tom personalizado
-    el.customToneInput().addEventListener('input', () => {
-      const val = el.customToneInput().value;
-      el.customToneCharCount().textContent = `${val.length}/100`;
-      customToneValue = val.trim() || null;
-      if (customToneValue) {
-        document.querySelectorAll('.tone-btn').forEach((b) => b.classList.remove('active'));
-      } else if (!document.querySelector('.tone-btn.active')) {
-        document.querySelector<HTMLButtonElement>(`.tone-btn[data-tone="${selectedTone}"]`)?.classList.add('active');
-      }
+    document.getElementById('btn-add-tone')?.addEventListener('click', () => {
+      document.getElementById('tone-create-form')?.classList.remove('hidden');
+      (document.getElementById('tone-create-name') as HTMLInputElement | null)?.focus();
+    });
+
+    document.getElementById('btn-tone-cancel')?.addEventListener('click', () => {
+      closeToneCreateForm();
+    });
+
+    document.getElementById('btn-tone-save')?.addEventListener('click', async () => {
+      const nameInput = document.getElementById('tone-create-name') as HTMLInputElement;
+      const descInput = document.getElementById('tone-create-desc') as HTMLTextAreaElement;
+      const name = nameInput.value.trim();
+      const description = descInput.value.trim();
+      if (!name || !description) return;
+      const all = await getSavedTonesFromStorage();
+      if (all.length >= 8) return;
+      const newTone: SavedTone = { id: `t${Date.now()}`, name, description };
+      const updated = [...all, newTone];
+      await setSavedTonesInStorage(updated);
+      closeToneCreateForm();
+      renderSavedTones(updated);
+      selectSavedTone(newTone);
     });
   } else {
     // FREE: bloqueia o campo de contexto adicional
@@ -339,11 +430,14 @@ async function initToneSection(): Promise<void> {
       });
     });
 
-    // Tom personalizado: visível mas bloqueado para FREE — clique abre upgrade
-    el.btnCustomTone().classList.add('tone-custom-toggle--locked');
-    el.btnCustomTone().addEventListener('click', () => {
-      chrome.tabs.create({ url: 'https://respondera.com.br/upgrade' });
-    });
+    // Botão "Criar tom": visível mas bloqueado para FREE — clique abre upgrade
+    const addToneBtn = document.getElementById('btn-add-tone') as HTMLButtonElement | null;
+    if (addToneBtn) {
+      addToneBtn.classList.add('btn-add-tone--locked');
+      addToneBtn.addEventListener('click', () => {
+        chrome.tabs.create({ url: 'https://respondera.com.br/upgrade' });
+      });
+    }
   }
 }
 
@@ -358,16 +452,24 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Seletor de tom — tons base (FREE + PRO)
   document.querySelectorAll<HTMLButtonElement>('#tone-group-base .tone-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('.tone-btn').forEach((b) => b.classList.remove('active'));
+      document.querySelectorAll('.tone-btn, .saved-tone-btn').forEach((b) => b.classList.remove('active'));
       btn.classList.add('active');
       selectedTone = btn.dataset['tone'] as ToneOption;
-      // Limpa tom personalizado ao selecionar tom padrão
       customToneValue = null;
-      el.customToneInput().value = '';
-      el.customToneCharCount().textContent = '0/100';
-      el.btnCustomTone().classList.remove('active');
-      el.customToneInputWrap().classList.add('hidden');
+      activeSavedToneId = null;
+      closeToneCreateForm();
     });
+  });
+
+  // Chips de exemplo — event delegation, adicionado uma vez
+  document.getElementById('tone-create-chips')?.addEventListener('click', (e) => {
+    const chip = (e.target as Element).closest<HTMLButtonElement>('.tone-chip-example');
+    if (!chip) return;
+    const descInput = document.getElementById('tone-create-desc') as HTMLTextAreaElement | null;
+    if (descInput) {
+      descInput.value = chip.dataset['desc'] ?? '';
+      descInput.focus();
+    }
   });
 
   await initToneSection();
@@ -447,12 +549,11 @@ window.addEventListener('message', async (e) => {
     el.additionalContext().value = '';
     el.charCount().textContent = '0/300';
     el.charCount().classList.remove('rg-char-count--warn', 'rg-char-count--full');
-    // Limpa tom personalizado
+    // Limpa tom personalizado e fecha formulário
     customToneValue = null;
-    el.customToneInput().value = '';
-    el.customToneCharCount().textContent = '0/100';
-    el.btnCustomTone().classList.remove('active');
-    el.customToneInputWrap().classList.add('hidden');
+    activeSavedToneId = null;
+    getSavedTonesFromStorage().then(renderSavedTones);
+    closeToneCreateForm();
     // Aplica tom padrão salvo (ou friendly como fallback)
     const proTones = ['direct', 'casual', 'assertive'];
     const savedTone = await getFromStorage('defaultTone') as string | null;

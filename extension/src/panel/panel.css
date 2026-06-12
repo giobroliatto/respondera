@@ -377,6 +377,246 @@ body {
   font-size: 12px;
 }
 
+/* ─── Meus tons ──────────────────────────────────────────────────────────── */
+
+.saved-tones-section {
+  margin-top: 8px;
+}
+
+.saved-tones-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.saved-tones-label {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.btn-add-tone {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border: 1.5px dashed rgba(139,92,246,0.35);
+  border-radius: 100px;
+  background: transparent;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.btn-add-tone:hover {
+  border-color: var(--purple);
+  color: var(--purple);
+}
+
+.btn-add-tone--locked {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-add-tone--locked:hover {
+  border-color: rgba(139,92,246,0.35);
+  color: var(--text-muted);
+}
+
+.saved-tones-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  min-height: 0;
+}
+
+.saved-tones-empty {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
+.saved-tone-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+  border: 1.5px solid rgba(139,92,246,0.28);
+  border-radius: 100px;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+  max-width: 160px;
+}
+
+.saved-tone-btn:hover {
+  border-color: var(--purple);
+  color: var(--purple);
+}
+
+.saved-tone-btn.active {
+  border-color: var(--purple);
+  background: rgba(139,92,246,0.1);
+  color: var(--purple);
+  font-weight: 600;
+}
+
+.tone-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 108px;
+}
+
+.saved-tone-delete {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  font-size: 11px;
+  line-height: 1;
+  color: rgba(255,255,255,0.25);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-family: var(--font-body);
+  transition: color 0.15s, background 0.15s;
+}
+
+.saved-tone-delete:hover {
+  color: var(--red);
+  background: rgba(239,68,68,0.1);
+}
+
+/* ─── Formulário de criação de tom ──────────────────────────────────────── */
+
+.tone-create-form {
+  margin-top: 8px;
+  padding: 10px;
+  background: rgba(139,92,246,0.05);
+  border: 1px solid rgba(139,92,246,0.18);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.tone-create-input,
+.tone-create-textarea {
+  background: var(--bg-input);
+  border: 1.5px solid rgba(139,92,246,0.28);
+  border-radius: 6px;
+  padding: 6px 9px;
+  font-size: 12px;
+  font-family: var(--font-body);
+  color: var(--text);
+  outline: none;
+  width: 100%;
+  transition: border-color 0.15s;
+}
+
+.tone-create-input:focus,
+.tone-create-textarea:focus {
+  border-color: var(--purple);
+}
+
+.tone-create-input::placeholder,
+.tone-create-textarea::placeholder {
+  color: var(--text-muted);
+  font-size: 11.5px;
+}
+
+.tone-create-textarea {
+  resize: none;
+  line-height: 1.45;
+  min-height: 54px;
+  scrollbar-width: thin;
+}
+
+.tone-create-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.tone-chip-example {
+  padding: 3px 8px;
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 100px;
+  background: transparent;
+  font-size: 11px;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.tone-chip-example:hover {
+  border-color: rgba(139,92,246,0.45);
+  color: var(--purple);
+  background: rgba(139,92,246,0.07);
+}
+
+.tone-create-actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.btn-tone-cancel {
+  padding: 5px 12px;
+  border: 1.5px solid var(--border-mid);
+  border-radius: 6px;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.btn-tone-cancel:hover {
+  border-color: rgba(255,255,255,0.22);
+  color: var(--text);
+}
+
+.btn-tone-save {
+  padding: 5px 14px;
+  border: none;
+  border-radius: 6px;
+  background: var(--purple);
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition: background 0.15s;
+}
+
+.btn-tone-save:hover {
+  background: #7c3aed;
+}
+
+.btn-tone-save:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 /* ─── Mensagem PRO inline ────────────────────────────────────────────────── */
 
 .pro-required-msg {
