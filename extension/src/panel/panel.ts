@@ -294,7 +294,7 @@ function closeToneCreateForm(): void {
   const saveBtn = document.getElementById('btn-tone-save') as HTMLButtonElement | null;
   if (nameInput) nameInput.value = '';
   if (descInput) descInput.value = '';
-  if (saveBtn) saveBtn.textContent = 'Salvar tom';
+  if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Salvar tom'; }
   editingToneId = null;
 }
 
