@@ -228,7 +228,7 @@ function renderSavedTones(tones: SavedTone[]): void {
         renderSavedTones(updated);
       } else {
         delBtn.dataset['confirm'] = '1';
-        delBtn.textContent = '?';
+        delBtn.textContent = 'Confirma?';
         delBtn.classList.add('saved-tone-delete--confirm');
         const timer = window.setTimeout(() => {
           delete delBtn.dataset['confirm'];

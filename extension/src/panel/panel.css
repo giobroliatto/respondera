@@ -487,17 +487,12 @@ body {
   height: 14px;
   border-radius: 50%;
   flex-shrink: 0;
-  opacity: 0;
   color: rgba(255,255,255,0.25);
   background: none;
   border: none;
   cursor: pointer;
   padding: 0;
-  transition: opacity 0.15s, color 0.15s, background 0.15s;
-}
-
-.saved-tone-btn:hover .saved-tone-edit {
-  opacity: 1;
+  transition: color 0.15s, background 0.15s;
 }
 
 .saved-tone-edit:hover {
@@ -530,7 +525,9 @@ body {
 }
 
 .saved-tone-delete--confirm {
-  width: 20px;
+  width: auto;
+  padding: 0 5px;
+  border-radius: 4px;
   color: var(--red) !important;
   background: rgba(239,68,68,0.12) !important;
   font-size: 10px;
