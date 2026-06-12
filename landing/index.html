@@ -381,23 +381,36 @@
       border-bottom: 1px solid var(--border);
       overflow: hidden;
     }
-    .stat-hero {
+    .stat-duo {
+      display: grid;
+      grid-template-columns: 1fr 1px 1fr;
+      gap: 0;
+      align-items: center;
+      margin-bottom: 2.5rem;
+    }
+    .stat-duo-item {
       text-align: center;
+      padding: 0 var(--space-lg);
       position: relative;
+    }
+    .stat-duo-divider {
+      background: var(--border);
+      height: 160px;
+      align-self: center;
     }
     .stat-hero-glow {
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 600px;
-      height: 400px;
-      background: radial-gradient(ellipse at center, rgba(16,185,129,0.14) 0%, transparent 68%);
+      width: 400px;
+      height: 300px;
+      background: radial-gradient(ellipse at center, rgba(16,185,129,0.12) 0%, transparent 68%);
       pointer-events: none;
     }
     .stat-hero-number {
       font-family: var(--font-display);
-      font-size: clamp(8rem, 20vw, 16rem);
+      font-size: clamp(6rem, 13vw, 11rem);
       line-height: 1;
       color: var(--accent);
       letter-spacing: 0.01em;
@@ -408,28 +421,145 @@
       vertical-align: super;
       line-height: 0;
     }
-    .stat-hero-headline {
-      font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+    .stat-duo-headline {
+      font-size: clamp(0.9rem, 1.8vw, 1.15rem);
       font-weight: 400;
       color: var(--text);
       line-height: 1.5;
-      margin-top: 0.5rem;
-      margin-bottom: 1.25rem;
+      margin-top: 0.75rem;
     }
     .stat-hero-sub {
-      font-size: 1rem;
+      font-size: 0.95rem;
       color: var(--text-muted);
       font-weight: 300;
       line-height: 1.7;
-      max-width: 480px;
-      margin: 0 auto 1.75rem;
+      text-align: center;
+      max-width: 520px;
+      margin: 0 auto 1.25rem;
     }
     .stat-hero-source {
-      display: inline-block;
+      display: block;
+      text-align: center;
       font-size: 0.72rem;
       color: var(--text-muted);
       opacity: 0.4;
       letter-spacing: 0.04em;
+    }
+    @media (max-width: 600px) {
+      .stat-duo {
+        grid-template-columns: 1fr;
+      }
+      .stat-duo-divider {
+        height: 1px;
+        width: 60%;
+        margin: 0 auto;
+      }
+      .stat-duo-item { padding: var(--space-md) 0; }
+    }
+
+    /* ─── RANKING GOOGLE ───────────────────────────────────────── */
+    #ranking-google {
+      padding: var(--space-xl) 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .ranking-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-xl);
+      align-items: center;
+    }
+    .ranking-source-card {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+      background: rgba(255,255,255,0.025);
+      border: 1px solid var(--border);
+      border-left: 2px solid rgba(66,133,244,0.45);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      margin-top: 2rem;
+    }
+    .ranking-source-logo { width: 28px; height: 28px; flex-shrink: 0; margin-top: 1px; }
+    .ranking-source-quote {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.65;
+      font-style: italic;
+      margin: 0 0 0.4rem;
+    }
+    .ranking-source-attr {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      opacity: 0.45;
+      font-style: normal;
+    }
+    .gmaps-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+    }
+    .gmaps-searchbar {
+      padding: 0.85rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .gmaps-searchbar-input {
+      flex: 1;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 0.45rem 1rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+    .gmaps-result {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: 26px 1fr;
+      gap: 0.9rem;
+      align-items: start;
+    }
+    .gmaps-result:last-child { border-bottom: none; }
+    .gmaps-result-top {
+      background: rgba(16,185,129,0.04);
+      border-left: 2px solid var(--accent);
+    }
+    .gmaps-pos {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      line-height: 1;
+      color: rgba(255,255,255,0.08);
+      text-align: center;
+      padding-top: 2px;
+    }
+    .gmaps-result-top .gmaps-pos { color: var(--accent); opacity: 0.7; }
+    .gmaps-name { font-size: 0.88rem; font-weight: 500; margin-bottom: 0.2rem; }
+    .gmaps-stars { font-size: 0.75rem; color: #FBBF24; margin-bottom: 0.3rem; }
+    .gmaps-stars span { color: var(--text-muted); }
+    .gmaps-tag {
+      display: inline-block;
+      font-size: 0.68rem;
+      padding: 0.15rem 0.55rem;
+      border-radius: 100px;
+    }
+    .gmaps-tag-active {
+      background: var(--accent-dim);
+      color: var(--accent);
+      border: 1px solid rgba(16,185,129,0.2);
+    }
+    .gmaps-tag-muted {
+      background: rgba(255,255,255,0.04);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+    @media (max-width: 900px) {
+      .ranking-grid { grid-template-columns: 1fr; gap: var(--space-lg); }
     }
 
     /* ─── SEÇÃO: COMO FUNCIONA ───────────────────────────────────── */
@@ -966,12 +1096,84 @@
   <!-- ─── STAT IMPACTO ────────────────────────────────────────────────── -->
   <section id="stat-impacto">
     <div class="container">
-      <div class="stat-hero reveal">
-        <div class="stat-hero-glow"></div>
-        <div class="stat-hero-number">88<span class="stat-hero-percent">%</span></div>
-        <p class="stat-hero-headline">dos consumidores preferem negócios<br>que respondem a todas as avaliações</p>
-        <p class="stat-hero-sub">Avaliações sem resposta não são neutras.<br>Elas dizem que ninguém está ouvindo.</p>
-        <span class="stat-hero-source">Fonte: BrightLocal Consumer Review Survey</span>
+      <div class="stat-duo reveal">
+        <div class="stat-duo-item">
+          <div class="stat-hero-glow"></div>
+          <div class="stat-hero-number">88<span class="stat-hero-percent">%</span></div>
+          <p class="stat-duo-headline">dos consumidores preferem<br>negócios que respondem<br>a todas as avaliações</p>
+        </div>
+        <div class="stat-duo-divider"></div>
+        <div class="stat-duo-item">
+          <div class="stat-hero-glow"></div>
+          <div class="stat-hero-number">41<span class="stat-hero-percent">%</span></div>
+          <p class="stat-duo-headline">mais propensos a escolher<br>quem responde do que<br>quem ignora avaliações</p>
+        </div>
+      </div>
+      <p class="stat-hero-sub">Avaliações sem resposta não são neutras.<br>Elas dizem que ninguém está ouvindo.</p>
+      <span class="stat-hero-source">Fonte: BrightLocal Local Consumer Review Survey</span>
+    </div>
+  </section>
+
+  <!-- ─── RANKING NO GOOGLE ───────────────────────────────────────────── -->
+  <section id="ranking-google">
+    <div class="container">
+      <div class="ranking-grid">
+
+        <!-- Texto -->
+        <div>
+          <div class="section-label reveal">Visibilidade</div>
+          <h2 class="section-title reveal reveal-delay-1">Quem responde<br>aparece primeiro.</h2>
+          <p class="section-sub reveal reveal-delay-2">
+            Avaliações fazem parte do algoritmo de busca local do Google. Negócios que respondem ativamente têm mais chances de aparecer no topo, e o Google confirma isso oficialmente.
+          </p>
+          <div class="ranking-source-card reveal reveal-delay-3">
+            <svg class="ranking-source-logo" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+            </svg>
+            <div>
+              <p class="ranking-source-quote">"Responder avaliações demonstra que você valoriza seus clientes, e avaliações de qualidade podem melhorar sua visibilidade nas buscas locais."</p>
+              <span class="ranking-source-attr">Suporte oficial Google Business Profile</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mockup Google Maps -->
+        <div class="reveal reveal-delay-2">
+          <div class="gmaps-card">
+            <div class="gmaps-searchbar">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-muted);flex-shrink:0"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <div class="gmaps-searchbar-input">restaurante perto de mim</div>
+            </div>
+            <div class="gmaps-result gmaps-result-top">
+              <div class="gmaps-pos">1</div>
+              <div>
+                <div class="gmaps-name">Restaurante Sabor & Arte</div>
+                <div class="gmaps-stars">★★★★★ <span>4.9 · 114 avaliações</span></div>
+                <span class="gmaps-tag gmaps-tag-active">Responde ativamente</span>
+              </div>
+            </div>
+            <div class="gmaps-result">
+              <div class="gmaps-pos">2</div>
+              <div>
+                <div class="gmaps-name">Pizzaria Central</div>
+                <div class="gmaps-stars">★★★★☆ <span>4.2 · 192 avaliações</span></div>
+                <span class="gmaps-tag gmaps-tag-muted">Poucas respostas</span>
+              </div>
+            </div>
+            <div class="gmaps-result">
+              <div class="gmaps-pos">3</div>
+              <div>
+                <div class="gmaps-name">Café do Mercado</div>
+                <div class="gmaps-stars">★★★★☆ <span>4.3 · 62 avaliações</span></div>
+                <span class="gmaps-tag gmaps-tag-muted">Sem respostas</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </section>
