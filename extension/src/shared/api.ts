@@ -10,6 +10,7 @@ import {
   BusinessResponse,
   GenerateReplyData,
   GenerateReplyResponse,
+  SavedTone,
 } from './types';
 
 // ─── Configuração ─────────────────────────────────────────────────────────────
@@ -172,6 +173,68 @@ export async function generateReply(data: GenerateReplyData): Promise<GenerateRe
     '/reply/generate',
     { method: 'POST', body: JSON.stringify(data) },
   );
+}
+
+// ─── Custom Tones ─────────────────────────────────────────────────────────────
+
+let customTonesCache: SavedTone[] | null = null;
+
+// Returns backend tones and updates cache+sync, or null if unreachable.
+export async function getCustomTonesFromBackend(): Promise<SavedTone[] | null> {
+  try {
+    const data = await apiFetch<{ tones: SavedTone[] }>('/custom-tones', { method: 'GET' });
+    customTonesCache = data.tones;
+    chrome.storage.sync.set({ savedCustomTones: customTonesCache });
+    return customTonesCache;
+  } catch {
+    return null;
+  }
+}
+
+export async function getCustomTones(): Promise<SavedTone[]> {
+  if (customTonesCache) return customTonesCache;
+
+  const backendTones = await getCustomTonesFromBackend();
+  if (backendTones !== null) return backendTones;
+
+  // Offline fallback: read from chrome.storage.sync
+  return new Promise((resolve) => {
+    chrome.storage.sync.get('savedCustomTones', (result) => {
+      resolve((result['savedCustomTones'] as SavedTone[]) ?? []);
+    });
+  });
+}
+
+export async function createCustomTone(name: string, description: string): Promise<SavedTone> {
+  const data = await apiFetch<{ tone: SavedTone }>(
+    '/custom-tones',
+    { method: 'POST', body: JSON.stringify({ name, description }) },
+  );
+  if (customTonesCache !== null) {
+    customTonesCache = [...customTonesCache, data.tone];
+    chrome.storage.sync.set({ savedCustomTones: customTonesCache });
+  }
+  return data.tone;
+}
+
+export async function updateCustomTone(id: string, name: string, description: string): Promise<SavedTone> {
+  const data = await apiFetch<{ tone: SavedTone }>(
+    `/custom-tones/${id}`,
+    { method: 'PUT', body: JSON.stringify({ name, description }) },
+  );
+  if (customTonesCache !== null) {
+    customTonesCache = customTonesCache.map((t) => t.id === id ? data.tone : t);
+    chrome.storage.sync.set({ savedCustomTones: customTonesCache });
+  }
+  return data.tone;
+}
+
+export async function deleteCustomTone(id: string): Promise<void> {
+  await apiFetch<{ success: boolean }>(`/custom-tones/${id}`, { method: 'DELETE' });
+  if (customTonesCache !== null) {
+    customTonesCache = customTonesCache.filter((t) => t.id !== id);
+    chrome.storage.sync.set({ savedCustomTones: customTonesCache });
+  }
 }
 
 // ─── Pagamentos ───────────────────────────────────────────────────────────────

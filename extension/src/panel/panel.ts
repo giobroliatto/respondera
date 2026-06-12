@@ -3,7 +3,14 @@
 // devolve a resposta ao content script para inserção no DOM da página.
 
 import { PanelState, ToneOption, ReviewData, SavedTone } from '../shared/types';
-import { getMe } from '../shared/api';
+import {
+  getMe,
+  getCustomTones,
+  getCustomTonesFromBackend,
+  createCustomTone,
+  updateCustomTone,
+  deleteCustomTone,
+} from '../shared/api';
 
 // ─── Estado do painel ─────────────────────────────────────────────────────────
 
@@ -134,7 +141,7 @@ async function applyDefaultTone(): Promise<void> {
   if (toneToApply === 'custom') {
     const defaultCustomToneId = await getFromStorage('defaultCustomToneId') as string | null;
     if (defaultCustomToneId) {
-      const allTones = await getSavedTonesFromStorage();
+      const allTones = await getCustomTones();
       const defaultCustomTone = allTones.find((t) => t.id === defaultCustomToneId);
       if (defaultCustomTone) {
         selectSavedTone(defaultCustomTone);
@@ -152,21 +159,50 @@ async function applyDefaultTone(): Promise<void> {
   }
 }
 
-// ─── Tons personalizados salvos ───────────────────────────────────────────────
+// ─── Migração única: chrome.storage.sync → backend ───────────────────────────
 
-function getSavedTonesFromStorage(): Promise<SavedTone[]> {
-  return new Promise((resolve) => {
-    chrome.storage.sync.get('savedCustomTones', (result) => {
-      resolve((result['savedCustomTones'] as SavedTone[]) ?? []);
+async function runSyncMigration(): Promise<void> {
+  const migrated = await new Promise<boolean>((resolve) => {
+    chrome.storage.local.get('syncTonesMigrated', (r) => resolve(Boolean(r['syncTonesMigrated'])));
+  });
+  if (migrated) return;
+
+  const syncTones = await new Promise<SavedTone[]>((resolve) => {
+    chrome.storage.sync.get('savedCustomTones', (r) => {
+      resolve((r['savedCustomTones'] as SavedTone[]) ?? []);
     });
   });
+
+  if (syncTones.length === 0) {
+    chrome.storage.local.set({ syncTonesMigrated: true });
+    return;
+  }
+
+  try {
+    const backendTones = await getCustomTonesFromBackend();
+    if (backendTones === null) return; // offline — retry later
+
+    if (backendTones.length === 0) {
+      const defaultCustomToneId = await getFromStorage('defaultCustomToneId') as string | null;
+      const idMap: Record<string, string> = {};
+
+      for (const tone of syncTones.slice(0, 8)) {
+        const created = await createCustomTone(tone.name, tone.description);
+        idMap[tone.id] = created.id;
+      }
+
+      if (defaultCustomToneId && idMap[defaultCustomToneId]) {
+        await setToStorage({ defaultCustomToneId: idMap[defaultCustomToneId] });
+      }
+    }
+
+    chrome.storage.local.set({ syncTonesMigrated: true });
+  } catch {
+    // Offline ou erro — tentará novamente na próxima sessão
+  }
 }
 
-function setSavedTonesInStorage(tones: SavedTone[]): Promise<void> {
-  return new Promise((resolve) => {
-    chrome.storage.sync.set({ savedCustomTones: tones }, resolve);
-  });
-}
+// ─── Tons personalizados salvos ───────────────────────────────────────────────
 
 function renderSavedTones(tones: SavedTone[]): void {
   const list = document.getElementById('saved-tones-list');
@@ -215,9 +251,9 @@ function renderSavedTones(tones: SavedTone[]): void {
       e.stopPropagation();
       if (delBtn.dataset['confirm'] === '1') {
         clearTimeout(Number(delBtn.dataset['timer']));
-        const all = await getSavedTonesFromStorage();
-        const updated = all.filter((t) => t.id !== tone.id);
-        await setSavedTonesInStorage(updated);
+        try {
+          await deleteCustomTone(tone.id);
+        } catch { /* offline — cache já atualizado otimisticamente */ }
         if (activeSavedToneId === tone.id) {
           activeSavedToneId = null;
           customToneValue = null;
@@ -225,7 +261,7 @@ function renderSavedTones(tones: SavedTone[]): void {
           document.querySelector<HTMLButtonElement>('.tone-btn[data-tone="friendly"]')?.classList.add('active');
           selectedTone = 'friendly';
         }
-        renderSavedTones(updated);
+        renderSavedTones(await getCustomTones());
       } else {
         delBtn.dataset['confirm'] = '1';
         delBtn.textContent = 'Confirma?';
@@ -439,9 +475,12 @@ async function initToneSection(): Promise<void> {
       });
     });
 
-    // Tons salvos: carrega e renderiza
-    const savedTones = await getSavedTonesFromStorage();
+    // Tons salvos: carrega do backend (com fallback para sync) e renderiza
+    const savedTones = await getCustomTones();
     renderSavedTones(savedTones);
+
+    // Migração única de chrome.storage.sync → backend (best effort)
+    runSyncMigration().catch(() => {});
 
     // Clonar para remover listeners antigos de chamadas anteriores (ex: refreshPlanState)
     ['btn-add-tone', 'btn-tone-cancel', 'btn-tone-save'].forEach((btnId) => {
@@ -461,29 +500,35 @@ async function initToneSection(): Promise<void> {
     document.getElementById('btn-tone-save')?.addEventListener('click', async () => {
       const nameInput = document.getElementById('tone-create-name') as HTMLInputElement;
       const descInput = document.getElementById('tone-create-desc') as HTMLTextAreaElement;
+      const saveBtn = document.getElementById('btn-tone-save') as HTMLButtonElement | null;
       const name = nameInput.value.trim();
       const description = descInput.value.trim();
       if (!name || !description) return;
 
-      if (editingToneId !== null) {
-        const all = await getSavedTonesFromStorage();
-        const updated = all.map((t) =>
-          t.id === editingToneId ? { ...t, name, description } : t
-        );
-        const wasActive = activeSavedToneId === editingToneId;
-        await setSavedTonesInStorage(updated);
-        closeToneCreateForm();
-        renderSavedTones(updated);
-        if (wasActive) customToneValue = description;
-      } else {
-        const all = await getSavedTonesFromStorage();
-        if (all.length >= 8) return;
-        const newTone: SavedTone = { id: `t${Date.now()}`, name, description };
-        const updated = [...all, newTone];
-        await setSavedTonesInStorage(updated);
-        closeToneCreateForm();
-        renderSavedTones(updated);
-        selectSavedTone(newTone);
+      if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Salvando...'; }
+
+      try {
+        if (editingToneId !== null) {
+          const wasActive = activeSavedToneId === editingToneId;
+          await updateCustomTone(editingToneId, name, description);
+          const updated = await getCustomTones();
+          closeToneCreateForm();
+          renderSavedTones(updated);
+          if (wasActive) customToneValue = description;
+        } else {
+          const all = await getCustomTones();
+          if (all.length >= 8) {
+            if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Salvar tom'; }
+            return;
+          }
+          const newTone = await createCustomTone(name, description);
+          const updated = await getCustomTones();
+          closeToneCreateForm();
+          renderSavedTones(updated);
+          selectSavedTone(newTone);
+        }
+      } catch {
+        if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = editingToneId ? 'Atualizar tom' : 'Salvar tom'; }
       }
     });
   } else {
@@ -615,7 +660,7 @@ window.addEventListener('message', async (e) => {
     // Limpa tom personalizado e fecha formulário
     customToneValue = null;
     activeSavedToneId = null;
-    getSavedTonesFromStorage().then(renderSavedTones);
+    getCustomTones().then(renderSavedTones);
     closeToneCreateForm();
     await applyDefaultTone();
     setState('idle');

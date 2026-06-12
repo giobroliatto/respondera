@@ -11,21 +11,22 @@ datasource db {
 }
 
 model User {
-  id                          String    @id @default(uuid())
-  email                       String    @unique
+  id                          String       @id @default(uuid())
+  email                       String       @unique
   passwordHash                String
-  plan                        Plan      @default(FREE)
-  usageCount                  Int       @default(0)
-  usageResetAt                DateTime  @default(now())
+  plan                        Plan         @default(FREE)
+  usageCount                  Int          @default(0)
+  usageResetAt                DateTime     @default(now())
   emailVerifiedAt             DateTime?
   emailVerificationTokenHash  String?
   emailVerificationExpiresAt  DateTime?
   tokenInvalidatedAt          DateTime?
-  createdAt                   DateTime  @default(now())
+  createdAt                   DateTime     @default(now())
   mpSubscriptionId            String?
-  mpSubscriptionStatus        String?   // authorized | paused | cancelled | ended
+  mpSubscriptionStatus        String?      // authorized | paused | cancelled | ended
   mpNextBillingDate           DateTime?
   business                    Business?
+  customTones                 CustomTone[]
 }
 
 model Business {
@@ -41,6 +42,16 @@ model Business {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model CustomTone {
+  id          String   @id @default(uuid())
+  userId      String
+  name        String   @db.VarChar(30)
+  description String   @db.VarChar(200)
+  position    Int      @default(0)
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 enum Plan {

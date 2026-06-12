@@ -8,6 +8,7 @@ import {
   saveBusiness,
   logout as apiLogout,
   createSubscription,
+  getCustomTones,
 } from '../shared/api';
 import { AuthResponse, ToneOption, SavedTone } from '../shared/types';
 
@@ -229,12 +230,16 @@ let _soloGender: 'M' | 'F' = 'M';
 let _bizTone: ToneOption = 'friendly';
 let _bizDefaultCustomToneId: string | null = null;
 
-function getSavedTonesSync(): Promise<SavedTone[]> {
-  return new Promise((resolve) => {
-    chrome.storage.sync.get('savedCustomTones', (result) => {
-      resolve((result['savedCustomTones'] as SavedTone[]) ?? []);
+async function getSavedTonesSync(): Promise<SavedTone[]> {
+  try {
+    return await getCustomTones();
+  } catch {
+    return new Promise((resolve) => {
+      chrome.storage.sync.get('savedCustomTones', (result) => {
+        resolve((result['savedCustomTones'] as SavedTone[]) ?? []);
+      });
     });
-  });
+  }
 }
 
 function renderBizSavedTones(tones: SavedTone[]): void {

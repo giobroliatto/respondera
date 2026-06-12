@@ -29,6 +29,21 @@ export const BusinessSchema = z.object({
 
 export type Business = z.infer<typeof BusinessSchema>;
 
+// ─── Custom Tones ──────────────────────────────────────────────────────────────
+
+export const CustomToneCreateSchema = z.object({
+  name: z.string().min(1, 'Nome é obrigatório').max(30, 'Nome pode ter no máximo 30 caracteres').trim(),
+  description: z.string().min(1, 'Descrição é obrigatória').max(200, 'Descrição pode ter no máximo 200 caracteres').trim(),
+});
+
+export const CustomToneUpdateSchema = z.object({
+  name: z.string().min(1, 'Nome é obrigatório').max(30, 'Nome pode ter no máximo 30 caracteres').trim(),
+  description: z.string().min(1, 'Descrição é obrigatória').max(200, 'Descrição pode ter no máximo 200 caracteres').trim(),
+});
+
+export type CustomToneCreate = z.infer<typeof CustomToneCreateSchema>;
+export type CustomToneUpdate = z.infer<typeof CustomToneUpdateSchema>;
+
 // ─── Reply Generation ─────────────────────────────────────────────────
 
 export const GenerateReplySchema = z.object({

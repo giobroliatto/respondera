@@ -6,6 +6,7 @@ import { authRouter } from './routes/auth';
 import { businessRouter } from './routes/business';
 import { replyRouter } from './routes/reply';
 import { paymentsRouter } from './routes/payments';
+import { customTonesRouter } from './routes/customTones';
 import { logger } from './utils/logger';
 import { env, getCorsOrigin } from './config/env';
 
@@ -18,7 +19,7 @@ app.use(helmet());
 // CORS
 app.use(cors({
   origin: getCorsOrigin(),
-  methods: ['GET', 'POST', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
@@ -35,6 +36,7 @@ app.use('/auth', authRouter);
 app.use('/business', businessRouter);
 app.use('/reply', replyRouter);
 app.use('/payments', paymentsRouter);
+app.use('/custom-tones', customTonesRouter);
 
 // Error handler global
 app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
