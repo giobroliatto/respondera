@@ -543,7 +543,7 @@ async function initToneSection(): Promise<void> {
     document.querySelectorAll<HTMLButtonElement>('.tone-btn-pro').forEach((btn) => {
       btn.classList.add('tone-btn-pro--locked');
       btn.addEventListener('click', () => {
-        chrome.tabs.create({ url: 'https://respondera.com.br/upgrade' });
+        chrome.tabs.create({ url: 'https://respondera.com.br/pro' });
       });
     });
 
@@ -552,7 +552,7 @@ async function initToneSection(): Promise<void> {
     if (addToneBtn) {
       addToneBtn.classList.add('btn-add-tone--locked');
       addToneBtn.addEventListener('click', () => {
-        chrome.tabs.create({ url: 'https://respondera.com.br/upgrade' });
+        chrome.tabs.create({ url: 'https://respondera.com.br/pro' });
       });
     }
   }

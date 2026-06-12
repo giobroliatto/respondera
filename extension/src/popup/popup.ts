@@ -528,7 +528,7 @@ function bindUpgradeButton(): void {
       chrome.tabs.create({ url: checkoutUrl });
     } catch (err) {
       // Fallback: abre a landing page de upgrade
-      chrome.tabs.create({ url: 'https://respondera.com.br/upgrade' });
+      chrome.tabs.create({ url: 'https://respondera.com.br/pro' });
     } finally {
       fresh.disabled = false;
       fresh.textContent = 'Assinar PRO';

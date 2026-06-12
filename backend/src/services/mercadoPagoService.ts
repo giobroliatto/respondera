@@ -21,7 +21,7 @@ export async function createSubscription(
   userId: string,
   userEmail: string,
 ): Promise<CreateSubscriptionResult> {
-  const backUrl = `${env.PUBLIC_API_URL.replace('api.', '')}/upgrade`;
+  const backUrl = `${env.PUBLIC_API_URL.replace('api.', '')}/pro`;
 
   const body = {
     reason: PRO_PLAN_DESCRIPTION,
