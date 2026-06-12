@@ -9,7 +9,7 @@ import {
   logout as apiLogout,
   createSubscription,
 } from '../shared/api';
-import { AuthResponse, ToneOption } from '../shared/types';
+import { AuthResponse, ToneOption, SavedTone } from '../shared/types';
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
 
@@ -227,6 +227,52 @@ function bindTabs(isPro: boolean): void {
 let _soloOperator = false;
 let _soloGender: 'M' | 'F' = 'M';
 let _bizTone: ToneOption = 'friendly';
+let _bizDefaultCustomToneId: string | null = null;
+
+function getSavedTonesSync(): Promise<SavedTone[]> {
+  return new Promise((resolve) => {
+    chrome.storage.sync.get('savedCustomTones', (result) => {
+      resolve((result['savedCustomTones'] as SavedTone[]) ?? []);
+    });
+  });
+}
+
+function renderBizSavedTones(tones: SavedTone[]): void {
+  const container = document.getElementById('biz-saved-tones');
+  if (!container) return;
+  container.innerHTML = '';
+
+  if (tones.length === 0) {
+    const hint = document.createElement('span');
+    hint.className = 'biz-saved-tones-empty';
+    hint.textContent = 'Crie tons personalizados no painel lateral';
+    container.appendChild(hint);
+    return;
+  }
+
+  tones.forEach((tone) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'biz-saved-tone-btn' + (tone.id === _bizDefaultCustomToneId ? ' biz-tone-active' : '');
+    btn.dataset['id'] = tone.id;
+    btn.textContent = tone.name;
+    btn.title = tone.description;
+    container.appendChild(btn);
+
+    btn.addEventListener('click', () => {
+      _bizTone = 'custom';
+      _bizDefaultCustomToneId = tone.id;
+      // Clear pre-defined tone active state
+      document.querySelectorAll<HTMLButtonElement>('#biz-tone-grid .biz-tone-btn').forEach((b) =>
+        b.classList.remove('biz-tone-active')
+      );
+      // Update saved tone active state
+      document.querySelectorAll<HTMLButtonElement>('.biz-saved-tone-btn').forEach((b) =>
+        b.classList.toggle('biz-tone-active', b.dataset['id'] === tone.id)
+      );
+    });
+  });
+}
 
 async function loadBusinessForm(isPro: boolean): Promise<void> {
   // Lock visual para FREE
@@ -239,6 +285,9 @@ async function loadBusinessForm(isPro: boolean): Promise<void> {
     lockEl.classList.add('hidden');
     formEl.classList.remove('fields-locked');
   }
+
+  // Carrega o ID do tom personalizado padrão (se houver)
+  _bizDefaultCustomToneId = await getStorage('defaultCustomToneId');
 
   try {
     const business = await getBusiness();
@@ -262,6 +311,10 @@ async function loadBusinessForm(isPro: boolean): Promise<void> {
   }
 
   bindBusinessForm(isPro);
+
+  // Renderiza tons salvos APÓS clonar o formulário (bindBusinessForm faz replaceWith)
+  const savedTones = await getSavedTonesSync();
+  renderBizSavedTones(savedTones);
 }
 
 function updateVoiceToggle(isSolo: boolean): void {
@@ -287,6 +340,9 @@ function updateToneToggle(tone: string): void {
   document.querySelectorAll<HTMLButtonElement>('#biz-tone-grid .biz-tone-btn').forEach((btn) => {
     btn.classList.toggle('biz-tone-active', btn.dataset['value'] === tone);
   });
+  if (tone !== 'custom') {
+    document.querySelectorAll('.biz-saved-tone-btn').forEach((b) => b.classList.remove('biz-tone-active'));
+  }
 }
 
 function bindBusinessForm(isPro: boolean): void {
@@ -319,11 +375,12 @@ function bindBusinessForm(isPro: boolean): void {
     });
   });
 
-  // Seletor de tom padrão
+  // Seletor de tom padrão (tons pré-definidos)
   freshForm.querySelectorAll<HTMLButtonElement>('.biz-tone-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
       if (!isPro) return;
       _bizTone = btn.dataset['value'] as ToneOption;
+      _bizDefaultCustomToneId = null;
       updateToneToggle(_bizTone);
     });
   });
@@ -361,6 +418,7 @@ function bindBusinessForm(isPro: boolean): void {
         soloGender: _soloOperator ? _soloGender : null,
       });
       await setStorage('defaultTone', _bizTone);
+      await setStorage('defaultCustomToneId', _bizDefaultCustomToneId);
       feedback.textContent = 'Contexto salvo!';
       feedback.className = 'feedback success';
     } catch (err) {

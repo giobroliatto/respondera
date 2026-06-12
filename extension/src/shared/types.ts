@@ -73,6 +73,14 @@ export interface GenerateReplyResponse {
   contextWarning?: string;
 }
 
+// ─── Tons personalizados ─────────────────────────────────────────────────────
+
+export interface SavedTone {
+  id: string;
+  name: string;
+  description: string;
+}
+
 // ─── Erros tipados ────────────────────────────────────────────────────────────
 
 export type ApiErrorCode =

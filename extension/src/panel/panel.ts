@@ -2,16 +2,8 @@
 // Recebe os dados da avaliação via postMessage, gera resposta via background e
 // devolve a resposta ao content script para inserção no DOM da página.
 
-import { PanelState, ToneOption, ReviewData } from '../shared/types';
+import { PanelState, ToneOption, ReviewData, SavedTone } from '../shared/types';
 import { getMe } from '../shared/api';
-
-// ─── Interfaces ───────────────────────────────────────────────────────────────
-
-interface SavedTone {
-  id: string;
-  name: string;
-  description: string;
-}
 
 // ─── Estado do painel ─────────────────────────────────────────────────────────
 
@@ -129,6 +121,35 @@ function getFromStorage(key: string): Promise<string | number | null> {
 
 function setToStorage(data: Record<string, unknown>): Promise<void> {
   return new Promise((resolve) => chrome.storage.local.set(data, resolve));
+}
+
+// ─── Tom padrão ──────────────────────────────────────────────────────────────
+
+async function applyDefaultTone(): Promise<void> {
+  const proTones = ['direct', 'casual', 'assertive', 'custom'];
+  const savedTone = await getFromStorage('defaultTone') as string | null;
+  const canApply = savedTone && (userPlan === 'PRO' || !proTones.includes(savedTone));
+  const toneToApply = canApply ? savedTone! : 'friendly';
+
+  if (toneToApply === 'custom') {
+    const defaultCustomToneId = await getFromStorage('defaultCustomToneId') as string | null;
+    if (defaultCustomToneId) {
+      const allTones = await getSavedTonesFromStorage();
+      const defaultCustomTone = allTones.find((t) => t.id === defaultCustomToneId);
+      if (defaultCustomTone) {
+        selectSavedTone(defaultCustomTone);
+        return;
+      }
+    }
+    // Saved tone deleted or not found — fall back to friendly
+    document.querySelectorAll('.tone-btn').forEach((b) => b.classList.remove('active'));
+    document.querySelector<HTMLButtonElement>('.tone-btn[data-tone="friendly"]')?.classList.add('active');
+    selectedTone = 'friendly';
+  } else {
+    document.querySelectorAll('.tone-btn, .saved-tone-btn').forEach((b) => b.classList.remove('active'));
+    document.querySelector<HTMLButtonElement>(`.tone-btn[data-tone="${toneToApply}"]`)?.classList.add('active');
+    selectedTone = toneToApply as ToneOption;
+  }
 }
 
 // ─── Tons personalizados salvos ───────────────────────────────────────────────
@@ -397,14 +418,7 @@ async function refreshPlanState(): Promise<void> {
   // Re-inicializa a seção de tons com o plano correto (lê storage atualizado)
   await initToneSection();
 
-  // Aplica o tom padrão salvo (ou friendly como fallback)
-  const proTones = ['direct', 'casual', 'assertive'];
-  const savedTone = await getFromStorage('defaultTone') as string | null;
-  const canApply = savedTone && (userPlan === 'PRO' || !proTones.includes(savedTone));
-  const toneToApply = (canApply ? savedTone! : 'friendly') as ToneOption;
-  document.querySelectorAll('.tone-btn').forEach((b) => b.classList.remove('active'));
-  document.querySelector<HTMLButtonElement>(`.tone-btn[data-tone="${toneToApply}"]`)?.classList.add('active');
-  selectedTone = toneToApply;
+  await applyDefaultTone();
 }
 
 // ─── Inicialização de tons ────────────────────────────────────────────────────
@@ -577,13 +591,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // defaultTone populado pelo getBusiness background de showHome
     if (changes['defaultTone']?.newValue && currentState === 'idle') {
-      const newTone = changes['defaultTone'].newValue as string;
-      const proTones = ['direct', 'casual', 'assertive'];
-      if (userPlan === 'PRO' || !proTones.includes(newTone)) {
-        selectedTone = newTone as ToneOption;
-        document.querySelectorAll('.tone-btn').forEach((b) => b.classList.remove('active'));
-        document.querySelector<HTMLButtonElement>(`.tone-btn[data-tone="${newTone}"]`)?.classList.add('active');
-      }
+      await applyDefaultTone();
     }
   });
 
@@ -609,14 +617,7 @@ window.addEventListener('message', async (e) => {
     activeSavedToneId = null;
     getSavedTonesFromStorage().then(renderSavedTones);
     closeToneCreateForm();
-    // Aplica tom padrão salvo (ou friendly como fallback)
-    const proTones = ['direct', 'casual', 'assertive'];
-    const savedTone = await getFromStorage('defaultTone') as string | null;
-    const canApply = savedTone && (userPlan === 'PRO' || !proTones.includes(savedTone));
-    const toneToApply = canApply ? savedTone! : 'friendly';
-    document.querySelectorAll('.tone-btn').forEach((b) => b.classList.remove('active'));
-    document.querySelector<HTMLButtonElement>(`.tone-btn[data-tone="${toneToApply}"]`)?.classList.add('active');
-    selectedTone = toneToApply as ToneOption;
+    await applyDefaultTone();
     setState('idle');
   }
 
