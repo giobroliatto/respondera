@@ -4,7 +4,7 @@ import { env } from '../config/env';
 const MP_API_BASE = 'https://api.mercadopago.com';
 
 // Preço e descrição do plano PRO
-const PRO_PLAN_PRICE = 29.90;
+const PRO_PLAN_PRICE = 1.00;
 const PRO_PLAN_CURRENCY = 'BRL';
 const PRO_PLAN_DESCRIPTION = 'Respondera PRO';
 
