@@ -81,7 +81,7 @@ async function sendEmail(to: string, verificationUrl: string): Promise<void> {
 
               <!-- Subtítulo -->
               <p style="margin:0 0 32px;font-size:14px;color:rgba(255,255,255,0.5);text-align:center;line-height:1.6">
-                Tudo pronto. Só precisamos confirmar que este e-mail é seu.
+                Precisamos confirmar que este e-mail é seu.
               </p>
 
               <!-- Botão CTA -->
