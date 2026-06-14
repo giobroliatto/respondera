@@ -41,8 +41,8 @@ async function sendEmail(to: string, verificationUrl: string): Promise<void> {
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="color-scheme" content="dark">
   <meta name="supported-color-schemes" content="dark">
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=block');
     :root { color-scheme: dark; }
     body { background-color: #0D0D0D !important; margin: 0 !important; padding: 0 !important; }
     .email-wrapper { background-color: #0D0D0D !important; }
@@ -58,7 +58,7 @@ async function sendEmail(to: string, verificationUrl: string): Promise<void> {
           <!-- Logo / marca -->
           <tr>
             <td align="center" style="padding-bottom:32px">
-              <span style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:0.05em;color:#F0F0F0">
+              <span style="font-family:'Bebas Neue',Impact,sans-serif;font-size:30px;letter-spacing:0.05em;color:#FFFFFF">
                 RESPOND<span style="color:#10B981">ERA</span>
               </span>
             </td>
