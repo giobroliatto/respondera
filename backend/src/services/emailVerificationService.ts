@@ -55,17 +55,26 @@ async function sendEmail(to: string, verificationUrl: string): Promise<void> {
       <td align="center" style="padding:48px 16px">
         <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:480px">
 
+          <!-- Logo / marca -->
+          <tr>
+            <td align="center" style="padding-bottom:32px">
+              <span style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:0.05em;color:#F0F0F0">
+                RESPOND<span style="color:#10B981">ERA</span>
+              </span>
+            </td>
+          </tr>
+
           <!-- Card principal -->
           <tr>
             <td class="email-card" style="background:#161616;background-color:#161616;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:40px 36px">
 
-              <!-- Logo / marca -->
+              <!-- Ícone -->
               <table width="100%" cellpadding="0" cellspacing="0" border="0">
                 <tr>
                   <td align="center" style="padding-bottom:24px">
-                    <span style="font-family:'Bebas Neue',Arial Black,sans-serif;font-size:26px;letter-spacing:0.04em;color:#FFFFFF">
-                      RESPOND<span style="color:#10B981">ERA</span>
-                    </span>
+                    <div style="display:inline-block;background:rgba(16,185,129,0.1);border-radius:50%;width:56px;height:56px;line-height:56px;text-align:center;font-size:26px">
+                      ✉
+                    </div>
                   </td>
                 </tr>
               </table>
