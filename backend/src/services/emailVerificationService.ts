@@ -50,40 +50,25 @@ async function sendEmail(to: string, verificationUrl: string): Promise<void> {
   </style>
 </head>
 <body style="margin:0;padding:0;background:#0D0D0D;background-color:#0D0D0D;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
-  <span style="display:none;max-height:0;overflow:hidden;mso-hide:all;">Clique no botão abaixo para confirmar seu cadastro e começar a usar o Respondera.&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;</span>
   <table class="email-wrapper" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#0D0D0D;background-color:#0D0D0D;min-height:100vh">
     <tr>
       <td align="center" style="padding:48px 16px">
         <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:480px">
 
-          <!-- Logo / marca -->
-          <tr>
-            <td align="center" style="padding-bottom:32px">
-              <span style="font-family:'Bebas Neue',Arial Black,sans-serif;font-size:30px;letter-spacing:0.04em;color:#FFFFFF">
-                RESPOND<span style="color:#10B981">ERA</span>
-              </span>
-            </td>
-          </tr>
-
           <!-- Card principal -->
           <tr>
             <td class="email-card" style="background:#161616;background-color:#161616;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:40px 36px">
 
-              <!-- Ícone -->
+              <!-- Logo / marca -->
               <table width="100%" cellpadding="0" cellspacing="0" border="0">
                 <tr>
                   <td align="center" style="padding-bottom:24px">
-                    <div style="display:inline-block;background:rgba(16,185,129,0.1);border-radius:50%;width:56px;height:56px;line-height:56px;text-align:center;font-size:26px">
-                      ✉
-                    </div>
+                    <span style="font-family:'Bebas Neue',Arial Black,sans-serif;font-size:26px;letter-spacing:0.04em;color:#FFFFFF">
+                      RESPOND<span style="color:#10B981">ERA</span>
+                    </span>
                   </td>
                 </tr>
               </table>
-
-              <!-- Título -->
-              <p style="margin:0 0 8px;font-size:20px;font-weight:700;color:#FFFFFF;text-align:center">
-                Ative sua conta
-              </p>
 
               <!-- Subtítulo -->
               <p style="margin:0 0 32px;font-size:14px;color:rgba(255,255,255,0.5);text-align:center;line-height:1.6">
