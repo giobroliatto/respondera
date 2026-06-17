@@ -39,10 +39,15 @@ export async function authMiddleware(
   // Verifica se o token foi invalidado por logout posterior
   const user = await prisma.user.findUnique({
     where: { id: payload.userId },
-    select: { tokenInvalidatedAt: true },
+    select: { tokenInvalidatedAt: true, plan: true },
   });
 
-  if (user?.tokenInvalidatedAt && payload.iat) {
+  if (!user) {
+    res.status(401).json({ error: 'Usuário não encontrado.' });
+    return;
+  }
+
+  if (user.tokenInvalidatedAt && payload.iat) {
     const invalidatedAtMs = user.tokenInvalidatedAt.getTime();
     const tokenIssuedAtMs = payload.iat * 1000; // iat é em segundos
     if (tokenIssuedAtMs < invalidatedAtMs) {
@@ -51,6 +56,6 @@ export async function authMiddleware(
     }
   }
 
-  req.user = { id: payload.userId, email: payload.email, plan: payload.plan };
+  req.user = { id: payload.userId, email: payload.email, plan: user.plan };
   next();
 }
