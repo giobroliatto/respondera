@@ -51,7 +51,7 @@ export const GenerateReplySchema = z.object({
   rating: z.number().int().min(1).max(5),
   reviewerName: z.string().max(200).optional(),
   tone: z.enum(['formal', 'friendly', 'empathetic', 'direct', 'casual', 'assertive', 'custom']).optional(),
-  customTone: z.string().max(200).optional().nullable(),
+  customTone: z.string().max(200, 'O tom personalizado não pode exceder 200 caracteres').optional().nullable(),
   detailRatings: z.record(z.string(), z.string()).optional(),
   additionalContext: z.string().max(300, 'Contexto adicional não pode exceder 300 caracteres').nullable().optional(),
 });

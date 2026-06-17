@@ -44,7 +44,7 @@ router.post('/generate', replyGenerationLimiter, usageLimitMiddleware, async (re
       rating,
       reviewerName,
       tone: (tone as any) ?? 'friendly',
-      customTone: customTone ? customTone.replace(/<[^>]*>/g, '').trim().slice(0, 100) : null,
+      customTone: customTone ? customTone.replace(/<[^>]*>/g, '').trim().slice(0, 200) : null,
       detailRatings,
       additionalContext: sanitizedAdditionalContext,
       businessContext: business
