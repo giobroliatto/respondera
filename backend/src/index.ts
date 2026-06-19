@@ -23,8 +23,11 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
+// Stripe webhook precisa do body como Buffer — deve vir antes do express.json()
+app.use('/payments/webhook', express.raw({ type: 'application/json' }));
+
 // Body parser
-app.use(express.json({ limit: '10kb' })); // Limitar tamanho do payload
+app.use(express.json({ limit: '10kb' }));
 
 // Health check
 app.get('/health', (_req, res) => {
