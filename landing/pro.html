@@ -598,7 +598,7 @@
         <div class="step" id="step-redirect">
           <p class="form-title" id="redirect-title">Redirecionando para o pagamento…</p>
           <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:1.5rem">
-            Você será levado ao checkout seguro do Mercado Pago. Após o pagamento, volte aqui para confirmar.
+            Você será levado ao checkout seguro do Stripe. Após o pagamento, volte aqui para confirmar.
           </p>
           <div class="error-msg" id="redirect-error"></div>
           <button class="btn-primary btn-pro" id="btn-open-checkout" type="button" disabled>
@@ -615,7 +615,7 @@
         <!-- Garantia -->
         <div class="guarantee">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:relative;top:-2px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
-          Pagamento seguro via Mercado Pago. Cancele quando quiser.
+          Pagamento seguro via Stripe. Cancele quando quiser.
         </div>
       </div>
 
@@ -639,10 +639,9 @@
     // ─── Elementos ────────────────────────────────────────────────
     const $ = (id) => document.getElementById(id);
 
-    // Verifica se veio de redirect do MP com status
+    // Verifica se veio de redirect do Stripe após pagamento
     const params = new URLSearchParams(window.location.search);
-    const status = params.get('status');
-    if (status === 'approved' || status === 'authorized') {
+    if (params.get('assinado') === '1') {
       showSuccess(false);
     } else if (authToken) {
       // Token salvo: checa se já é PRO antes de mostrar qualquer tela
@@ -667,7 +666,7 @@
       showStep('step-redirect');
       $('redirect-title').textContent = 'Continue para o pagamento';
       $('btn-open-checkout').disabled = false;
-      $('btn-open-checkout').textContent = '↗ Abrir checkout do Mercado Pago';
+      $('btn-open-checkout').textContent = '↗ Abrir checkout';
       $('btn-check-payment').style.display = 'block';
       $('btn-logout').style.display = 'block';
     }
@@ -781,7 +780,7 @@
         setTimeout(() => {
           const btn = $('btn-open-checkout');
           btn.disabled = false;
-          btn.innerHTML = '↗ Abrir checkout do Mercado Pago';
+          btn.innerHTML = '↗ Abrir checkout';
           $('btn-check-payment').style.display = 'block';
         }, 3000);
 
