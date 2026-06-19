@@ -108,7 +108,7 @@ async function sendEmail(to: string): Promise<void> {
                 <tr>
                   <td style="border-top:1px solid rgba(255,255,255,0.07);padding-top:24px">
                     <p style="margin:0;font-size:13px;color:rgba(255,255,255,0.3);text-align:center;line-height:1.7">
-                      Cobrança mensal via Mercado Pago.<br>Cancele quando quiser, sem fidelidade.
+                      Cobrança mensal via Stripe.<br>Cancele quando quiser, sem fidelidade.
                     </p>
                   </td>
                 </tr>
