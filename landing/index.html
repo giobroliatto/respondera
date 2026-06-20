@@ -976,16 +976,25 @@
         padding-top: 120px;
         padding-bottom: var(--space-lg);
       }
-      .hero-content { order: 1; }
+      .hero-content {
+        order: 1;
+        padding-left: var(--space-md) !important;
+        padding-right: var(--space-md) !important;
+      }
+      .hero-mockup {
+        order: 2;
+        padding-left: var(--space-md) !important;
+        padding-right: var(--space-md) !important;
+      }
       .hero-sub { margin-left: auto; margin-right: auto; }
       .hero-buttons { justify-content: center; }
       .hero-stats { justify-content: center; }
-      .hero-mockup { order: 2; }
 
       .section-header { grid-template-columns: 1fr; }
       .steps-grid { grid-template-columns: 1fr; }
       .demo-body { grid-template-columns: 1fr; }
       .demo-divider { height: 1px; width: auto; }
+      .demo-panel { min-width: 0; }
       .plans-grid { grid-template-columns: 1fr; max-width: 420px; }
       .testimonials-grid { grid-template-columns: 1fr; }
 
@@ -1468,9 +1477,6 @@
           <a href="/pro" class="footer-link">PRO</a>
           <a href="/privacidade" class="footer-link">Privacidade</a>
           <a href="mailto:oi@respondera.com.br" class="footer-link">Contato</a>
-          <a href="https://instagram.com/respondera.app" class="footer-link footer-link-icon" target="_blank" rel="noopener" aria-label="Instagram">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
-          </a>
         </div>
         <div class="footer-right">
           <div class="footer-copyright">© 2026 Respondera</div>
