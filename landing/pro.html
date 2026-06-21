@@ -460,14 +460,14 @@
     <div class="upgrade-wrap">
 
       <!-- Header -->
-      <div class="upgrade-header">
+      <div class="upgrade-header" id="upgrade-header">
         <div class="pro-badge">✦ Plano PRO</div>
         <h1 class="upgrade-title">Respostas<br/><span>ilimitadas.</span></h1>
         <p class="upgrade-sub">Cancele quando quiser. Sem contratos, sem taxas ocultas.</p>
       </div>
 
       <!-- Benefícios -->
-      <div class="benefits">
+      <div class="benefits" id="upgrade-benefits">
         <div class="benefit-item">
           <div class="benefit-icon" style="font-size:1.2rem;line-height:1;padding-top:3px">∞</div>
           <div class="benefit-text">
@@ -507,10 +507,19 @@
       <!-- Card de checkout -->
       <div class="checkout-card">
 
+        <!-- Header personalizado da conta (visível só na tela de gestão) -->
+        <div id="manage-personal-header" style="display:none;text-align:center;padding-bottom:1.5rem;border-bottom:1px solid var(--border);margin-bottom:1.5rem">
+          <div class="pro-badge">✦ Plano PRO</div>
+          <h2 style="font-family:var(--font-display);font-size:2rem;letter-spacing:0.02em;line-height:1.1;margin-top:0.75rem;margin-bottom:0.4rem">Minha conta</h2>
+          <p id="manage-user-email" style="font-size:0.82rem;color:var(--text-muted)"></p>
+        </div>
+
         <!-- Preço -->
-        <div class="price-row">
-          <div class="price-amount">R$&nbsp;29</div>
-          <div class="price-period">,90&nbsp;/&nbsp;mês</div>
+        <div id="price-row-wrap">
+          <div class="price-row">
+            <div class="price-amount">R$&nbsp;29</div>
+            <div class="price-period">,90&nbsp;/&nbsp;mês</div>
+          </div>
         </div>
 
         <!-- Tela de sucesso -->
@@ -567,15 +576,17 @@
 
         <!-- Etapa 3: Gerenciar assinatura (PRO) -->
         <div class="step" id="step-manage">
-          <p class="form-title">Minha assinatura</p>
 
           <!-- Card de status -->
-          <div style="background:rgba(124,58,237,0.08);border:1px solid rgba(124,58,237,0.2);border-radius:10px;padding:1.25rem;margin-bottom:1.25rem">
-            <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.35rem">
-              <span style="background:rgba(124,58,237,0.15);border:1px solid rgba(124,58,237,0.3);color:#a78bfa;font-size:0.7rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;padding:0.2rem 0.6rem;border-radius:100px">✦ PRO</span>
-              <span id="manage-status-label" style="font-size:0.82rem;color:var(--text-muted)"></span>
+          <div id="manage-status-card" style="border-radius:12px;padding:1.5rem;margin-bottom:1.25rem;border:1px solid rgba(16,185,129,0.2);background:rgba(16,185,129,0.06);transition:border-color 0.3s,background 0.3s">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+              <span style="background:var(--pro-dim);border:1px solid rgba(124,58,237,0.3);color:var(--pro-light);font-size:0.7rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;padding:0.25rem 0.7rem;border-radius:100px">✦ PRO</span>
+              <span id="manage-status-label" style="font-size:0.82rem;font-weight:600"></span>
             </div>
-            <p id="manage-renewal-text" style="font-size:0.85rem;color:var(--text-mid);margin:0"></p>
+            <div style="border-top:1px solid rgba(255,255,255,0.07);padding-top:1rem">
+              <p id="manage-renewal-label" style="font-size:0.72rem;color:var(--text-muted);margin-bottom:0.25rem;text-transform:uppercase;letter-spacing:0.06em"></p>
+              <p id="manage-renewal-text" style="font-size:1rem;font-weight:500;color:var(--text);margin:0"></p>
+            </div>
           </div>
 
           <div class="error-msg" id="manage-error"></div>
@@ -850,6 +861,12 @@
       document.querySelectorAll('.step').forEach((s) => s.classList.remove('active'));
       $('success-screen').classList.remove('active');
       $(id).classList.add('active');
+
+      const isManage = id === 'step-manage';
+      $('upgrade-header').style.display         = isManage ? 'none' : '';
+      $('upgrade-benefits').style.display       = isManage ? 'none' : '';
+      $('price-row-wrap').style.display         = isManage ? 'none' : '';
+      $('manage-personal-header').style.display = isManage ? 'block' : 'none';
     }
 
     // ─── Tela de gerenciar assinatura (PRO) ──────────────────────
@@ -858,33 +875,44 @@
       clearError('manage-error');
       $('manage-cancel-confirm').style.display = 'none';
 
+      if (userData.email) {
+        $('manage-user-email').textContent = userData.email;
+      }
+
       currentSubStatus = userData.mpSubscriptionStatus;
       managedRenewalDate = userData.mpNextBillingDate
         ? new Date(userData.mpNextBillingDate).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
         : null;
 
+      const card = $('manage-status-card');
+
       if (currentSubStatus === 'paused') {
-        // Cancelado mas ainda no período pago — pode retomar
-        $('manage-status-label').textContent = 'Cancelada';
-        $('manage-renewal-text').textContent = managedRenewalDate
-          ? `Acesso PRO até ${managedRenewalDate}`
-          : 'Acesso PRO encerrado em breve';
+        $('manage-status-label').textContent = '● Cancelada';
+        $('manage-status-label').style.color = '#F59E0B';
+        card.style.borderColor = 'rgba(245,158,11,0.2)';
+        card.style.background  = 'rgba(245,158,11,0.06)';
+        $('manage-renewal-label').textContent = 'Acesso PRO até';
+        $('manage-renewal-text').textContent  = managedRenewalDate ?? 'Em breve';
         $('btn-cancel-sub').style.display = 'none';
-        $('btn-resume-sub').textContent = 'Retomar assinatura';
+        $('btn-resume-sub').textContent   = 'Retomar assinatura';
         $('btn-resume-sub').style.display = '';
       } else if (currentSubStatus === 'cancelled') {
-        // Ciclo encerrado — precisa de nova assinatura
-        $('manage-status-label').textContent = 'Encerrada';
-        $('manage-renewal-text').textContent = 'Seu período PRO foi encerrado.';
+        $('manage-status-label').textContent = '● Encerrada';
+        $('manage-status-label').style.color = 'var(--red)';
+        card.style.borderColor = 'rgba(239,68,68,0.2)';
+        card.style.background  = 'rgba(239,68,68,0.06)';
+        $('manage-renewal-label').textContent = 'Status';
+        $('manage-renewal-text').textContent  = 'Seu período PRO foi encerrado.';
         $('btn-cancel-sub').style.display = 'none';
-        $('btn-resume-sub').textContent = 'Assinar novamente';
+        $('btn-resume-sub').textContent   = 'Assinar novamente';
         $('btn-resume-sub').style.display = '';
       } else {
-        // authorized — ativa
-        $('manage-status-label').textContent = 'Ativa';
-        $('manage-renewal-text').textContent = managedRenewalDate
-          ? `Próxima renovação: ${managedRenewalDate}`
-          : '';
+        $('manage-status-label').textContent = '● Ativa';
+        $('manage-status-label').style.color = 'var(--accent)';
+        card.style.borderColor = 'rgba(16,185,129,0.2)';
+        card.style.background  = 'rgba(16,185,129,0.06)';
+        $('manage-renewal-label').textContent = 'Próxima renovação';
+        $('manage-renewal-text').textContent  = managedRenewalDate ?? '';
         $('btn-cancel-sub').style.display = '';
         $('btn-resume-sub').style.display = 'none';
       }
