@@ -54,6 +54,8 @@ export const GenerateReplySchema = z.object({
   customTone: z.string().max(200, 'O tom personalizado não pode exceder 200 caracteres').optional().nullable(),
   detailRatings: z.record(z.string(), z.string()).optional(),
   additionalContext: z.string().max(300, 'Contexto adicional não pode exceder 300 caracteres').nullable().optional(),
+  mode: z.enum(['generate', 'improve']).optional().default('generate'),
+  draftText: z.string().max(1500, 'O rascunho não pode exceder 1500 caracteres').nullable().optional(),
 });
 
 export type GenerateReply = z.infer<typeof GenerateReplySchema>;

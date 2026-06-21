@@ -4,6 +4,7 @@
 
 export type Plan = 'FREE' | 'PRO';
 export type ToneOption = 'friendly' | 'formal' | 'empathetic' | 'direct' | 'casual' | 'assertive' | 'custom';
+export type GenerationMode = 'generate' | 'improve';
 export type PanelState = 'idle' | 'loading' | 'success' | 'error' | 'limit_reached' | 'not_logged_in';
 
 // ─── Avaliação ────────────────────────────────────────────────────────────────
@@ -17,6 +18,8 @@ export interface ReviewData {
   customTone?: string | null;
   detailRatings?: Record<string, string>; // ex: { "Comida": "5", "Serviço": "4", "Ambiente": "5", "Preço por pessoa": "R$40-60" }
   additionalContext?: string | null;
+  mode?: GenerationMode;
+  draftText?: string | null;
 }
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
@@ -64,6 +67,8 @@ export interface GenerateReplyData {
   customTone?: string | null;
   detailRatings?: Record<string, string>;
   additionalContext?: string | null;
+  mode?: GenerationMode;
+  draftText?: string | null;
 }
 
 export interface GenerateReplyResponse {

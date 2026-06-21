@@ -70,6 +70,8 @@ async function handleGenerateReply(
       customTone:   data.customTone ?? null,
       detailRatings: data.detailRatings,
       additionalContext: data.additionalContext ?? null,
+      mode:         data.mode ?? 'generate',
+      draftText:    data.draftText ?? null,
     });
 
     // Atualiza contador de uso no storage

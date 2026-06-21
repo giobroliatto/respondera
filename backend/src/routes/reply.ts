@@ -5,7 +5,7 @@ import { replyGenerationLimiter } from '../middlewares/rateLimitMiddleware';
 import { generateReply } from '../services/anthropicService';
 import { incrementUsage } from '../services/usageService';
 import { GenerateReplySchema } from '../utils/validationSchemas';
-import { sanitizeReviewText, sanitizeAdditionalContext } from '../utils/sanitization';
+import { sanitizeReviewText, sanitizeAdditionalContext, sanitizeText } from '../utils/sanitization';
 import { logger, logReplyGenerationError } from '../utils/logger';
 import { prisma } from '../lib/prisma';
 
@@ -17,7 +17,7 @@ router.use(authMiddleware);
 router.post('/generate', replyGenerationLimiter, usageLimitMiddleware, async (req: AuthRequest, res: Response) => {
   try {
     const validatedData = GenerateReplySchema.parse(req.body);
-    const { reviewText, rating, reviewerName, tone, customTone, detailRatings, additionalContext } = validatedData;
+    const { reviewText, rating, reviewerName, tone, customTone, detailRatings, additionalContext, mode, draftText } = validatedData;
 
     const isPro = req.user!.plan === 'PRO';
 
@@ -26,6 +26,13 @@ router.post('/generate', replyGenerationLimiter, usageLimitMiddleware, async (re
     const sanitizedAdditionalContext = isPro
       ? sanitizeAdditionalContext(additionalContext)
       : null;
+
+    // Modo "melhorar rascunho": exige um rascunho não vazio (liberado para FREE e PRO)
+    const sanitizedDraft = mode === 'improve' ? sanitizeText(draftText ?? undefined, 1500) : '';
+    if (mode === 'improve' && !sanitizedDraft) {
+      res.status(400).json({ error: 'Escreva um rascunho para a IA melhorar.' });
+      return;
+    }
 
     // Busca o estabelecimento — só usa o contexto se o usuário for PRO
     const rawBusiness = await prisma.business.findUnique({
@@ -47,6 +54,8 @@ router.post('/generate', replyGenerationLimiter, usageLimitMiddleware, async (re
       customTone: customTone ? customTone.replace(/<[^>]*>/g, '').trim().slice(0, 200) : null,
       detailRatings,
       additionalContext: sanitizedAdditionalContext,
+      mode,
+      draftText: sanitizedDraft || null,
       businessContext: business
         ? {
             name: business.name,

@@ -2,7 +2,7 @@
 // Recebe os dados da avaliação via postMessage, gera resposta via background e
 // devolve a resposta ao content script para inserção no DOM da página.
 
-import { PanelState, ToneOption, ReviewData, SavedTone } from '../shared/types';
+import { PanelState, ToneOption, GenerationMode, ReviewData, SavedTone } from '../shared/types';
 import {
   getMe,
   getCustomTones,
@@ -21,6 +21,7 @@ let userPlan: string | null = null;
 let customToneValue: string | null = null;
 let activeSavedToneId: string | null = null;
 let editingToneId: string | null = null;
+let generationMode: GenerationMode = 'generate';
 
 // ─── Referências DOM ─────────────────────────────────────────────────────────
 
@@ -47,6 +48,10 @@ const el = {
   proRequiredMsg:      () => document.getElementById('pro-required-msg')!,
   contextProMsg:       () => document.getElementById('context-pro-msg')!,
   contextWarningMsg:   () => document.getElementById('context-warning-msg'),
+  modeHint:           () => document.getElementById('mode-hint')!,
+  draftSection:       () => document.getElementById('draft-section')!,
+  draftTextarea:      () => document.getElementById('draft-textarea') as HTMLTextAreaElement,
+  draftCharCount:     () => document.getElementById('draft-char-count')!,
 };
 
 // ─── Controle de estado ───────────────────────────────────────────────────────
@@ -116,6 +121,28 @@ function renderReview(data: ReviewData): void {
   el.ratingStars().textContent = renderStars(data.rating);
   el.ratingStars().setAttribute('aria-label', data.rating ? `${data.rating} estrelas` : '');
   el.reviewText().textContent = data.text ?? '(sem texto)';
+}
+
+// ─── Modo: gerar do zero vs melhorar rascunho ────────────────────────────────
+
+function setMode(mode: GenerationMode): void {
+  generationMode = mode;
+
+  document.getElementById('mode-generate')?.classList.toggle('active', mode === 'generate');
+  document.getElementById('mode-improve')?.classList.toggle('active', mode === 'improve');
+
+  el.draftSection().classList.toggle('hidden', mode !== 'improve');
+  el.draftTextarea().classList.remove('draft-textarea--error');
+
+  // Contexto adicional não faz sentido ao melhorar um rascunho: o próprio rascunho
+  // já carrega a intenção. Esconde nesse modo para manter o fluxo limpo.
+  document.getElementById('context-section')?.classList.toggle('hidden', mode === 'improve');
+
+  el.modeHint().textContent = mode === 'improve'
+    ? 'Você escreve, a IA deixa bem escrito mantendo a sua intenção.'
+    : 'A IA escreve a resposta do zero a partir da avaliação.';
+
+  el.btnGenerate().textContent = mode === 'improve' ? 'Melhorar rascunho' : 'Gerar resposta';
 }
 
 function getFromStorage(key: string): Promise<string | number | null> {
@@ -288,6 +315,21 @@ function selectSavedTone(tone: SavedTone): void {
   document.querySelector<HTMLButtonElement>(`.saved-tone-btn[data-id="${tone.id}"]`)?.classList.add('active');
 }
 
+function updateToneCharCounts(nameLen: number, descLen: number): void {
+  const nameCount = document.getElementById('tone-name-count');
+  const descCount = document.getElementById('tone-desc-count');
+  if (nameCount) {
+    nameCount.textContent = `${nameLen}/30`;
+    nameCount.classList.toggle('rg-char-count--warn', nameLen >= 25 && nameLen < 30);
+    nameCount.classList.toggle('rg-char-count--full', nameLen >= 30);
+  }
+  if (descCount) {
+    descCount.textContent = `${descLen}/200`;
+    descCount.classList.toggle('rg-char-count--warn', descLen >= 170 && descLen < 200);
+    descCount.classList.toggle('rg-char-count--full', descLen >= 200);
+  }
+}
+
 function closeToneCreateForm(): void {
   const form = document.getElementById('tone-create-form');
   if (!form) return;
@@ -299,6 +341,7 @@ function closeToneCreateForm(): void {
   if (descInput) descInput.value = '';
   if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Salvar tom'; }
   editingToneId = null;
+  updateToneCharCounts(0, 0);
 }
 
 function openEditForm(tone: SavedTone): void {
@@ -309,6 +352,7 @@ function openEditForm(tone: SavedTone): void {
   if (nameInput) nameInput.value = tone.name;
   if (descInput) descInput.value = tone.description;
   if (saveBtn) saveBtn.textContent = 'Atualizar tom';
+  updateToneCharCounts(tone.name.length, tone.description.length);
   document.getElementById('tone-create-form')?.classList.remove('hidden');
   nameInput?.focus();
   nameInput?.select();
@@ -361,6 +405,14 @@ async function generateReply(): Promise<void> {
   const isLoggedIn = await checkAuth();
   if (!isLoggedIn) {
     setState('not_logged_in');
+    return;
+  }
+
+  // Modo "melhorar": exige rascunho preenchido antes de chamar a API
+  const draftText = el.draftTextarea().value.trim();
+  if (generationMode === 'improve' && !draftText) {
+    el.draftTextarea().classList.add('draft-textarea--error');
+    el.draftTextarea().focus();
     return;
   }
 
@@ -425,7 +477,11 @@ async function generateReply(): Promise<void> {
         ...currentReviewData,
         tone: customToneValue ? ('custom' as ToneOption) : selectedTone,
         customTone: customToneValue,
-        additionalContext: userPlan === 'PRO' ? (el.additionalContext().value.trim() || null) : null,
+        additionalContext: (generationMode === 'generate' && userPlan === 'PRO')
+          ? (el.additionalContext().value.trim() || null)
+          : null,
+        mode: generationMode,
+        draftText: generationMode === 'improve' ? draftText : null,
       },
     });
   });
@@ -586,10 +642,38 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (descInput) {
       descInput.value = chip.dataset['desc'] ?? '';
       descInput.focus();
+      const nameInput = document.getElementById('tone-create-name') as HTMLInputElement | null;
+      updateToneCharCounts(nameInput?.value.length ?? 0, descInput.value.length);
     }
   });
 
+  // Contadores de caracteres do form de criação/edição de tom
+  document.getElementById('tone-create-name')?.addEventListener('input', (e) => {
+    const nameLen = (e.target as HTMLInputElement).value.length;
+    const descLen = (document.getElementById('tone-create-desc') as HTMLTextAreaElement | null)?.value.length ?? 0;
+    updateToneCharCounts(nameLen, descLen);
+  });
+  document.getElementById('tone-create-desc')?.addEventListener('input', (e) => {
+    const nameLen = (document.getElementById('tone-create-name') as HTMLInputElement | null)?.value.length ?? 0;
+    const descLen = (e.target as HTMLTextAreaElement).value.length;
+    updateToneCharCounts(nameLen, descLen);
+  });
+
   await initToneSection();
+
+  // Seletor de modo: gerar do zero vs melhorar rascunho
+  document.getElementById('mode-generate')?.addEventListener('click', () => setMode('generate'));
+  document.getElementById('mode-improve')?.addEventListener('click', () => setMode('improve'));
+
+  // Contador de caracteres do rascunho
+  el.draftTextarea().addEventListener('input', () => {
+    const len = el.draftTextarea().value.length;
+    const countEl = el.draftCharCount();
+    countEl.textContent = `${len}/1500`;
+    countEl.classList.toggle('rg-char-count--warn', len >= 1300 && len < 1500);
+    countEl.classList.toggle('rg-char-count--full', len >= 1500);
+    el.draftTextarea().classList.remove('draft-textarea--error');
+  });
 
   // Contador de caracteres do campo de contexto adicional
   el.additionalContext().addEventListener('input', () => {
@@ -656,6 +740,11 @@ window.addEventListener('message', async (e) => {
     document.getElementById('panel-loading')?.classList.add('hidden');
     currentReviewData = msg.data;
     renderReview(currentReviewData);
+    // Reseta para o modo "gerar do zero" e limpa o rascunho
+    setMode('generate');
+    el.draftTextarea().value = '';
+    el.draftCharCount().textContent = '0/1500';
+    el.draftCharCount().classList.remove('rg-char-count--warn', 'rg-char-count--full');
     // Limpa contexto adicional
     el.additionalContext().value = '';
     el.charCount().textContent = '0/300';
