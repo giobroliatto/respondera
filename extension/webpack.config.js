@@ -53,11 +53,17 @@ module.exports = (env, argv) => {
               manifest.host_permissions = [
                 'https://www.google.com/local/business/*',
                 apiHost,
-                ...(isDev ? ['http://localhost:8080/*'] : []),
+                ...(isDev ? ['http://localhost:8081/*'] : []),
               ];
 
-              if (!isDev) {
-                // Remove entradas localhost dos content_scripts em builds de produção
+              if (isDev) {
+                // Em dev: injeta localhost:8081 nos matches dos content_scripts
+                manifest.content_scripts = manifest.content_scripts.map(cs => ({
+                  ...cs,
+                  matches: [...cs.matches, 'http://localhost:8081/*'],
+                }));
+              } else {
+                // Em prod: remove entradas que contenham localhost
                 manifest.content_scripts = manifest.content_scripts.filter(
                   cs => !cs.matches.some(m => m.includes('localhost'))
                 );
