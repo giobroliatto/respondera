@@ -580,8 +580,11 @@
           <!-- Card de status -->
           <div id="manage-status-card" style="border-radius:12px;padding:1.5rem;margin-bottom:1.25rem;border:1px solid rgba(16,185,129,0.2);background:rgba(16,185,129,0.06);transition:border-color 0.3s,background 0.3s">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
-              <span style="background:var(--pro-dim);border:1px solid rgba(124,58,237,0.3);color:var(--pro-light);font-size:0.7rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;padding:0.25rem 0.7rem;border-radius:100px">✦ PRO</span>
-              <span id="manage-status-label" style="font-size:0.82rem;font-weight:600"></span>
+              <span style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em">Status</span>
+              <div style="display:flex;align-items:center;gap:6px">
+                <span id="manage-status-dot" style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);flex-shrink:0"></span>
+                <span id="manage-status-text" style="font-size:0.82rem;font-weight:600"></span>
+              </div>
             </div>
             <div style="border-top:1px solid rgba(255,255,255,0.07);padding-top:1rem">
               <p id="manage-renewal-label" style="font-size:0.72rem;color:var(--text-muted);margin-bottom:0.25rem;text-transform:uppercase;letter-spacing:0.06em"></p>
@@ -887,8 +890,9 @@
       const card = $('manage-status-card');
 
       if (currentSubStatus === 'paused') {
-        $('manage-status-label').textContent = '● Cancelada';
-        $('manage-status-label').style.color = '#F59E0B';
+        $('manage-status-dot').style.background = '#F59E0B';
+        $('manage-status-text').textContent      = 'Cancelada';
+        $('manage-status-text').style.color      = '#F59E0B';
         card.style.borderColor = 'rgba(245,158,11,0.2)';
         card.style.background  = 'rgba(245,158,11,0.06)';
         $('manage-renewal-label').textContent = 'Acesso PRO até';
@@ -897,18 +901,20 @@
         $('btn-resume-sub').textContent   = 'Retomar assinatura';
         $('btn-resume-sub').style.display = '';
       } else if (currentSubStatus === 'cancelled') {
-        $('manage-status-label').textContent = '● Encerrada';
-        $('manage-status-label').style.color = 'var(--red)';
+        $('manage-status-dot').style.background = 'var(--red)';
+        $('manage-status-text').textContent      = 'Encerrada';
+        $('manage-status-text').style.color      = 'var(--red)';
         card.style.borderColor = 'rgba(239,68,68,0.2)';
         card.style.background  = 'rgba(239,68,68,0.06)';
-        $('manage-renewal-label').textContent = 'Status';
+        $('manage-renewal-label').textContent = '';
         $('manage-renewal-text').textContent  = 'Seu período PRO foi encerrado.';
         $('btn-cancel-sub').style.display = 'none';
         $('btn-resume-sub').textContent   = 'Assinar novamente';
         $('btn-resume-sub').style.display = '';
       } else {
-        $('manage-status-label').textContent = '● Ativa';
-        $('manage-status-label').style.color = 'var(--accent)';
+        $('manage-status-dot').style.background = 'var(--accent)';
+        $('manage-status-text').textContent      = 'Ativa';
+        $('manage-status-text').style.color      = 'var(--accent)';
         card.style.borderColor = 'rgba(16,185,129,0.2)';
         card.style.background  = 'rgba(16,185,129,0.06)';
         $('manage-renewal-label').textContent = 'Próxima renovação';
@@ -941,10 +947,14 @@
 
         // Atualiza UI para estado ativo
         currentSubStatus = 'authorized';
-        $('manage-status-label').textContent = 'Ativa';
-        $('manage-renewal-text').textContent = managedRenewalDate
-          ? `Próxima renovação: ${managedRenewalDate}`
-          : '';
+        const cardR = $('manage-status-card');
+        $('manage-status-dot').style.background = 'var(--accent)';
+        $('manage-status-text').textContent      = 'Ativa';
+        $('manage-status-text').style.color      = 'var(--accent)';
+        cardR.style.borderColor = 'rgba(16,185,129,0.2)';
+        cardR.style.background  = 'rgba(16,185,129,0.06)';
+        $('manage-renewal-label').textContent = 'Próxima renovação';
+        $('manage-renewal-text').textContent  = managedRenewalDate ?? '';
         $('btn-resume-sub').style.display = 'none';
         $('btn-cancel-sub').style.display = '';
       } catch (err) {
@@ -987,10 +997,14 @@
         // Atualiza UI para estado cancelado (paused no MP — pode retomar)
         currentSubStatus = 'paused';
         $('manage-cancel-confirm').style.display = 'none';
-        $('manage-status-label').textContent = 'Cancelada';
-        $('manage-renewal-text').textContent = managedRenewalDate
-          ? `Acesso PRO até ${managedRenewalDate}`
-          : 'Acesso PRO encerrado em breve';
+        const cardC = $('manage-status-card');
+        $('manage-status-dot').style.background = '#F59E0B';
+        $('manage-status-text').textContent      = 'Cancelada';
+        $('manage-status-text').style.color      = '#F59E0B';
+        cardC.style.borderColor = 'rgba(245,158,11,0.2)';
+        cardC.style.background  = 'rgba(245,158,11,0.06)';
+        $('manage-renewal-label').textContent = 'Acesso PRO até';
+        $('manage-renewal-text').textContent  = managedRenewalDate ?? 'em breve';
         $('btn-cancel-sub').style.display = 'none';
         $('btn-resume-sub').textContent = 'Retomar assinatura';
         $('btn-resume-sub').style.display = '';
