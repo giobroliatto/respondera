@@ -658,7 +658,10 @@
     if (params.get('assinado') === '1') {
       showSuccess(false);
     } else if (authToken) {
-      // Token salvo: checa se já é PRO antes de mostrar qualquer tela
+      // Esconde o conteúdo de upgrade imediatamente para evitar flash durante a checagem
+      $('upgrade-header').style.display   = 'none';
+      $('upgrade-benefits').style.display = 'none';
+      $('price-row-wrap').style.display   = 'none';
       checkPlanOnLoad();
     } else {
       // Sem token: mostra login diretamente
@@ -749,7 +752,7 @@
 
     // ─── Etapa 2: Criar assinatura e redirecionar ─────────────────
     async function goToCheckout(forceCheckout = false) {
-      showStep('step-redirect');
+      showStep('step-loading');
 
       try {
         // Checa se já é PRO antes de criar nova assinatura (a não ser que seja "retomar")
@@ -765,6 +768,8 @@
             }
           }
         }
+
+        showStep('step-redirect');
 
         const res = await fetch(`${BACKEND_URL}/payments/create-subscription`, {
           method: 'POST',
