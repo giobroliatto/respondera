@@ -136,13 +136,6 @@ function buildImproveSystemPrompt(
 O QUE FAZER:
 • Corrigir gramática, ortografia, pontuação, concordância e acentuação.
 • Deixar a resposta mais fluida e natural, ajustando ao tom ${toneInstruction}.
-• Manter as MESMAS ideias, na mesma ordem, com aproximadamente o mesmo número de frases do rascunho.
-
-O QUE NUNCA FAZER (regras absolutas):
-• NÃO acrescente ideias, agradecimentos, convites, elogios ou chamadas para ação que o autor não escreveu.
-• NÃO responda à avaliação por conta própria, nem complete o raciocínio do autor.
-• NÃO invente fatos, nomes, ofertas ou informações.
-• NÃO infle o tamanho: a saída deve ter aproximadamente o mesmo comprimento do rascunho.
 
 ${voiceInstruction}
 
