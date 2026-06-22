@@ -219,7 +219,7 @@ export async function generateReply(params: GenerateReplyParams): Promise<Genera
   const userPrompt = buildUserPrompt(reviewText, rating, reviewerName, detailRatings, mode, draftText);
 
   const message = await anthropic.messages.create({
-    model: 'claude-sonnet-4-5',
+    model: 'claude-sonnet-4-6',
     max_tokens: 512,
     // Melhorar rascunho exige fidelidade ao texto do autor, não criatividade.
     temperature: mode === 'improve' ? 0.3 : 1,
