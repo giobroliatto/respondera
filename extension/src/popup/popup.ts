@@ -62,11 +62,12 @@ function showLogin(): void {
     const errEl    = document.getElementById('login-error')!;
 
     errEl.classList.add('hidden');
+    errEl.classList.remove('error-visible');
     errEl.textContent = '';
 
     const btn = freshForm.querySelector('#btn-login') as HTMLButtonElement;
     btn.disabled = true;
-    btn.textContent = 'Entrando...';
+    btn.innerHTML = '<svg class="btn-spinner" width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="3" opacity="0.3"/><path d="M21 12A9 9 0 0 0 12 3" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg> Entrando...';
 
     try {
       const data = await apiLogin(email, password);
@@ -78,11 +79,10 @@ function showLogin(): void {
       }
       notifyContentScript();
     } catch (err: unknown) {
-      errEl.textContent = err instanceof Error ? err.message : 'Erro desconhecido.';
-      errEl.classList.remove('hidden');
+      showError(errEl, err instanceof Error ? err.message : 'Erro desconhecido.');
     } finally {
       btn.disabled = false;
-      btn.textContent = 'Entrar';
+      btn.innerHTML = 'Entrar';
     }
   });
 
@@ -115,23 +115,22 @@ function showRegister(): void {
     const errEl    = document.getElementById('register-error')!;
 
     errEl.classList.add('hidden');
+    errEl.classList.remove('error-visible');
     errEl.textContent = '';
 
     if (password !== confirm) {
-      errEl.textContent = 'As senhas não coincidem.';
-      errEl.classList.remove('hidden');
+      showError(errEl, 'As senhas não coincidem.');
       return;
     }
 
     if (password.length < 8) {
-      errEl.textContent = 'A senha deve ter pelo menos 8 caracteres.';
-      errEl.classList.remove('hidden');
+      showError(errEl, 'A senha deve ter pelo menos 8 caracteres.');
       return;
     }
 
     const btn = freshForm.querySelector('#btn-register') as HTMLButtonElement;
     btn.disabled = true;
-    btn.textContent = 'Criando conta...';
+    btn.innerHTML = '<svg class="btn-spinner" width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="3" opacity="0.3"/><path d="M21 12A9 9 0 0 0 12 3" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg> Criando conta...';
 
     try {
       const data = await apiRegister(email, password);
@@ -139,11 +138,10 @@ function showRegister(): void {
       showVerify(data.user.email);
       notifyContentScript();
     } catch (err: unknown) {
-      errEl.textContent = err instanceof Error ? err.message : 'Erro desconhecido.';
-      errEl.classList.remove('hidden');
+      showError(errEl, err instanceof Error ? err.message : 'Erro desconhecido.');
     } finally {
       btn.disabled = false;
-      btn.textContent = 'Criar conta';
+      btn.innerHTML = 'Criar conta';
     }
   });
 
@@ -415,7 +413,7 @@ async function showHome(): Promise<void> {
 
   freshBtn.addEventListener('click', async () => {
     freshBtn.disabled = true;
-    freshBtn.textContent = 'Saindo...';
+    freshBtn.innerHTML = '<svg class="btn-spinner" width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="3" opacity="0.3"/><path d="M21 12A9 9 0 0 0 12 3" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg> Saindo...';
     await apiLogout();
     await clearStorage();
     await clearClientCaches();
@@ -437,6 +435,14 @@ async function showHome(): Promise<void> {
 }
 
 // ─── Abas ─────────────────────────────────────────────────────────────────
+
+function showError(el: HTMLElement, message: string): void {
+  el.textContent = message;
+  el.classList.remove('error-visible');
+  el.classList.remove('hidden');
+  void el.offsetHeight;
+  el.classList.add('error-visible');
+}
 
 function slidePanel(el: HTMLElement, direction: 'left' | 'right'): void {
   el.style.transform = `translateX(${direction === 'right' ? '28px' : '-28px'})`;
@@ -661,7 +667,7 @@ function bindBusinessForm(isPro: boolean): void {
     }
 
     btn.disabled = true;
-    btn.textContent = 'Salvando...';
+    btn.innerHTML = '<svg class="btn-spinner" width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="3" opacity="0.3"/><path d="M21 12A9 9 0 0 0 12 3" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg> Salvando...';
 
     try {
       await saveBusiness({
@@ -682,7 +688,7 @@ function bindBusinessForm(isPro: boolean): void {
       feedback.className = 'feedback error';
     } finally {
       btn.disabled = false;
-      btn.textContent = 'Salvar';
+      btn.innerHTML = 'Salvar';
     }
   });
 }
