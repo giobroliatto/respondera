@@ -325,8 +325,8 @@ async function syncPlanFromServer(): Promise<void> {
       userPlan:           user.plan,
       usageCount:         user.usageCount,
       emailVerified:      user.emailVerified,
-      renewalDate:        (user as any).mpNextBillingDate ?? null,
-      subscriptionStatus: (user as any).mpSubscriptionStatus ?? null,
+      renewalDate:        (user as any).nextBillingDate ?? null,
+      subscriptionStatus: (user as any).subscriptionStatus ?? null,
     });
   } catch {
     // Offline ou token expirado — usa cache local

@@ -22,9 +22,9 @@ model User {
   emailVerificationExpiresAt  DateTime?
   tokenInvalidatedAt          DateTime?
   createdAt                   DateTime     @default(now())
-  mpSubscriptionId            String?
-  mpSubscriptionStatus        String?      // authorized | paused | cancelled | ended
-  mpNextBillingDate           DateTime?
+  subscriptionId              String?
+  subscriptionStatus          String?      // authorized | paused | cancelled | ended
+  nextBillingDate             DateTime?
   business                    Business?
   customTones                 CustomTone[]
 }

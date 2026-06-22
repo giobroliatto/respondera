@@ -142,8 +142,8 @@ async function showHome(): Promise<void> {
     await setStorage('userPlan', user.plan);
     await setStorage('usageCount', user.usageCount);
     await setStorage('emailVerified', user.emailVerified);
-    await setStorage('renewalDate', (user as any).mpNextBillingDate ?? null);
-    await setStorage('subscriptionStatus', (user as any).mpSubscriptionStatus ?? null);
+    await setStorage('renewalDate', (user as any).nextBillingDate ?? null);
+    await setStorage('subscriptionStatus', (user as any).subscriptionStatus ?? null);
   } catch {
     // Offline ou token expirado — usa cache local
   }
@@ -453,8 +453,8 @@ async function storeUserData(data: AuthResponse): Promise<void> {
   await setStorage('userPlan',   data.user.plan);
   await setStorage('usageCount', data.user.usageCount);
   await setStorage('emailVerified', data.user.emailVerified);
-  await setStorage('renewalDate', (data.user as any).mpNextBillingDate ?? null);
-  await setStorage('subscriptionStatus', (data.user as any).mpSubscriptionStatus ?? null);
+  await setStorage('renewalDate', (data.user as any).nextBillingDate ?? null);
+  await setStorage('subscriptionStatus', (data.user as any).subscriptionStatus ?? null);
 }
 
 function setVerificationMessage(message: string, isError = false): void {
@@ -507,7 +507,7 @@ function bindVerificationActions(): void {
       await setStorage('userPlan', user.plan);
       await setStorage('usageCount', user.usageCount);
       await setStorage('emailVerified', user.emailVerified);
-      await setStorage('renewalDate', (user as any).mpNextBillingDate ?? null);
+      await setStorage('renewalDate', (user as any).nextBillingDate ?? null);
       renderVerificationBox(user.emailVerified);
       if (!user.emailVerified) {
         setVerificationMessage('E-mail ainda não confirmado.');

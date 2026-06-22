@@ -25,10 +25,10 @@ router.post('/create-subscription', authMiddleware, async (req: AuthRequest, res
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { plan: true, mpSubscriptionStatus: true },
+      select: { plan: true, subscriptionStatus: true },
     });
 
-    if (user?.plan === 'PRO' && user.mpSubscriptionStatus === 'authorized') {
+    if (user?.plan === 'PRO' && user.subscriptionStatus === 'authorized') {
       res.status(400).json({ error: 'Você já possui o plano PRO ativo.' });
       return;
     }
@@ -100,9 +100,9 @@ async function handleWebhookEvent(event: StripeEvent): Promise<void> {
         where: { id: userId },
         data: {
           plan: 'PRO',
-          mpSubscriptionId: subscriptionId,
-          mpSubscriptionStatus: 'authorized',
-          mpNextBillingDate: nextBillingDate,
+          subscriptionId: subscriptionId,
+          subscriptionStatus: 'authorized',
+          nextBillingDate: nextBillingDate,
         },
       });
 
@@ -129,8 +129,8 @@ async function handleWebhookEvent(event: StripeEvent): Promise<void> {
         where: { id: userId },
         data: {
           plan: 'FREE',
-          mpSubscriptionStatus: 'cancelled',
-          mpNextBillingDate: null,
+          subscriptionStatus: 'cancelled',
+          nextBillingDate: null,
         },
       });
 
@@ -148,7 +148,7 @@ async function resolveUserId(subscription: StripeSub): Promise<string | null> {
   if (fromMetadata) return fromMetadata;
 
   const user = await prisma.user.findFirst({
-    where: { mpSubscriptionId: subscription.id },
+    where: { subscriptionId: subscription.id },
     select: { id: true },
   });
 
@@ -190,9 +190,9 @@ async function resolveUserAndUpdate(subscription: StripeSub): Promise<void> {
     where: { id: userId },
     data: {
       plan: newPlan,
-      mpSubscriptionId: subscription.id,
-      mpSubscriptionStatus: internalStatus,
-      mpNextBillingDate: nextBillingDate,
+      subscriptionId: subscription.id,
+      subscriptionStatus: internalStatus,
+      nextBillingDate: nextBillingDate,
     },
   });
 
@@ -214,7 +214,7 @@ router.post('/cancel-subscription', authMiddleware, async (req: AuthRequest, res
   try {
     const user = await prisma.user.findUnique({
       where: { id: req.user!.id },
-      select: { plan: true, mpSubscriptionId: true, mpSubscriptionStatus: true, mpNextBillingDate: true },
+      select: { plan: true, subscriptionId: true, subscriptionStatus: true, nextBillingDate: true },
     });
 
     if (!user || user.plan !== 'PRO') {
@@ -222,28 +222,28 @@ router.post('/cancel-subscription', authMiddleware, async (req: AuthRequest, res
       return;
     }
 
-    if (user.mpSubscriptionStatus === 'paused' || user.mpSubscriptionStatus === 'cancelled') {
+    if (user.subscriptionStatus === 'paused' || user.subscriptionStatus === 'cancelled') {
       res.status(400).json({ error: 'Assinatura já está cancelada.' });
       return;
     }
 
-    if (!user.mpSubscriptionId) {
+    if (!user.subscriptionId) {
       res.status(400).json({ error: 'ID da assinatura não encontrado.' });
       return;
     }
 
-    await cancelSubscription(user.mpSubscriptionId);
+    await cancelSubscription(user.subscriptionId);
 
     await prisma.user.update({
       where: { id: req.user!.id },
-      data: { mpSubscriptionStatus: 'paused' },
+      data: { subscriptionStatus: 'paused' },
     });
 
     logger.info('Subscription cancelled', { userId: req.user!.id.slice(0, 8) });
 
     res.json({
       message: 'Assinatura cancelada. Você mantém acesso PRO até a próxima data de renovação.',
-      accessUntil: user.mpNextBillingDate,
+      accessUntil: user.nextBillingDate,
     });
   } catch (err: any) {
     logger.error('Cancel subscription error', { error: err.message });
@@ -256,7 +256,7 @@ router.post('/resume-subscription', authMiddleware, async (req: AuthRequest, res
   try {
     const user = await prisma.user.findUnique({
       where: { id: req.user!.id },
-      select: { plan: true, mpSubscriptionId: true, mpSubscriptionStatus: true },
+      select: { plan: true, subscriptionId: true, subscriptionStatus: true },
     });
 
     if (!user || user.plan !== 'PRO') {
@@ -264,21 +264,21 @@ router.post('/resume-subscription', authMiddleware, async (req: AuthRequest, res
       return;
     }
 
-    if (user.mpSubscriptionStatus !== 'paused') {
+    if (user.subscriptionStatus !== 'paused') {
       res.status(400).json({ error: 'Assinatura não está cancelada.' });
       return;
     }
 
-    if (!user.mpSubscriptionId) {
+    if (!user.subscriptionId) {
       res.status(400).json({ error: 'ID da assinatura não encontrado.' });
       return;
     }
 
-    await reactivateSubscription(user.mpSubscriptionId);
+    await reactivateSubscription(user.subscriptionId);
 
     await prisma.user.update({
       where: { id: req.user!.id },
-      data: { mpSubscriptionStatus: 'authorized' },
+      data: { subscriptionStatus: 'authorized' },
     });
 
     logger.info('Subscription reactivated', { userId: req.user!.id.slice(0, 8) });
