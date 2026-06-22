@@ -215,6 +215,7 @@ button:disabled {
   border-radius: var(--radius);
   padding: 8px 10px;
   margin-bottom: 12px;
+  margin-top: 12px;
 }
 
 .upgrade-banner-text {
