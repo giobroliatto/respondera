@@ -14,6 +14,18 @@ import {
 } from '../shared/api';
 import { AuthResponse, ToneOption, SavedTone } from '../shared/types';
 
+// ─── Transições de tela ───────────────────────────────────────────────────────
+
+async function fadeScreenIn(el: HTMLElement): Promise<void> {
+  el.style.transform = 'translateX(28px)';
+  el.classList.remove('hidden');
+  void el.offsetHeight;
+  el.style.transition = 'transform 0.22s cubic-bezier(0.22, 1, 0.36, 1)';
+  el.style.transform = '';
+  await new Promise<void>(r => setTimeout(r, 240));
+  el.style.transition = '';
+}
+
 // ─── Init ─────────────────────────────────────────────────────────────────────
 
 async function init(): Promise<void> {
@@ -28,7 +40,7 @@ async function init(): Promise<void> {
 
 function showLogin(): void {
   document.getElementById('screen-loading')!.classList.add('hidden');
-  document.getElementById('screen-login')!.classList.remove('hidden');
+  document.getElementById('screen-login')!.classList.add('hidden');
   document.getElementById('screen-register')!.classList.add('hidden');
   document.getElementById('screen-home')!.classList.add('hidden');
   document.getElementById('screen-verify')!.classList.add('hidden');
@@ -73,6 +85,8 @@ function showLogin(): void {
       btn.textContent = 'Entrar';
     }
   });
+
+  void fadeScreenIn(document.getElementById('screen-login')!);
 }
 
 // ─── Tela de registro ─────────────────────────────────────────────────────────
@@ -80,7 +94,7 @@ function showLogin(): void {
 function showRegister(): void {
   document.getElementById('screen-loading')!.classList.add('hidden');
   document.getElementById('screen-login')!.classList.add('hidden');
-  document.getElementById('screen-register')!.classList.remove('hidden');
+  document.getElementById('screen-register')!.classList.add('hidden');
   document.getElementById('screen-home')!.classList.add('hidden');
   document.getElementById('screen-verify')!.classList.add('hidden');
 
@@ -132,6 +146,8 @@ function showRegister(): void {
       btn.textContent = 'Criar conta';
     }
   });
+
+  void fadeScreenIn(document.getElementById('screen-register')!);
 }
 
 // ─── Tela de verificação por código ──────────────────────────────────────────
@@ -142,10 +158,6 @@ function showVerify(email: string): void {
   document.getElementById('screen-register')!.classList.add('hidden');
   document.getElementById('screen-home')!.classList.add('hidden');
   const verifyScreen = document.getElementById('screen-verify')!;
-  verifyScreen.classList.remove('hidden');
-  verifyScreen.style.opacity = '';
-  verifyScreen.style.transform = '';
-  verifyScreen.style.transition = '';
 
   // Preenche e-mail
   (document.getElementById('verify-email-display') as HTMLElement).textContent = email;
@@ -288,6 +300,8 @@ function showVerify(email: string): void {
       resendBtn.textContent = 'Reenviar código';
     }
   });
+
+  void fadeScreenIn(verifyScreen);
 }
 
 function showVerifySuccess(): void {
@@ -415,7 +429,7 @@ async function showHome(): Promise<void> {
   document.getElementById('tab-panel-business')!.classList.add('hidden');
 
   document.getElementById('screen-loading')!.classList.add('hidden');
-  document.getElementById('screen-home')!.classList.remove('hidden');
+  void fadeScreenIn(document.getElementById('screen-home')!);
 
   getBusiness()
     .then(business => { if (business?.tone) setStorage('defaultTone', business.tone); })
