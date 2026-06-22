@@ -185,7 +185,7 @@ export async function getCustomTonesFromBackend(): Promise<SavedTone[] | null> {
   try {
     const data = await apiFetch<{ tones: SavedTone[] }>('/custom-tones', { method: 'GET' });
     customTonesCache = data.tones;
-    chrome.storage.sync.set({ savedCustomTones: customTonesCache });
+    chrome.storage.local.set({ savedCustomTones: customTonesCache });
     return customTonesCache;
   } catch {
     return null;
@@ -198,9 +198,9 @@ export async function getCustomTones(): Promise<SavedTone[]> {
   const backendTones = await getCustomTonesFromBackend();
   if (backendTones !== null) return backendTones;
 
-  // Offline fallback: read from chrome.storage.sync
+  // Offline fallback: read from chrome.storage.local
   return new Promise((resolve) => {
-    chrome.storage.sync.get('savedCustomTones', (result) => {
+    chrome.storage.local.get('savedCustomTones', (result) => {
       resolve((result['savedCustomTones'] as SavedTone[]) ?? []);
     });
   });
@@ -213,7 +213,7 @@ export async function createCustomTone(name: string, description: string): Promi
   );
   if (customTonesCache !== null) {
     customTonesCache = [...customTonesCache, data.tone];
-    chrome.storage.sync.set({ savedCustomTones: customTonesCache });
+    chrome.storage.local.set({ savedCustomTones: customTonesCache });
   }
   return data.tone;
 }
@@ -225,7 +225,7 @@ export async function updateCustomTone(id: string, name: string, description: st
   );
   if (customTonesCache !== null) {
     customTonesCache = customTonesCache.map((t) => t.id === id ? data.tone : t);
-    chrome.storage.sync.set({ savedCustomTones: customTonesCache });
+    chrome.storage.local.set({ savedCustomTones: customTonesCache });
   }
   return data.tone;
 }
@@ -234,21 +234,21 @@ export async function deleteCustomTone(id: string): Promise<void> {
   await apiFetch<{ success: boolean }>(`/custom-tones/${id}`, { method: 'DELETE' });
   if (customTonesCache !== null) {
     customTonesCache = customTonesCache.filter((t) => t.id !== id);
-    chrome.storage.sync.set({ savedCustomTones: customTonesCache });
+    chrome.storage.local.set({ savedCustomTones: customTonesCache });
   }
 }
 
 // ─── Limpeza de caches por usuário ────────────────────────────────────────────
 // CRÍTICO: estes caches guardam dados específicos da conta (negócio, tons).
 // Devem ser zerados em TODO login, troca de conta e logout, senão os dados de
-// uma conta vazam para a próxima. O storage.sync também precisa ser limpo porque
-// clearStorage() só apaga o storage.local.
+// uma conta vazam para a próxima. Inclui o cache de tons em storage.local, que
+// clearStorage() também limpa, mas aqui é explícito para os fluxos de login/401.
 
 export async function clearClientCaches(): Promise<void> {
   businessCache = null;
   customTonesCache = null;
   await new Promise<void>((resolve) =>
-    chrome.storage.sync.remove('savedCustomTones', () => resolve()),
+    chrome.storage.local.remove('savedCustomTones', () => resolve()),
   );
 }
 

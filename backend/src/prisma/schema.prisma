@@ -39,6 +39,7 @@ model Business {
   highlights   String?
   soloOperator Boolean  @default(false)
   soloGender   String?  // 'M' | 'F' — só relevante quando soloOperator = true
+  defaultCustomToneId String? // id do CustomTone padrão, quando tone = 'custom'
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)

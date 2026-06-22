@@ -5,8 +5,8 @@
 import { PanelState, ToneOption, GenerationMode, ReviewData, SavedTone } from '../shared/types';
 import {
   getMe,
+  getBusiness,
   getCustomTones,
-  getCustomTonesFromBackend,
   createCustomTone,
   updateCustomTone,
   deleteCustomTone,
@@ -166,7 +166,8 @@ async function applyDefaultTone(): Promise<void> {
   const toneToApply = canApply ? savedTone! : 'friendly';
 
   if (toneToApply === 'custom') {
-    const defaultCustomToneId = await getFromStorage('defaultCustomToneId') as string | null;
+    const business = await getBusiness();
+    const defaultCustomToneId = business?.defaultCustomToneId ?? null;
     if (defaultCustomToneId) {
       const allTones = await getCustomTones();
       const defaultCustomTone = allTones.find((t) => t.id === defaultCustomToneId);
@@ -183,49 +184,6 @@ async function applyDefaultTone(): Promise<void> {
     document.querySelectorAll('.tone-btn, .saved-tone-btn').forEach((b) => b.classList.remove('active'));
     document.querySelector<HTMLButtonElement>(`.tone-btn[data-tone="${toneToApply}"]`)?.classList.add('active');
     selectedTone = toneToApply as ToneOption;
-  }
-}
-
-// ─── Migração única: chrome.storage.sync → backend ───────────────────────────
-
-async function runSyncMigration(): Promise<void> {
-  const migrated = await new Promise<boolean>((resolve) => {
-    chrome.storage.local.get('syncTonesMigrated', (r) => resolve(Boolean(r['syncTonesMigrated'])));
-  });
-  if (migrated) return;
-
-  const syncTones = await new Promise<SavedTone[]>((resolve) => {
-    chrome.storage.sync.get('savedCustomTones', (r) => {
-      resolve((r['savedCustomTones'] as SavedTone[]) ?? []);
-    });
-  });
-
-  if (syncTones.length === 0) {
-    chrome.storage.local.set({ syncTonesMigrated: true });
-    return;
-  }
-
-  try {
-    const backendTones = await getCustomTonesFromBackend();
-    if (backendTones === null) return; // offline — retry later
-
-    if (backendTones.length === 0) {
-      const defaultCustomToneId = await getFromStorage('defaultCustomToneId') as string | null;
-      const idMap: Record<string, string> = {};
-
-      for (const tone of syncTones.slice(0, 8)) {
-        const created = await createCustomTone(tone.name, tone.description);
-        idMap[tone.id] = created.id;
-      }
-
-      if (defaultCustomToneId && idMap[defaultCustomToneId]) {
-        await setToStorage({ defaultCustomToneId: idMap[defaultCustomToneId] });
-      }
-    }
-
-    chrome.storage.local.set({ syncTonesMigrated: true });
-  } catch {
-    // Offline ou erro — tentará novamente na próxima sessão
   }
 }
 
@@ -534,12 +492,9 @@ async function initToneSection(): Promise<void> {
       });
     });
 
-    // Tons salvos: carrega do backend (com fallback para sync) e renderiza
+    // Tons salvos: carrega do backend (com fallback para storage.local) e renderiza
     const savedTones = await getCustomTones();
     renderSavedTones(savedTones);
-
-    // Migração única de chrome.storage.sync → backend (best effort)
-    runSyncMigration().catch(() => {});
 
     // Clonar para remover listeners antigos de chamadas anteriores (ex: refreshPlanState)
     ['btn-add-tone', 'btn-tone-cancel', 'btn-tone-save'].forEach((btnId) => {

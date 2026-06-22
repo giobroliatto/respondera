@@ -237,7 +237,7 @@ async function getSavedTonesSync(): Promise<SavedTone[]> {
     return await getCustomTones();
   } catch {
     return new Promise((resolve) => {
-      chrome.storage.sync.get('savedCustomTones', (result) => {
+      chrome.storage.local.get('savedCustomTones', (result) => {
         resolve((result['savedCustomTones'] as SavedTone[]) ?? []);
       });
     });
@@ -293,8 +293,8 @@ async function loadBusinessForm(isPro: boolean): Promise<void> {
     formEl.classList.remove('fields-locked');
   }
 
-  // Carrega o ID do tom personalizado padrão (se houver)
-  _bizDefaultCustomToneId = await getStorage('defaultCustomToneId');
+  // Default do tom personalizado vem do banco (campo do negócio), não do storage
+  _bizDefaultCustomToneId = null;
 
   try {
     const business = await getBusiness();
@@ -309,6 +309,7 @@ async function loadBusinessForm(isPro: boolean): Promise<void> {
       _soloOperator = Boolean((business as any).soloOperator);
       _soloGender = (business as any).soloGender === 'F' ? 'F' : 'M';
       _bizTone = ((business as any).tone || 'friendly') as ToneOption;
+      _bizDefaultCustomToneId = (business as any).defaultCustomToneId ?? null;
       updateVoiceToggle(_soloOperator);
       updateGenderToggle(_soloGender);
       updateToneToggle(_bizTone);
@@ -423,9 +424,9 @@ function bindBusinessForm(isPro: boolean): void {
         highlights: highlights || null,
         soloOperator: _soloOperator,
         soloGender: _soloOperator ? _soloGender : null,
+        defaultCustomToneId: _bizTone === 'custom' ? _bizDefaultCustomToneId : null,
       });
       await setStorage('defaultTone', _bizTone);
-      await setStorage('defaultCustomToneId', _bizDefaultCustomToneId);
       feedback.textContent = 'Contexto salvo!';
       feedback.className = 'feedback success';
     } catch (err) {

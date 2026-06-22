@@ -25,6 +25,7 @@ export const BusinessSchema = z.object({
   highlights: z.string().max(500).nullable().optional(),
   soloOperator: z.boolean().optional(),
   soloGender: z.enum(['M', 'F']).nullable().optional(),
+  defaultCustomToneId: z.string().max(64).nullable().optional(),
 });
 
 export type Business = z.infer<typeof BusinessSchema>;

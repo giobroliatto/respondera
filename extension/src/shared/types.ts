@@ -48,6 +48,7 @@ export interface BusinessData {
   highlights?: string | null;
   soloOperator?: boolean;
   soloGender?: 'M' | 'F' | null;
+  defaultCustomToneId?: string | null;
 }
 
 export interface BusinessResponse extends BusinessData {
