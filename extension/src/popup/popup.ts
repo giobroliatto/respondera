@@ -40,6 +40,7 @@ function showLogin(): void {
   // Remove handlers anteriores clonando o formulário
   const freshForm = form.cloneNode(true) as HTMLFormElement;
   form.replaceWith(freshForm);
+  freshForm.reset();
 
   freshForm.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -189,7 +190,9 @@ async function showHome(): Promise<void> {
   btnLogout.replaceWith(freshBtn);
 
   freshBtn.addEventListener('click', async () => {
-    await apiLogout();   // invalida o token no servidor
+    freshBtn.disabled = true;
+    freshBtn.textContent = 'Saindo...';
+    await apiLogout();
     await clearStorage();
     await clearClientCaches();
     showLogin();
