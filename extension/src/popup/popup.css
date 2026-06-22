@@ -250,6 +250,27 @@ button:disabled {
   cursor: pointer;
   white-space: nowrap;
   transition: opacity 0.18s;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-upgrade::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 55%;
+  height: 100%;
+  background: linear-gradient(120deg, transparent 20%, rgba(255,255,255,0.22) 50%, transparent 80%);
+  transform: translateX(-200%);
+  animation: btn-shimmer 4s ease-out 1.5s infinite;
+  pointer-events: none;
+}
+
+@keyframes btn-shimmer {
+  0%   { transform: translateX(-200%); }
+  25%  { transform: translateX(300%); }
+  100% { transform: translateX(300%); }
 }
 
 .btn-upgrade:hover { opacity: 0.88; }
@@ -288,6 +309,15 @@ button:disabled {
 
 .hint strong {
   color: var(--text);
+}
+
+.hint-link {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.hint-link:hover {
+  opacity: 0.8;
 }
 
 /* ─── Erro ────────────────────────────────────────────────────────────────── */
@@ -925,6 +955,11 @@ button:disabled {
   color: var(--accent);
   text-align: center;
   line-height: 1.4;
+}
+
+@keyframes stagger-item {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* ─── Utilitário ─────────────────────────────────────────────────────────── */

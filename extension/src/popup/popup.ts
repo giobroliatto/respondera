@@ -427,7 +427,7 @@ async function showHome(): Promise<void> {
   document.getElementById('tab-panel-business')!.classList.add('hidden');
 
   document.getElementById('screen-loading')!.classList.add('hidden');
-  void fadeScreenIn(document.getElementById('screen-home')!);
+  staggerHomeIn();
 
   getBusiness()
     .then(business => { if (business?.tone) setStorage('defaultTone', business.tone); })
@@ -435,6 +435,32 @@ async function showHome(): Promise<void> {
 }
 
 // ─── Abas ─────────────────────────────────────────────────────────────────
+
+function staggerHomeIn(): void {
+  const screen = document.getElementById('screen-home')!;
+  screen.classList.remove('hidden');
+
+  const candidates = [
+    document.getElementById('user-email'),
+    document.querySelector<HTMLElement>('.plan-badge'),
+    document.getElementById('renewal-label'),
+    document.getElementById('upgrade-banner'),
+    document.getElementById('tabs'),
+    document.getElementById('tab-panel-home'),
+  ];
+
+  const els = candidates.filter((el): el is HTMLElement =>
+    el !== null && !el.classList.contains('hidden'),
+  );
+
+  els.forEach(el => { el.style.animation = 'none'; });
+  void screen.offsetHeight;
+
+  els.forEach((el, i) => {
+    el.style.animation = `stagger-item 0.22s ease-out ${i * 60}ms both`;
+    el.addEventListener('animationend', () => { el.style.animation = ''; }, { once: true });
+  });
+}
 
 function showError(el: HTMLElement, message: string): void {
   el.textContent = message;
