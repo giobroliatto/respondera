@@ -191,7 +191,7 @@ Rascunho do estabelecimento para esta avaliação:
 ${draftText ?? ''}
 </rascunho>
 
-Reescreva o rascunho acima corrigindo apenas a escrita. Mantenha as mesmas ideias, a mesma intenção e o mesmo comprimento. Não responda à avaliação nem acrescente nada que o autor não escreveu.`;
+Transforme o rascunho acima em uma resposta profissional para o Google. Preserve as ideias e a intenção do autor — eleve o registro, corrija a escrita, mas não acrescente informações que ele não escreveu.`;
   }
 
   return `${reviewBlock}
