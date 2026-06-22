@@ -438,17 +438,35 @@ async function showHome(): Promise<void> {
 
 // ─── Abas ─────────────────────────────────────────────────────────────────
 
+function slidePanel(el: HTMLElement, direction: 'left' | 'right'): void {
+  el.style.transform = `translateX(${direction === 'right' ? '28px' : '-28px'})`;
+  el.classList.remove('hidden');
+  void el.offsetHeight;
+  el.style.transition = 'transform 0.22s cubic-bezier(0.22, 1, 0.36, 1)';
+  el.style.transform = '';
+  setTimeout(() => { el.style.transition = ''; }, 240);
+}
+
 function bindTabs(isPro: boolean): void {
   document.querySelectorAll<HTMLButtonElement>('.tab-btn').forEach((btn) => {
     const freshBtn = btn.cloneNode(true) as HTMLButtonElement;
     btn.replaceWith(freshBtn);
     freshBtn.addEventListener('click', () => {
+      if (freshBtn.classList.contains('tab-active')) return;
+      const toBusiness = freshBtn.dataset['tab'] === 'tab-panel-business';
       document.querySelectorAll('.tab-btn').forEach((b) => b.classList.remove('tab-active'));
       freshBtn.classList.add('tab-active');
-      const targetId = freshBtn.dataset['tab']!;
-      document.getElementById('tab-panel-home')!.classList.toggle('hidden', targetId !== 'tab-panel-home');
-      document.getElementById('tab-panel-business')!.classList.toggle('hidden', targetId !== 'tab-panel-business');
-      if (targetId === 'tab-panel-business') loadBusinessForm(isPro);
+      document.getElementById('tab-indicator')?.classList.toggle('at-business', toBusiness);
+      const panelHome = document.getElementById('tab-panel-home')!;
+      const panelBusiness = document.getElementById('tab-panel-business')!;
+      if (toBusiness) {
+        panelHome.classList.add('hidden');
+        slidePanel(panelBusiness, 'right');
+        loadBusinessForm(isPro);
+      } else {
+        panelBusiness.classList.add('hidden');
+        slidePanel(panelHome, 'left');
+      }
     });
   });
 }

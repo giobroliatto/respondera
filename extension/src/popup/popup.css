@@ -333,6 +333,24 @@ button:disabled {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 3px;
+  position: relative;
+}
+
+.tab-indicator {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  width: calc((100% - 10px) / 2);
+  background: var(--accent-dim);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: 6px;
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+
+.tab-indicator.at-business {
+  transform: translateX(calc(100% + 4px));
 }
 
 .tab-btn {
@@ -346,19 +364,18 @@ button:disabled {
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  transition: color 0.15s;
   margin-top: 0;
+  position: relative;
+  z-index: 1;
 }
 
 .tab-btn:hover:not(.tab-active) {
   color: var(--text-mid);
-  background: rgba(255,255,255,0.04);
 }
 
 .tab-btn.tab-active {
-  background: var(--accent-dim);
   color: var(--accent);
-  border: 1px solid rgba(16,185,129,0.2);
 }
 
 /* ─── PRO lock overlay (roxo — igual ao panel pro-required-msg) ──────────── */
