@@ -9,6 +9,7 @@ import {
   logout as apiLogout,
   createSubscription,
   getCustomTones,
+  clearClientCaches,
 } from '../shared/api';
 import { AuthResponse, ToneOption, SavedTone } from '../shared/types';
 
@@ -190,6 +191,7 @@ async function showHome(): Promise<void> {
   freshBtn.addEventListener('click', async () => {
     await apiLogout();   // invalida o token no servidor
     await clearStorage();
+    await clearClientCaches();
     showLogin();
   });
 
@@ -439,6 +441,9 @@ function bindBusinessForm(isPro: boolean): void {
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 async function storeUserData(data: AuthResponse): Promise<void> {
+  // Zera caches de qualquer conta anterior ainda viva neste contexto do popup,
+  // senão negócio/tons da conta anterior vazam para a recém-logada.
+  await clearClientCaches();
   await setStorage('authToken',  data.token);
   await setStorage('userEmail',  data.user.email);
   await setStorage('userPlan',   data.user.plan);

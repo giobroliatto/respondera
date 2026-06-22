@@ -72,6 +72,7 @@ async function apiFetch<T>(
   // 401 — sessão expirada: limpa storage e emite evento (apenas para rotas autenticadas)
   if (res.status === 401 && requiresAuth) {
     await clearStorage();
+    await clearClientCaches();
     chrome.runtime.sendMessage({ type: 'SESSION_EXPIRED' }).catch(() => {
       // Ignora se não há listener (popup fechado)
     });
@@ -235,6 +236,20 @@ export async function deleteCustomTone(id: string): Promise<void> {
     customTonesCache = customTonesCache.filter((t) => t.id !== id);
     chrome.storage.sync.set({ savedCustomTones: customTonesCache });
   }
+}
+
+// ─── Limpeza de caches por usuário ────────────────────────────────────────────
+// CRÍTICO: estes caches guardam dados específicos da conta (negócio, tons).
+// Devem ser zerados em TODO login, troca de conta e logout, senão os dados de
+// uma conta vazam para a próxima. O storage.sync também precisa ser limpo porque
+// clearStorage() só apaga o storage.local.
+
+export async function clearClientCaches(): Promise<void> {
+  businessCache = null;
+  customTonesCache = null;
+  await new Promise<void>((resolve) =>
+    chrome.storage.sync.remove('savedCustomTones', () => resolve()),
+  );
 }
 
 // ─── Pagamentos ───────────────────────────────────────────────────────────────
