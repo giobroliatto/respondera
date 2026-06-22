@@ -1036,6 +1036,18 @@ button:disabled {
   background: #047857;
 }
 
+@keyframes btn-pop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.035); }
+  100% { transform: scale(1); }
+}
+
+.btn-use--done {
+  background: var(--accent) !important;
+  animation: btn-pop 0.22s ease-out;
+  pointer-events: none;
+}
+
 /* ─── Aviso contexto desativado (FREE com dados salvos) ─────────────────── */
 
 .context-warning {

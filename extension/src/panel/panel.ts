@@ -680,11 +680,17 @@ document.addEventListener('DOMContentLoaded', async () => {
   el.btnGenerate().addEventListener('click', generateReply);
   el.btnRegenerate().addEventListener('click', generateReply);
 
-  // Usar resposta: envia ao content script e fecha
+  // Usar resposta: mostra confirmação brevemente antes de inserir e fechar
   el.btnUse().addEventListener('click', () => {
     const reply = el.replyTextarea().value.trim();
     if (!reply) return;
-    window.parent.postMessage({ type: 'RESPONDERA_INSERT', reply }, '*');
+    const btn = el.btnUse();
+    btn.disabled = true;
+    btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Inserida!';
+    btn.classList.add('btn-use--done');
+    setTimeout(() => {
+      window.parent.postMessage({ type: 'RESPONDERA_INSERT', reply }, '*');
+    }, 380);
   });
 
   // Fechar painel
