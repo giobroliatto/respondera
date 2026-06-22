@@ -189,6 +189,9 @@ async function showHome(): Promise<void> {
   const freshBtn = btnLogout.cloneNode(true) as HTMLButtonElement;
   btnLogout.replaceWith(freshBtn);
 
+  freshBtn.disabled = false;
+  freshBtn.textContent = 'Logout';
+
   freshBtn.addEventListener('click', async () => {
     freshBtn.disabled = true;
     freshBtn.textContent = 'Saindo...';
@@ -199,6 +202,13 @@ async function showHome(): Promise<void> {
   });
 
   bindVerificationActions();
+
+  // Sempre inicia na aba "Início" — evita que aba "Meu negócio" de um login
+  // anterior fique visível com dados de outra conta
+  document.querySelectorAll('.tab-btn').forEach((b) => b.classList.remove('tab-active'));
+  document.getElementById('tab-home')!.classList.add('tab-active');
+  document.getElementById('tab-panel-home')!.classList.remove('hidden');
+  document.getElementById('tab-panel-business')!.classList.add('hidden');
 
   // Tudo pronto: esconde loading e mostra a tela home
   document.getElementById('screen-loading')!.classList.add('hidden');
@@ -296,8 +306,21 @@ async function loadBusinessForm(isPro: boolean): Promise<void> {
     formEl.classList.remove('fields-locked');
   }
 
-  // Default do tom personalizado vem do banco (campo do negócio), não do storage
+  // Resetar campos para o estado inicial antes de carregar (evita que dados
+  // de uma conta anterior vazem para uma nova conta sem negócio cadastrado)
+  (document.getElementById('biz-name') as HTMLInputElement).value = '';
+  (document.getElementById('biz-segment') as HTMLInputElement).value = '';
+  (document.getElementById('biz-ticket') as HTMLInputElement).value = '';
+  const highlightsEl0 = document.getElementById('biz-highlights') as HTMLTextAreaElement;
+  highlightsEl0.value = '';
+  document.getElementById('biz-highlights-count')!.textContent = '0/200';
+  _soloOperator = false;
+  _soloGender = 'M';
+  _bizTone = 'friendly';
   _bizDefaultCustomToneId = null;
+  updateVoiceToggle(false);
+  updateGenderToggle('M');
+  updateToneToggle('friendly');
 
   try {
     const business = await getBusiness();
