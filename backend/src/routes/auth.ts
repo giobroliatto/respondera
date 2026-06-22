@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { authMiddleware, AuthRequest } from '../middlewares/authMiddleware';
-import { authLimiter, emailVerificationLimiter } from '../middlewares/rateLimitMiddleware';
+import { authLimiter, emailVerificationLimiter, codeVerificationLimiter } from '../middlewares/rateLimitMiddleware';
 import { RegisterSchema, LoginSchema } from '../utils/validationSchemas';
 import { sanitizeEmail } from '../utils/sanitization';
 import { logger, logAuthFailure } from '../utils/logger';
@@ -11,6 +11,7 @@ import { prisma } from '../lib/prisma';
 import {
   createAndSendVerificationEmail,
   verifyEmailToken,
+  verifyEmailCode,
 } from '../services/emailVerificationService';
 
 const router = Router();
@@ -267,6 +268,49 @@ router.get('/verify-email', async (req: Request, res: Response) => {
   }
 
   page('🔗', 'Link inválido', 'Este link de confirmação não é válido. Verifique se você copiou o endereço completo.', 400);
+});
+
+// POST /auth/verify-email-code
+router.post('/verify-email-code', authMiddleware, codeVerificationLimiter, async (req: AuthRequest, res: Response) => {
+  const code = typeof req.body['code'] === 'string' ? req.body['code'].trim() : '';
+
+  if (!/^\d{6}$/.test(code)) {
+    res.status(400).json({ error: 'INVALID_CODE', message: 'Código inválido.' });
+    return;
+  }
+
+  const result = await verifyEmailCode(req.user!.id, code);
+
+  if (result.status === 'verified') {
+    res.json({ message: 'E-mail confirmado!', emailVerified: true });
+    return;
+  }
+
+  if (result.status === 'already_verified') {
+    res.json({ message: 'E-mail já confirmado.', emailVerified: true });
+    return;
+  }
+
+  if (result.status === 'expired') {
+    res.status(400).json({ error: 'CODE_EXPIRED', message: 'Código expirado. Clique em "Reenviar código" para receber um novo.' });
+    return;
+  }
+
+  if (result.status === 'too_many_attempts') {
+    res.status(400).json({ error: 'TOO_MANY_ATTEMPTS', message: 'Muitas tentativas incorretas. Clique em "Reenviar código" para receber um novo.' });
+    return;
+  }
+
+  if (result.status === 'no_code') {
+    res.status(400).json({ error: 'NO_CODE', message: 'Nenhum código pendente. Clique em "Reenviar código".' });
+    return;
+  }
+
+  // invalid — result.attemptsLeft
+  const msg = result.attemptsLeft > 0
+    ? `Código incorreto. ${result.attemptsLeft} tentativa${result.attemptsLeft !== 1 ? 's' : ''} restante${result.attemptsLeft !== 1 ? 's' : ''}.`
+    : 'Muitas tentativas incorretas. Clique em "Reenviar código" para receber um novo.';
+  res.status(400).json({ error: 'INVALID_CODE', message: msg });
 });
 
 // POST /auth/logout

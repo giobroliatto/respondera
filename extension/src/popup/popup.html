@@ -32,6 +32,41 @@
       <p class="switch-link">Não tem conta? <a href="#" id="link-to-register">Criar conta</a></p>
     </div>
 
+    <!-- Tela: verificação por código -->
+    <div id="screen-verify" class="screen hidden">
+      <div class="verify-header">
+        <p class="verify-title">Verifique seu e-mail</p>
+        <p class="verify-subtitle">Enviamos um código de 6 dígitos para<br><strong id="verify-email-display"></strong></p>
+      </div>
+
+      <div id="code-inputs" class="code-inputs">
+        <input class="code-input" type="text" inputmode="numeric" maxlength="1" autocomplete="off" />
+        <input class="code-input" type="text" inputmode="numeric" maxlength="1" autocomplete="off" />
+        <input class="code-input" type="text" inputmode="numeric" maxlength="1" autocomplete="off" />
+        <input class="code-input" type="text" inputmode="numeric" maxlength="1" autocomplete="off" />
+        <input class="code-input" type="text" inputmode="numeric" maxlength="1" autocomplete="off" />
+        <input class="code-input" type="text" inputmode="numeric" maxlength="1" autocomplete="off" />
+      </div>
+
+      <div id="verify-success" class="verify-success hidden">
+        <svg class="check-svg" viewBox="0 0 68 68" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle class="check-circle-track" cx="34" cy="34" r="30"/>
+          <circle class="check-circle-draw" cx="34" cy="34" r="30"/>
+          <path class="check-mark-draw" d="M20 35 L29 44 L48 23"/>
+        </svg>
+        <p class="verify-success-text">E-mail confirmado!</p>
+      </div>
+
+      <p id="verify-error" class="error hidden"></p>
+
+      <button id="btn-verify-code" type="button" class="btn-primary" disabled>Verificar</button>
+
+      <div id="verify-footer" class="verify-footer">
+        <button id="btn-verify-resend" type="button" class="btn-link">Reenviar código</button>
+        <p id="verify-resend-msg" class="verify-resend-msg hidden"></p>
+      </div>
+    </div>
+
     <!-- Tela: criar conta -->
     <div id="screen-register" class="screen hidden">
       <p class="subtitle">Crie sua conta gratuitamente.</p>
@@ -59,15 +94,6 @@
       <div id="upgrade-banner" class="upgrade-banner hidden">
         <span class="upgrade-banner-text">Respostas ilimitadas, tons exclusivos e contexto do negócio.</span>
         <button id="btn-upgrade" type="button" class="btn-upgrade">Assinar PRO</button>
-      </div>
-
-      <div id="email-verification-box" class="verification-box hidden">
-        <p>Confirme seu e-mail para liberar a geração de respostas. Não encontrou? Verifique a pasta de <strong>spam ou lixo eletrônico</strong>.</p>
-        <div class="verification-actions">
-          <button id="btn-resend-verification" type="button" class="btn-secondary">Reenviar e-mail</button>
-          <button id="btn-refresh-verification" type="button" class="btn-secondary">Atualizar</button>
-        </div>
-        <p id="verification-message" class="verification-message hidden"></p>
       </div>
 
       <!-- Abas (visíveis para todos) -->

@@ -20,6 +20,7 @@ model User {
   emailVerifiedAt             DateTime?
   emailVerificationTokenHash  String?
   emailVerificationExpiresAt  DateTime?
+  emailVerificationAttempts   Int          @default(0)
   tokenInvalidatedAt          DateTime?
   createdAt                   DateTime     @default(now())
   subscriptionId              String?

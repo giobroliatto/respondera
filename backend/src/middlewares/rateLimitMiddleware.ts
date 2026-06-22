@@ -42,3 +42,16 @@ export const emailVerificationLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 });
+
+// Rate limiting para verificação de código: 10 tentativas por usuario/IP por 15 minutos
+export const codeVerificationLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  keyGenerator: (req: any) => req.user?.id || requestIpKey(req),
+  message: {
+    error: 'RATE_LIMITED',
+    message: 'Muitas tentativas. Aguarde antes de tentar novamente.',
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});

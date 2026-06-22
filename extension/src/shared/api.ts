@@ -137,6 +137,13 @@ export async function resendVerificationEmail(): Promise<{ message: string; emai
   );
 }
 
+export async function verifyEmailCode(code: string): Promise<void> {
+  await apiFetch<{ message: string; emailVerified: boolean }>(
+    '/auth/verify-email-code',
+    { method: 'POST', body: JSON.stringify({ code }) },
+  );
+}
+
 export async function logout(): Promise<void> {
   // Fire-and-forget — se falhar (token já expirado etc.) não impede o logout local
   await apiFetch('/auth/logout', { method: 'POST' }).catch(() => {});

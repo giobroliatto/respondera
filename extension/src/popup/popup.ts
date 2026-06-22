@@ -4,6 +4,7 @@ import {
   login as apiLogin,
   register as apiRegister,
   resendVerificationEmail,
+  verifyEmailCode,
   getBusiness,
   saveBusiness,
   logout as apiLogout,
@@ -30,6 +31,7 @@ function showLogin(): void {
   document.getElementById('screen-login')!.classList.remove('hidden');
   document.getElementById('screen-register')!.classList.add('hidden');
   document.getElementById('screen-home')!.classList.add('hidden');
+  document.getElementById('screen-verify')!.classList.add('hidden');
 
   document.getElementById('link-to-register')!.onclick = (e) => {
     e.preventDefault();
@@ -37,7 +39,6 @@ function showLogin(): void {
   };
 
   const form = document.getElementById('form-login') as HTMLFormElement;
-  // Remove handlers anteriores clonando o formulário
   const freshForm = form.cloneNode(true) as HTMLFormElement;
   form.replaceWith(freshForm);
   freshForm.reset();
@@ -58,7 +59,11 @@ function showLogin(): void {
     try {
       const data = await apiLogin(email, password);
       await storeUserData(data);
-      await showHome();
+      if (!data.user.emailVerified) {
+        showVerify(data.user.email);
+      } else {
+        await showHome();
+      }
       notifyContentScript();
     } catch (err: unknown) {
       errEl.textContent = err instanceof Error ? err.message : 'Erro desconhecido.';
@@ -77,6 +82,7 @@ function showRegister(): void {
   document.getElementById('screen-login')!.classList.add('hidden');
   document.getElementById('screen-register')!.classList.remove('hidden');
   document.getElementById('screen-home')!.classList.add('hidden');
+  document.getElementById('screen-verify')!.classList.add('hidden');
 
   document.getElementById('link-to-login')!.onclick = (e) => {
     e.preventDefault();
@@ -115,9 +121,8 @@ function showRegister(): void {
 
     try {
       const data = await apiRegister(email, password);
-      // Registro não retorna usageCount; começa em 0
       await storeUserData({ ...data, user: { ...data.user, usageCount: data.user.usageCount ?? 0 } });
-      await showHome();
+      showVerify(data.user.email);
       notifyContentScript();
     } catch (err: unknown) {
       errEl.textContent = err instanceof Error ? err.message : 'Erro desconhecido.';
@@ -129,14 +134,205 @@ function showRegister(): void {
   });
 }
 
+// ─── Tela de verificação por código ──────────────────────────────────────────
+
+function showVerify(email: string): void {
+  document.getElementById('screen-loading')!.classList.add('hidden');
+  document.getElementById('screen-login')!.classList.add('hidden');
+  document.getElementById('screen-register')!.classList.add('hidden');
+  document.getElementById('screen-home')!.classList.add('hidden');
+  const verifyScreen = document.getElementById('screen-verify')!;
+  verifyScreen.classList.remove('hidden');
+  verifyScreen.style.opacity = '';
+  verifyScreen.style.transform = '';
+  verifyScreen.style.transition = '';
+
+  // Preenche e-mail
+  (document.getElementById('verify-email-display') as HTMLElement).textContent = email;
+
+  // Reset de estado
+  document.getElementById('verify-error')!.classList.add('hidden');
+  document.getElementById('verify-error')!.textContent = '';
+  document.getElementById('verify-success')!.classList.add('hidden');
+  document.getElementById('verify-resend-msg')!.classList.add('hidden');
+  const footerEl = document.getElementById('verify-footer') as HTMLElement;
+  footerEl.classList.remove('hidden');
+  footerEl.style.opacity = '';
+  footerEl.style.transform = '';
+
+  // Clona container de inputs para limpar listeners anteriores
+  const inputsEl = document.getElementById('code-inputs')!;
+  const freshInputsEl = inputsEl.cloneNode(true) as HTMLElement;
+  inputsEl.replaceWith(freshInputsEl);
+  freshInputsEl.style.opacity = '';
+  freshInputsEl.style.transform = '';
+  freshInputsEl.style.transition = '';
+  const inputs = Array.from(freshInputsEl.querySelectorAll<HTMLInputElement>('.code-input'));
+  inputs.forEach(inp => { inp.value = ''; inp.className = 'code-input'; });
+
+  // Clona botão de submit
+  const submitOrig = document.getElementById('btn-verify-code') as HTMLButtonElement;
+  const submitBtn = submitOrig.cloneNode(true) as HTMLButtonElement;
+  submitOrig.replaceWith(submitBtn);
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Verificar';
+  submitBtn.classList.remove('hidden');
+  submitBtn.style.opacity = '';
+  submitBtn.style.transform = '';
+
+  // Clona botão de reenvio
+  const resendOrig = document.getElementById('btn-verify-resend') as HTMLButtonElement;
+  const resendBtn = resendOrig.cloneNode(true) as HTMLButtonElement;
+  resendOrig.replaceWith(resendBtn);
+
+  const errEl = document.getElementById('verify-error')!;
+  const resendMsg = document.getElementById('verify-resend-msg')!;
+
+  setTimeout(() => inputs[0]?.focus(), 60);
+
+  let isSubmitting = false;
+
+  function updateSubmit(): void {
+    submitBtn.disabled = !inputs.every(i => i.value.length === 1);
+  }
+
+  function triggerError(msg: string): void {
+    errEl.textContent = msg;
+    errEl.classList.remove('hidden');
+    inputs.forEach(i => {
+      i.classList.add('code-error');
+      i.value = '';
+      i.classList.remove('code-filled');
+    });
+    inputs[0]?.focus();
+    setTimeout(() => inputs.forEach(i => i.classList.remove('code-error')), 420);
+    updateSubmit();
+  }
+
+  async function doSubmit(): Promise<void> {
+    if (isSubmitting) return;
+    const code = inputs.map(i => i.value).join('');
+    if (code.length !== 6) return;
+    isSubmitting = true;
+    errEl.classList.add('hidden');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Verificando...';
+    try {
+      await verifyEmailCode(code);
+      await setStorage('emailVerified', true);
+      showVerifySuccess();
+    } catch (err) {
+      triggerError(err instanceof Error ? err.message : 'Código inválido.');
+      submitBtn.textContent = 'Verificar';
+    } finally {
+      isSubmitting = false;
+    }
+  }
+
+  inputs.forEach((input, i) => {
+    input.addEventListener('input', () => {
+      input.value = input.value.replace(/\D/g, '').slice(0, 1);
+      input.classList.toggle('code-filled', input.value.length > 0);
+      if (input.value && i < inputs.length - 1) inputs[i + 1].focus();
+      updateSubmit();
+      if (inputs.every(inp => inp.value.length === 1)) setTimeout(() => void doSubmit(), 80);
+    });
+
+    input.addEventListener('keydown', (e: KeyboardEvent) => {
+      if (e.key === 'Backspace' && !input.value && i > 0) {
+        e.preventDefault();
+        inputs[i - 1].value = '';
+        inputs[i - 1].classList.remove('code-filled');
+        inputs[i - 1].focus();
+        updateSubmit();
+      } else if (e.key === 'ArrowLeft' && i > 0) {
+        e.preventDefault(); inputs[i - 1].focus();
+      } else if (e.key === 'ArrowRight' && i < inputs.length - 1) {
+        e.preventDefault(); inputs[i + 1].focus();
+      }
+    });
+
+    input.addEventListener('paste', (e: ClipboardEvent) => {
+      e.preventDefault();
+      const pasted = (e.clipboardData?.getData('text') ?? '').replace(/\D/g, '').slice(0, 6);
+      inputs.forEach((inp, idx) => {
+        inp.value = pasted[idx] ?? '';
+        inp.classList.toggle('code-filled', !!pasted[idx]);
+      });
+      inputs[Math.min(pasted.length, inputs.length - 1)].focus();
+      updateSubmit();
+      if (pasted.length === 6) setTimeout(() => void doSubmit(), 80);
+    });
+
+    input.addEventListener('focus', () => input.select());
+  });
+
+  submitBtn.addEventListener('click', () => void doSubmit());
+
+  resendBtn.addEventListener('click', async () => {
+    resendBtn.disabled = true;
+    resendBtn.textContent = 'Enviando...';
+    resendMsg.classList.add('hidden');
+    try {
+      await resendVerificationEmail();
+      resendMsg.textContent = 'Novo código enviado! Verifique seu e-mail.';
+      resendMsg.classList.remove('hidden');
+      inputs.forEach(i => { i.value = ''; i.className = 'code-input'; });
+      inputs[0]?.focus();
+      updateSubmit();
+    } catch (e) {
+      resendMsg.textContent = e instanceof Error ? e.message : 'Erro ao reenviar.';
+      resendMsg.classList.remove('hidden');
+    } finally {
+      resendBtn.disabled = false;
+      resendBtn.textContent = 'Reenviar código';
+    }
+  });
+}
+
+function showVerifySuccess(): void {
+  const verifyScreen = document.getElementById('screen-verify')!;
+  const inputsEl  = document.getElementById('code-inputs') as HTMLElement;
+  const submitBtn = document.getElementById('btn-verify-code') as HTMLElement;
+  const footerEl  = document.getElementById('verify-footer') as HTMLElement;
+  const errEl     = document.getElementById('verify-error')!;
+  const successEl = document.getElementById('verify-success')!;
+
+  errEl.classList.add('hidden');
+
+  const fadeOut = (el: HTMLElement) => {
+    el.style.transition = 'opacity 0.18s, transform 0.18s';
+    el.style.opacity = '0';
+    el.style.transform = 'scale(0.95)';
+  };
+  fadeOut(inputsEl);
+  fadeOut(submitBtn);
+  fadeOut(footerEl);
+
+  setTimeout(() => {
+    inputsEl.classList.add('hidden');
+    submitBtn.classList.add('hidden');
+    footerEl.classList.add('hidden');
+    successEl.classList.remove('hidden');
+
+    // Aguarda a animação do checkmark e sai suavemente
+    setTimeout(() => {
+      verifyScreen.style.transition = 'opacity 0.3s, transform 0.3s';
+      verifyScreen.style.opacity = '0';
+      verifyScreen.style.transform = 'translateY(-8px) scale(0.97)';
+      setTimeout(() => void showHome(), 300);
+    }, 1600);
+  }, 200);
+}
+
 // ─── Tela logado ──────────────────────────────────────────────────────────────
 
 async function showHome(): Promise<void> {
-  // Mantém loading visível enquanto sincroniza e carrega os dados
+  // Mantém loading visível enquanto sincroniza
   document.getElementById('screen-login')!.classList.add('hidden');
   document.getElementById('screen-register')!.classList.add('hidden');
+  document.getElementById('screen-verify')!.classList.add('hidden');
 
-  // Sincroniza com o servidor para pegar plano/uso atualizados (ex: auto-downgrade)
   try {
     const user = await getMe();
     await setStorage('userPlan', user.plan);
@@ -144,19 +340,32 @@ async function showHome(): Promise<void> {
     await setStorage('emailVerified', user.emailVerified);
     await setStorage('renewalDate', (user as any).nextBillingDate ?? null);
     await setStorage('subscriptionStatus', (user as any).subscriptionStatus ?? null);
+
+    if (!user.emailVerified) {
+      showVerify(user.email);
+      return;
+    }
   } catch {
-    // Offline ou token expirado — usa cache local
+    // Sessão expirada ou offline — verifica cache
+    if (!(await isLoggedIn())) {
+      showLogin();
+      return;
+    }
+    const cachedVerified = await getStorage('emailVerified');
+    if (!cachedVerified) {
+      const cachedEmail = (await getStorage('userEmail')) ?? '';
+      showVerify(cachedEmail);
+      return;
+    }
   }
 
-  const email             = await getStorage('userEmail');
-  const plan              = await getStorage('userPlan');
-  const usage             = await getStorage('usageCount');
-  const emailVerified     = await getStorage('emailVerified');
-  const renewalDate       = await getStorage('renewalDate');
+  const email              = await getStorage('userEmail');
+  const plan               = await getStorage('userPlan');
+  const usage              = await getStorage('usageCount');
+  const renewalDate        = await getStorage('renewalDate');
   const subscriptionStatus = await getStorage('subscriptionStatus');
 
   document.getElementById('user-email')!.textContent = email ?? '';
-  renderVerificationBox(Boolean(emailVerified));
 
   const renewalEl = document.getElementById('renewal-label')!;
   renewalEl.classList.add('hidden');
@@ -181,8 +390,6 @@ async function showHome(): Promise<void> {
   }
 
   bindUpgradeButton();
-
-  // Abas visíveis para todos; painel bloqueado para FREE
   bindTabs(plan === 'PRO');
 
   const btnLogout = document.getElementById('btn-logout')!;
@@ -201,21 +408,15 @@ async function showHome(): Promise<void> {
     showLogin();
   });
 
-  bindVerificationActions();
-
-  // Sempre inicia na aba "Início" — evita que aba "Meu negócio" de um login
-  // anterior fique visível com dados de outra conta
+  // Sempre inicia na aba "Início"
   document.querySelectorAll('.tab-btn').forEach((b) => b.classList.remove('tab-active'));
   document.getElementById('tab-home')!.classList.add('tab-active');
   document.getElementById('tab-panel-home')!.classList.remove('hidden');
   document.getElementById('tab-panel-business')!.classList.add('hidden');
 
-  // Tudo pronto: esconde loading e mostra a tela home
   document.getElementById('screen-loading')!.classList.add('hidden');
   document.getElementById('screen-home')!.classList.remove('hidden');
 
-  // Repopula defaultTone no storage em background (necessário após logout/login,
-  // já que clearStorage() apaga tudo e storeUserData não salva o tom).
   getBusiness()
     .then(business => { if (business?.tone) setStorage('defaultTone', business.tone); })
     .catch(() => {});
@@ -282,11 +483,9 @@ function renderBizSavedTones(tones: SavedTone[]): void {
     btn.addEventListener('click', () => {
       _bizTone = 'custom';
       _bizDefaultCustomToneId = tone.id;
-      // Clear pre-defined tone active state
       document.querySelectorAll<HTMLButtonElement>('#biz-tone-grid .biz-tone-btn').forEach((b) =>
         b.classList.remove('biz-tone-active')
       );
-      // Update saved tone active state
       document.querySelectorAll<HTMLButtonElement>('.biz-saved-tone-btn').forEach((b) =>
         b.classList.toggle('biz-tone-active', b.dataset['id'] === tone.id)
       );
@@ -295,7 +494,6 @@ function renderBizSavedTones(tones: SavedTone[]): void {
 }
 
 async function loadBusinessForm(isPro: boolean): Promise<void> {
-  // Lock visual para FREE
   const lockEl = document.getElementById('business-pro-lock')!;
   const formEl = document.getElementById('form-business')!;
   if (!isPro) {
@@ -306,8 +504,6 @@ async function loadBusinessForm(isPro: boolean): Promise<void> {
     formEl.classList.remove('fields-locked');
   }
 
-  // Resetar campos para o estado inicial antes de carregar (evita que dados
-  // de uma conta anterior vazem para uma nova conta sem negócio cadastrado)
   (document.getElementById('biz-name') as HTMLInputElement).value = '';
   (document.getElementById('biz-segment') as HTMLInputElement).value = '';
   (document.getElementById('biz-ticket') as HTMLInputElement).value = '';
@@ -331,7 +527,6 @@ async function loadBusinessForm(isPro: boolean): Promise<void> {
       const highlightsEl = document.getElementById('biz-highlights') as HTMLTextAreaElement;
       highlightsEl.value = (business as any).highlights ?? '';
       document.getElementById('biz-highlights-count')!.textContent = `${highlightsEl.value.length}/200`;
-      // Restaura toggle de voz e gênero
       _soloOperator = Boolean((business as any).soloOperator);
       _soloGender = (business as any).soloGender === 'F' ? 'F' : 'M';
       _bizTone = ((business as any).tone || 'friendly') as ToneOption;
@@ -341,12 +536,11 @@ async function loadBusinessForm(isPro: boolean): Promise<void> {
       updateToneToggle(_bizTone);
     }
   } catch {
-    // silencioso — formulário fica em branco se não houver negócio cadastrado
+    // silencioso
   }
 
   bindBusinessForm(isPro);
 
-  // Renderiza tons salvos APÓS clonar o formulário (bindBusinessForm faz replaceWith)
   const savedTones = await getSavedTonesSync();
   renderBizSavedTones(savedTones);
 }
@@ -384,14 +578,12 @@ function bindBusinessForm(isPro: boolean): void {
   const freshForm = form.cloneNode(true) as HTMLFormElement;
   form.replaceWith(freshForm);
 
-  // Contador de caracteres
   const highlightsEl = freshForm.querySelector('#biz-highlights') as HTMLTextAreaElement;
   const countEl = freshForm.querySelector('#biz-highlights-count')!;
   highlightsEl.addEventListener('input', () => {
     countEl.textContent = `${highlightsEl.value.length}/200`;
   });
 
-  // Toggle solo/empresa
   freshForm.querySelectorAll<HTMLButtonElement>('#biz-voice-toggle .toggle-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
       if (!isPro) return;
@@ -400,7 +592,6 @@ function bindBusinessForm(isPro: boolean): void {
     });
   });
 
-  // Toggle masculino/feminino
   freshForm.querySelectorAll<HTMLButtonElement>('.gender-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
       if (!isPro) return;
@@ -409,7 +600,6 @@ function bindBusinessForm(isPro: boolean): void {
     });
   });
 
-  // Seletor de tom padrão (tons pré-definidos)
   freshForm.querySelectorAll<HTMLButtonElement>('.biz-tone-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
       if (!isPro) return;
@@ -419,7 +609,7 @@ function bindBusinessForm(isPro: boolean): void {
     });
   });
 
-  if (!isPro) return; // FREE não submete
+  if (!isPro) return;
 
   freshForm.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -468,8 +658,6 @@ function bindBusinessForm(isPro: boolean): void {
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 async function storeUserData(data: AuthResponse): Promise<void> {
-  // Zera caches de qualquer conta anterior ainda viva neste contexto do popup,
-  // senão negócio/tons da conta anterior vazam para a recém-logada.
   await clearClientCaches();
   await setStorage('authToken',  data.token);
   await setStorage('userEmail',  data.user.email);
@@ -478,72 +666,6 @@ async function storeUserData(data: AuthResponse): Promise<void> {
   await setStorage('emailVerified', data.user.emailVerified);
   await setStorage('renewalDate', (data.user as any).nextBillingDate ?? null);
   await setStorage('subscriptionStatus', (data.user as any).subscriptionStatus ?? null);
-}
-
-function setVerificationMessage(message: string, isError = false): void {
-  const msg = document.getElementById('verification-message')!;
-  msg.textContent = message;
-  msg.classList.remove('hidden');
-  msg.style.color = isError ? 'var(--red)' : 'var(--text)';
-}
-
-function renderVerificationBox(emailVerified: boolean): void {
-  const box = document.getElementById('email-verification-box')!;
-  const msg = document.getElementById('verification-message')!;
-  msg.classList.add('hidden');
-  msg.textContent = '';
-  box.classList.toggle('hidden', emailVerified);
-}
-
-function bindVerificationActions(): void {
-  const resendBtn = document.getElementById('btn-resend-verification') as HTMLButtonElement;
-  const refreshBtn = document.getElementById('btn-refresh-verification') as HTMLButtonElement;
-
-  const freshResend = resendBtn.cloneNode(true) as HTMLButtonElement;
-  const freshRefresh = refreshBtn.cloneNode(true) as HTMLButtonElement;
-  resendBtn.replaceWith(freshResend);
-  refreshBtn.replaceWith(freshRefresh);
-
-  freshResend.addEventListener('click', async () => {
-    freshResend.disabled = true;
-    freshResend.textContent = 'Enviando...';
-
-    try {
-      const result = await resendVerificationEmail();
-      await setStorage('emailVerified', result.emailVerified);
-      renderVerificationBox(result.emailVerified);
-      if (!result.emailVerified) setVerificationMessage(result.message);
-    } catch (err) {
-      setVerificationMessage(err instanceof Error ? err.message : 'Erro ao reenviar e-mail.', true);
-    } finally {
-      freshResend.disabled = false;
-      freshResend.textContent = 'Reenviar e-mail';
-    }
-  });
-
-  freshRefresh.addEventListener('click', async () => {
-    freshRefresh.disabled = true;
-    freshRefresh.textContent = 'Checando...';
-
-    try {
-      const user = await getMe();
-      await setStorage('userPlan', user.plan);
-      await setStorage('usageCount', user.usageCount);
-      await setStorage('emailVerified', user.emailVerified);
-      await setStorage('renewalDate', (user as any).nextBillingDate ?? null);
-      renderVerificationBox(user.emailVerified);
-      if (!user.emailVerified) {
-        setVerificationMessage('E-mail ainda não confirmado.');
-      } else {
-        await showHome();
-      }
-    } catch (err) {
-      setVerificationMessage(err instanceof Error ? err.message : 'Erro ao atualizar status.', true);
-    } finally {
-      freshRefresh.disabled = false;
-      freshRefresh.textContent = 'Atualizar';
-    }
-  });
 }
 
 function bindUpgradeButton(): void {
@@ -558,8 +680,7 @@ function bindUpgradeButton(): void {
     try {
       const { checkoutUrl } = await createSubscription();
       chrome.tabs.create({ url: checkoutUrl });
-    } catch (err) {
-      // Fallback: abre a landing page de upgrade
+    } catch {
       chrome.tabs.create({ url: 'https://respondera.com.br/pro' });
     } finally {
       fresh.disabled = false;
@@ -579,4 +700,3 @@ function notifyContentScript(): void {
 // ─── Bootstrap ────────────────────────────────────────────────────────────────
 
 document.addEventListener('DOMContentLoaded', init);
-
