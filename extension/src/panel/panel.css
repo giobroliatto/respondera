@@ -141,6 +141,24 @@ body {
   flex-shrink: 0;
 }
 
+#draft-section {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  border-bottom-width: 0;
+  transition: max-height 0.3s ease, opacity 0.22s ease, padding 0.3s ease;
+}
+
+#draft-section.draft-open {
+  max-height: 300px;
+  opacity: 1;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  border-bottom-width: 1px;
+}
+
 .section-label {
   display: block;
   font-size: 11px;
@@ -296,7 +314,11 @@ body {
   color: var(--text-muted);
   cursor: pointer;
   font-family: var(--font-body);
-  transition: border-color 0.15s, background 0.15s, color 0.15s;
+  transition: border-color 0.15s, background 0.15s, color 0.15s, transform 0.1s ease;
+}
+
+.tone-btn:active {
+  transform: scale(0.94);
 }
 
 .tone-btn:hover {
@@ -309,6 +331,17 @@ body {
   background: var(--accent-dim);
   color: var(--accent);
   font-weight: 600;
+}
+
+@keyframes tone-pop {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.07); }
+  100% { transform: scale(1); }
+}
+
+.tone-btn.active,
+.saved-tone-btn.active {
+  animation: tone-pop 0.2s ease-out;
 }
 
 .tone-btn-pro {

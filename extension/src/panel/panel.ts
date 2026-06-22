@@ -168,7 +168,7 @@ function setMode(mode: GenerationMode): void {
   document.getElementById('mode-generate')?.classList.toggle('active', mode === 'generate');
   document.getElementById('mode-improve')?.classList.toggle('active', mode === 'improve');
 
-  el.draftSection().classList.toggle('hidden', mode !== 'improve');
+  el.draftSection().classList.toggle('draft-open', mode === 'improve');
   el.draftTextarea().classList.remove('draft-textarea--error');
 
   // Contexto adicional não faz sentido ao melhorar um rascunho: o próprio rascunho
