@@ -22,6 +22,7 @@ let customToneValue: string | null = null;
 let activeSavedToneId: string | null = null;
 let editingToneId: string | null = null;
 let generationMode: GenerationMode = 'generate';
+let typewriterInterval: ReturnType<typeof setInterval> | null = null;
 
 // ─── Referências DOM ─────────────────────────────────────────────────────────
 
@@ -77,6 +78,11 @@ function setState(state: PanelState): void {
       break;
 
     case 'loading':
+      if (typewriterInterval !== null) {
+        clearInterval(typewriterInterval);
+        typewriterInterval = null;
+        el.replyTextarea().value = '';
+      }
       el.loadingSection().classList.remove('hidden');
       el.btnGenerate().disabled = true;
       break;
@@ -109,6 +115,37 @@ function setState(state: PanelState): void {
 function autoResize(textarea: HTMLTextAreaElement): void {
   textarea.style.height = 'auto';
   textarea.style.height = `${textarea.scrollHeight}px`;
+}
+
+function startTypewriter(text: string): void {
+  if (typewriterInterval !== null) {
+    clearInterval(typewriterInterval);
+    typewriterInterval = null;
+  }
+  const textarea = el.replyTextarea();
+  textarea.value = '';
+  el.btnUse().disabled = true;
+
+  const TOTAL_MS = 1800;
+  const MIN_INTERVAL = 4;
+  const tickCount = Math.floor(TOTAL_MS / MIN_INTERVAL);
+  const charsPerTick = Math.max(1, Math.ceil(text.length / tickCount));
+  const intervalMs = charsPerTick === 1
+    ? Math.max(MIN_INTERVAL, Math.floor(TOTAL_MS / text.length))
+    : MIN_INTERVAL;
+
+  let i = 0;
+  typewriterInterval = setInterval(() => {
+    const end = Math.min(i + charsPerTick, text.length);
+    textarea.value += text.slice(i, end);
+    i = end;
+    autoResize(textarea);
+    if (i >= text.length) {
+      clearInterval(typewriterInterval!);
+      typewriterInterval = null;
+      el.btnUse().disabled = false;
+    }
+  }, intervalMs);
 }
 
 function renderStars(rating: number | null): string {
@@ -407,9 +444,8 @@ async function generateReply(): Promise<void> {
           setState('error');
         }
       } else if (response.reply) {
-        el.replyTextarea().value = response.reply;
         setState('success');
-        autoResize(el.replyTextarea());
+        startTypewriter(response.reply);
         await updateUsageFooter();
         if (response.contextWarning && warningEl) {
           warningEl.textContent = response.contextWarning;
