@@ -148,7 +148,13 @@ function extractReviewData(container: Element): ReviewData {
   const text = textEl?.textContent?.trim() || null;
 
   const reviewerEl = findFirst(container, REVIEWER_SELECTORS);
-  const reviewerName = reviewerEl?.textContent?.trim() || null;
+  const reviewerName = reviewerEl
+    ? Array.from(reviewerEl.childNodes)
+        .filter((n): n is Text => n.nodeType === Node.TEXT_NODE)
+        .map(n => n.textContent ?? '')
+        .join('')
+        .trim() || null
+    : null;
 
   let rating: number | null = null;
   const ratingEl = findFirst(container, STAR_SELECTORS);
