@@ -13,8 +13,10 @@ let _currentUserPlan: string | null = null;
 
 // ─── Instalação ───────────────────────────────────────────────────────────────
 
-chrome.runtime.onInstalled.addListener(() => {
-  // extensão instalada/atualizada
+chrome.runtime.onInstalled.addListener((details) => {
+  if (details.reason === 'install') {
+    chrome.tabs.create({ url: chrome.runtime.getURL('welcome.html') });
+  }
 });
 
 // ─── Mensagens simples (sendMessage) ─────────────────────────────────────────
