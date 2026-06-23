@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Respondera",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "description": "Gere respostas profissionais para avaliações do Google com IA",
 
   "permissions": [
