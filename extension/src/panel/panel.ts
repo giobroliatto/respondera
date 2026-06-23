@@ -448,7 +448,9 @@ async function generateReply(): Promise<void> {
         startTypewriter(response.reply);
         await updateUsageFooter();
         if (response.contextWarning && warningEl) {
-          warningEl.textContent = response.contextWarning;
+          warningEl.textContent = userPlan === 'PRO'
+            ? 'Dica: preencha a aba "Meu negócio" no popup do Respondera para respostas mais personalizadas.'
+            : 'Assine o PRO para personalizar as respostas com o contexto do seu negócio.';
           warningEl.classList.remove('hidden');
         }
       }
