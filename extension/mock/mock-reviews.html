@@ -2,700 +2,732 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>Mock — Avaliações Google Business</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pizzaria Dom Carlo - Google</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet" />
   <style>
-    body {
-      font-family: 'Google Sans', Arial, sans-serif;
-      background: #f1f3f4;
-      margin: 0;
-      padding: 24px;
-      color: #202124;
+    :root {
+      --g-blue: #1a73e8;
+      --g-blue-hover: #e8f0fe;
+      --g-red: #d93025;
+      --g-green: #188038;
+      --g-amber: #fbbc04;
+      --g-text: #202124;
+      --g-text-2: #3c4043;
+      --g-grey: #5f6368;
+      --g-border: #dadce0;
+      --g-divider: #ececec;
+      --g-bg: #f8f9fa;
     }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Roboto', Arial, sans-serif; background: #fff; color: var(--g-text); -webkit-font-smoothing: antialiased; }
 
-    h2 {
-      font-size: 18px;
-      font-weight: 500;
-      margin-bottom: 4px;
-    }
-
-    .page-title {
-      font-size: 22px;
-      font-weight: 600;
-      margin-bottom: 20px;
-      color: #1a73e8;
-    }
-
-    .reviews-list {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      max-width: 720px;
-    }
-
-    /* Estrutura que imita o DOM real do Google Business */
-    .review-card {
+    /* ── HEADER ─────────────────────────────────────────── */
+    .gh { border-bottom: 1px solid var(--g-border); background: #fff; position: sticky; top: 0; z-index: 100; }
+    .gh-top { display: flex; align-items: center; gap: 12px; padding: 6px 16px; }
+    .gh-logo { font-size: 26px; font-weight: 300; letter-spacing: -1px; flex-shrink: 0; text-decoration: none; }
+    .gh-logo .l-b { color: #4285f4; }
+    .gh-logo .l-r { color: #ea4335; }
+    .gh-logo .l-y { color: #fbbc05; }
+    .gh-logo .l-g { color: #34a853; }
+    .gh-search {
+      flex: 1; max-width: 580px; height: 44px;
+      border: 1px solid var(--g-border); border-radius: 24px;
+      display: flex; align-items: center; padding: 0 16px;
+      box-shadow: 0 1px 3px rgba(32,33,36,.1);
       background: #fff;
+    }
+    .gh-search input {
+      flex: 1; border: none; outline: none; font-size: 16px; font-family: inherit; color: var(--g-text); background: transparent;
+    }
+    .gh-search-icons { display: flex; align-items: center; gap: 8px; color: var(--g-grey); }
+    .gh-search-icons svg { cursor: pointer; }
+    .gh-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+    .gh-icon-btn { width: 40px; height: 40px; border-radius: 50%; border: none; background: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--g-grey); }
+    .gh-icon-btn:hover { background: var(--g-bg); }
+    .gh-avatar { width: 32px; height: 32px; border-radius: 50%; background: #4285f4; color: #fff; font-size: 14px; font-weight: 500; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .gh-nav { display: flex; padding: 0 16px 0 160px; border-bottom: none; overflow-x: auto; scrollbar-width: none; }
+    .gh-nav::-webkit-scrollbar { display: none; }
+    .gh-tab { display: inline-flex; align-items: center; gap: 5px; padding: 10px 14px 11px; font-size: 13px; color: var(--g-grey); text-decoration: none; white-space: nowrap; border-bottom: 3px solid transparent; cursor: pointer; transition: color .1s; }
+    .gh-tab:hover { color: var(--g-text); }
+    .gh-tab.active { color: var(--g-blue); border-bottom-color: var(--g-blue); font-weight: 500; }
+    .gh-nav-sep { width: 1px; height: 18px; background: var(--g-border); margin: 0 4px; align-self: center; flex-shrink: 0; }
+
+    /* ── LAYOUT ─────────────────────────────────────────── */
+    .g-main { display: flex; gap: 28px; max-width: 1400px; margin: 0 auto; padding: 24px 20px 60px; align-items: flex-start; }
+    .g-left { flex: 1; min-width: 0; max-width: 700px; }
+    .g-right { width: 368px; flex-shrink: 0; position: sticky; top: 96px; }
+
+    /* ── BUSINESS MANAGEMENT PANEL ──────────────────────── */
+    .gbiz {
+      border: 1px solid var(--g-border);
       border-radius: 8px;
-      padding: 16px 20px;
-      box-shadow: 0 1px 3px rgba(0,0,0,.12);
-    }
-
-    .reviewer-name {
-      font-weight: 600;
-      font-size: 14px;
-      margin-bottom: 4px;
-    }
-
-    .star-rating {
-      color: #fbbc04;
-      font-size: 16px;
-      margin-bottom: 8px;
-    }
-
-    .review-text {
-      font-size: 14px;
-      line-height: 1.6;
-      color: #3c4043;
-      margin-bottom: 12px;
-    }
-
-    /* Área de resposta — imita o Google */
-    .reply-area {
-      border-top: 1px solid #e8eaed;
-      padding-top: 12px;
-      margin-top: 4px;
-    }
-
-    .reply-label {
-      font-size: 12px;
-      color: #5f6368;
-      margin-bottom: 6px;
-    }
-
-    /* textarea que o content.ts vai preencher */
-    .reply-input {
-      width: 100%;
-      min-height: 80px;
-      padding: 10px 12px;
-      border: 1px solid #dadce0;
-      border-radius: 4px;
-      font-size: 14px;
-      font-family: inherit;
-      resize: vertical;
-      outline: none;
-    }
-
-    .reply-input:focus {
-      border-color: #1a73e8;
-      box-shadow: 0 0 0 2px rgba(26,115,232,.2);
-    }
-
-    /* Tag de aviso de página mock */
-    .mock-banner {
-      background: #fef3cd;
-      border: 1px solid #ffc107;
-      border-radius: 6px;
-      padding: 10px 14px;
-      font-size: 13px;
-      color: #856404;
+      padding: 20px;
       margin-bottom: 20px;
-      max-width: 720px;
     }
+    .gbiz-head { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 18px; }
+    .gbiz-avatar-wrap { position: relative; flex-shrink: 0; }
+    .gbiz-avatar {
+      width: 56px; height: 56px; border-radius: 50%;
+      background: #bdc1c6;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .gbiz-badge {
+      position: absolute; bottom: -1px; right: -1px;
+      width: 20px; height: 20px; border-radius: 50%; background: #fff;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .gbiz-badge svg { display: block; }
+    .gbiz-info { flex: 1; }
+    .gbiz-title { font-size: 17px; font-weight: 400; color: var(--g-text); line-height: 1.3; }
+    .gbiz-stats { font-size: 13px; color: var(--g-blue); margin-top: 3px; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+    .gbiz-stats:hover { text-decoration: underline; }
+    .gbiz-menu { width: 36px; height: 36px; border-radius: 50%; border: none; background: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 20px; color: var(--g-grey); }
+    .gbiz-menu:hover { background: var(--g-bg); }
 
-    /* Separador de seção por tipo de negócio */
-    .section-label {
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      color: #5f6368;
-      padding: 8px 0 2px;
-      border-bottom: 1px solid #dadce0;
-      margin-bottom: 4px;
+    .gbiz-actions { display: flex; flex-wrap: nowrap; }
+    .gbiz-action {
+      display: flex; flex-direction: column; align-items: center; gap: 5px;
+      padding: 10px 2px; border-radius: 8px; border: none; background: none;
+      cursor: pointer; flex: 1; font-family: inherit; transition: background .12s;
     }
+    .gbiz-action:hover { background: var(--g-bg); }
+    .gbiz-action .material-icons-outlined { font-size: 22px; color: var(--g-blue); }
+    .gbiz-action-label { font-size: 12px; color: #202124; text-align: center; line-height: 1.3; white-space: nowrap; }
+    .gbiz-actions-sec { justify-content: flex-start; }
+    .gbiz-actions-sec .gbiz-action { flex: none; width: calc(100% / 6); min-width: unset; }
 
-    /* Badge no canto do card indicando o cenário */
-    .scenario-badge {
-      display: inline-block;
-      font-size: 10px;
-      background: #e8f0fe;
-      color: #1a73e8;
-      border-radius: 4px;
-      padding: 2px 6px;
-      margin-bottom: 8px;
-      font-weight: 500;
+    .gbiz-cards { display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; margin-top: 14px; }
+    .gbiz-cards::-webkit-scrollbar { display: none; }
+    .gbiz-card {
+      border: 1px solid var(--g-border); border-radius: 8px;
+      padding: 12px; min-width: 158px; max-width: 180px; flex-shrink: 0;
+      cursor: pointer; transition: box-shadow .15s;
     }
+    .gbiz-card:hover { box-shadow: 0 1px 4px rgba(0,0,0,.15); }
+    .gbiz-card-title { font-size: 13px; font-weight: 500; margin-bottom: 4px; }
+    .gbiz-card-sub { font-size: 12px; color: var(--g-grey); line-height: 1.4; margin-bottom: 10px; }
+    .gbiz-card-avatars { display: flex; }
+    .gbiz-card-av {
+      width: 28px; height: 28px; border-radius: 50%; border: 2px solid #fff;
+      margin-left: -6px; display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 12px; font-weight: 500;
+    }
+    .gbiz-card-av:first-child { margin-left: 0; }
+    .gbiz-card-icon { width: 36px; height: 36px; border-radius: 4px; background: var(--g-bg); display: flex; align-items: center; justify-content: center; }
+    .gbiz-note { font-size: 12px; color: var(--g-grey); margin-top: 14px; }
+
+    /* ── SERP BELOW PANEL ───────────────────────────────── */
+    .serp-item { margin-bottom: 28px; }
+    .serp-src { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+    .serp-favicon { width: 18px; height: 18px; border-radius: 50%; background: var(--g-bg); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .serp-domain { font-size: 13px; color: var(--g-text-2); }
+    .serp-title { font-size: 20px; color: #1558d6; cursor: pointer; margin-bottom: 4px; font-weight: 400; }
+    .serp-title:hover { text-decoration: underline; }
+    .serp-snippet { font-size: 14px; color: var(--g-text-2); line-height: 1.55; }
+    .paa { border: 1px solid var(--g-border); border-radius: 8px; padding: 16px 20px; margin-bottom: 24px; }
+    .paa-title { font-size: 18px; font-weight: 400; margin-bottom: 8px; }
+    .paa-item { padding: 12px 0; border-top: 1px solid var(--g-divider); font-size: 14px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+    .paa-item:first-of-type { border-top: none; padding-top: 4px; }
+
+    /* ── RIGHT SIDE INFO CARD ───────────────────────────── */
+    .info-card { border: 1px solid var(--g-border); border-radius: 8px; overflow: hidden; }
+    .info-map { width: 100%; height: 196px; background: #e5e3df; position: relative; overflow: hidden; }
+    .info-name { font-size: 26px; font-weight: 400; padding: 16px 16px 4px; line-height: 1.2; }
+    .info-rating { display: flex; align-items: center; gap: 6px; padding: 4px 16px 4px; font-size: 13px; }
+    .info-rating-num { font-size: 14px; font-weight: 400; }
+    .info-stars { color: var(--g-amber); font-size: 15px; letter-spacing: 1px; }
+    .info-count { color: var(--g-blue); cursor: pointer; font-size: 13px; }
+    .info-count:hover { text-decoration: underline; }
+    .info-kebab { margin-left: auto; font-size: 18px; color: var(--g-grey); cursor: pointer; }
+    .info-type { font-size: 13px; color: var(--g-text-2); padding: 0 16px 8px; }
+    .info-managed { display: flex; align-items: center; gap: 7px; padding: 4px 16px 12px; font-size: 13px; color: var(--g-text-2); }
+    .info-verified { width: 18px; height: 18px; border-radius: 50%; background: var(--g-blue); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .info-ctas { display: flex; gap: 8px; padding: 0 16px 14px; flex-wrap: wrap; }
+    .info-cta {
+      display: inline-flex; align-items: center; gap: 6px;
+      border: 1px solid var(--g-border); border-radius: 20px;
+      padding: 6px 14px; font-size: 13px; color: var(--g-blue);
+      background: #fff; cursor: pointer; font-family: inherit; white-space: nowrap;
+    }
+    .info-cta:hover { background: var(--g-blue-hover); }
+    .info-div { height: 1px; background: var(--g-divider); margin: 0 16px; }
+    .info-row { display: flex; gap: 14px; align-items: flex-start; padding: 10px 16px; font-size: 14px; color: var(--g-text-2); }
+    .info-row-icon { color: var(--g-grey); flex-shrink: 0; padding-top: 1px; }
+    .info-open { color: var(--g-green); }
+
+    /* ── REVIEWS OVERLAY ─────────────────────────────────── */
+    .rv-overlay { position: fixed; inset: 0; z-index: 500; display: flex; align-items: center; justify-content: center; pointer-events: none; opacity: 0; transition: opacity .2s; }
+    .rv-overlay.open { opacity: 1; pointer-events: all; }
+    .rv-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.5); }
+    .rv-panel {
+      position: relative; width: 720px; max-width: 95vw; max-height: 90vh;
+      background: #fff; display: flex; flex-direction: column;
+      border-radius: 12px;
+      box-shadow: 0 8px 40px rgba(0,0,0,.28);
+      transform: translateY(12px) scale(.98); transition: transform .22s cubic-bezier(.4,0,.2,1);
+    }
+    .rv-overlay.open .rv-panel { transform: translateY(0) scale(1); }
+    .rv-header {
+      display: flex; align-items: center; gap: 4px;
+      padding: 6px 6px 6px 4px; border-bottom: 1px solid var(--g-divider); flex-shrink: 0;
+    }
+    .rv-icon-btn { width: 40px; height: 40px; border-radius: 50%; border: none; background: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--g-grey); flex-shrink: 0; }
+    .rv-icon-btn:hover { background: var(--g-bg); }
+    .rv-header-title { font-size: 18px; font-weight: 400; flex: 1; color: var(--g-text); }
+    .rv-body { flex: 1; overflow-y: auto; }
+    .rv-summary { padding: 18px 24px 12px; }
+    .rv-score-row { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+    .rv-score-num { font-size: 32px; font-weight: 400; }
+    .rv-score-stars { color: var(--g-amber); font-size: 20px; letter-spacing: 1px; }
+    .rv-score-count { font-size: 13px; color: var(--g-grey); }
+    .rv-info-i { width: 17px; height: 17px; border-radius: 50%; border: 1.5px solid var(--g-grey); display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: var(--g-grey); cursor: pointer; margin-left: 2px; }
+    .rv-ctas { display: flex; gap: 10px; flex-wrap: wrap; }
+    .rv-cta { display: inline-flex; align-items: center; gap: 8px; padding: 8px 18px; border-radius: 20px; font-size: 14px; font-family: inherit; cursor: pointer; font-weight: 500; border: 1px solid transparent; }
+    .rv-cta-primary { background: var(--g-blue); color: #fff; }
+    .rv-cta-primary:hover { background: #1557b0; }
+    .rv-cta-secondary { background: #fff; color: var(--g-blue); border-color: var(--g-border); }
+    .rv-cta-secondary:hover { background: var(--g-blue-hover); }
+    .rv-tabs { display: flex; border-bottom: 1px solid var(--g-border); padding: 0 24px; }
+    .rv-tab { padding: 10px 14px 12px; font-size: 14px; font-weight: 500; color: var(--g-grey); border: none; background: none; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -1px; font-family: inherit; }
+    .rv-tab:hover { color: var(--g-text); }
+    .rv-tab.active { color: var(--g-blue); border-bottom-color: var(--g-blue); }
+    .rv-sort { padding: 9px 24px; font-size: 13px; color: var(--g-text-2); display: flex; align-items: center; gap: 7px; cursor: pointer; border-bottom: 1px solid var(--g-divider); }
+    .rv-sort:hover { background: var(--g-bg); }
+
+    /* ── REVIEW CARDS ────────────────────────────────────── */
+    .review-card { padding: 20px 24px 16px; border-bottom: 1px solid var(--g-divider); }
+    .rv-head { display: flex; align-items: flex-start; gap: 12px; }
+    .rv-avatar { width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 18px; font-weight: 500; user-select: none; }
+    .rv-head-info { flex: 1; min-width: 0; padding-top: 1px; }
+    .rv-name { font-size: 14px; font-weight: 500; color: var(--g-text); text-decoration: none; cursor: pointer; }
+    .rv-name:hover { text-decoration: underline; }
+    .rv-meta { font-size: 12px; color: var(--g-grey); margin-top: 1px; }
+    .rv-kebab { flex-shrink: 0; color: var(--g-grey); font-size: 20px; line-height: 1; padding: 4px; border-radius: 50%; cursor: pointer; }
+    .rv-kebab:hover { background: var(--g-bg); }
+    .rv-stars-row { display: flex; align-items: center; gap: 8px; margin: 10px 0 0; flex-wrap: wrap; }
+    .rv-stars { font-size: 15px; letter-spacing: 1.5px; line-height: 1; }
+    .star-on { color: var(--g-amber); }
+    .star-off { color: var(--g-border); }
+    .rv-date { font-size: 12px; color: var(--g-grey); }
+    .rv-new { display: inline-block; background: var(--g-text); color: #fff; font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 100px; }
+    .rv-subratings { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+    .rv-chip { font-size: 12px; color: var(--g-text-2); background: var(--g-bg); border-radius: 100px; padding: 4px 11px; display: inline-flex; align-items: center; gap: 5px; }
+    .rv-chip b { font-weight: 500; }
+    .rv-chip .cs { color: var(--g-amber); font-size: 11px; }
+    .rv-text { font-size: 14px; line-height: 1.55; color: var(--g-text-2); margin-top: 12px; white-space: pre-line; }
+    .rv-text:empty { display: none; }
+    .rv-actions { margin-top: 12px; display: flex; align-items: center; }
+    .rv-respond-btn { background: transparent; border: none; color: var(--g-blue); font-family: inherit; font-size: 14px; font-weight: 500; padding: 8px 14px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 6px; letter-spacing: .01em; }
+    .rv-respond-btn:hover { background: var(--g-blue-hover); }
+    .rv-reply-form { margin-top: 14px; padding-left: 52px; }
+    .rv-reply-box { border: 1px solid var(--g-border); border-radius: 8px; padding: 12px 14px; }
+    .rv-reply-box:focus-within { border-color: var(--g-blue); box-shadow: 0 0 0 1px var(--g-blue); }
+    .rv-reply-owner { font-size: 12px; color: var(--g-grey); margin-bottom: 8px; }
+    .rv-reply-input { width: 100%; border: none; outline: none; resize: vertical; min-height: 64px; font-family: inherit; font-size: 14px; line-height: 1.5; color: var(--g-text); background: transparent; }
+    .rv-reply-actions { display: flex; justify-content: flex-end; gap: 4px; margin-top: 8px; }
+    .rv-btn-txt { background: transparent; border: none; color: var(--g-blue); font-family: inherit; font-size: 14px; font-weight: 500; padding: 8px 14px; border-radius: 4px; cursor: pointer; }
+    .rv-btn-txt:hover { background: var(--g-blue-hover); }
+    .rv-btn-txt.muted { color: var(--g-grey); }
+    .rv-btn-txt.muted:hover { background: var(--g-bg); }
+
   </style>
 </head>
 <body>
 
-  <p class="page-title">📋 Avaliações — Mock de Teste</p>
-
-  <div class="mock-banner">
-    ⚠️ Esta é uma <strong>página de teste local</strong>. O content script da extensão Respondera
-    deve injetar um botão <em>"Responder com IA"</em> em cada avaliação abaixo.
+<!-- ── GOOGLE HEADER ──────────────────────────────────────────────────────── -->
+<header class="gh">
+  <div class="gh-top">
+    <a class="gh-logo" href="#" onclick="return false">
+      <span class="l-b">G</span><span class="l-r">o</span><span class="l-y">o</span><span class="l-b">g</span><span class="l-g">l</span><span class="l-r">e</span>
+    </a>
+    <div class="gh-search">
+      <input type="text" value="Pizzaria Dom Carlo" readonly />
+      <div class="gh-search-icons">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 15 6.7 12H5c0 3.42 2.72 6.23 6 6.72V22h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/></svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M9 3L7.17 5H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2h-3.17L15 3H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/></svg>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="#4285f4"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+      </div>
+    </div>
+    <div class="gh-right">
+      <button class="gh-icon-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg></button>
+      <button class="gh-icon-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM6 14c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM6 20c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"/></svg></button>
+      <div class="gh-avatar">G</div>
+    </div>
   </div>
+  <nav class="gh-nav">
+    <a class="gh-tab" href="#" onclick="return false">Modo IA</a>
+    <a class="gh-tab active" href="#" onclick="return false">Tudo</a>
+    <a class="gh-tab" href="#" onclick="return false">Vídeos</a>
+    <a class="gh-tab" href="#" onclick="return false">Imagens</a>
+    <a class="gh-tab" href="#" onclick="return false">Shopping</a>
+    <a class="gh-tab" href="#" onclick="return false">Notícias</a>
+    <a class="gh-tab" href="#" onclick="return false">Vídeos curtos</a>
+    <a class="gh-tab" href="#" onclick="return false">Mais ▾</a>
+    <div class="gh-nav-sep"></div>
+    <a class="gh-tab" href="#" onclick="return false">Ferramentas ▾</a>
+  </nav>
+</header>
 
-  <div class="reviews-list">
+<!-- ── MAIN ───────────────────────────────────────────────────────────────── -->
+<main class="g-main">
 
-    <!-- ══════════════════════════════════════════════════════════════
-         RESTAURANTE / PIZZARIA
-    ══════════════════════════════════════════════════════════════ -->
-    <div class="section-label">Restaurante / Pizzaria</div>
+  <!-- LEFT COLUMN -->
+  <div class="g-left">
 
-    <!-- 001 · 5★ · texto longo · elogiou comida e atendimento específicos -->
-    <div class="review-card" data-review-id="mock-001" data-details='{"Comida":"5","Serviço":"5","Ambiente":"5","Tipo de refeição":"Jantar","Preço por pessoa":"R$ 40–60"}'>
-      <div class="scenario-badge">5★ · texto longo · elogio específico</div>
-      <div class="reviewer-name" data-reviewer-name>Carlos Silva</div>
-      <div class="star-rating" data-star-rating="5">★★★★★</div>
-      <div class="review-text" data-review-text>
-        Fui jantar ontem e foi uma boa surpresa. A pizza de calabresa estava crocante do jeito certo
-        e o garçom, acho que era o Rodrigo, foi muito atencioso sem ficar em cima. Ambiente agradável
-        e a conta fechou dentro do que esperava. Já indiquei pra uns amigos.
+    <!-- Business management panel -->
+    <div class="gbiz">
+      <div class="gbiz-head">
+        <div class="gbiz-avatar-wrap">
+          <div class="gbiz-avatar"><svg width="32" height="32" viewBox="0 0 24 24" fill="#fff"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></div>
+          <div class="gbiz-badge">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="#1a73e8"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+          </div>
+        </div>
+        <div class="gbiz-info">
+          <div class="gbiz-title">Sua empresa no Google</div>
+          <div class="gbiz-stats">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>
+            47 interações com clientes
+          </div>
+        </div>
+        <button class="gbiz-menu">⋮</button>
       </div>
-      <div class="reply-area">
-        <div class="reply-label">Sua resposta pública</div>
-        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
+
+      <!-- Row 1 actions -->
+      <div class="gbiz-actions">
+        <button class="gbiz-action">
+          <span class="material-icons-outlined">edit</span>
+          <span class="gbiz-action-label">Editar perfil</span>
+        </button>
+        <button class="gbiz-action" id="btn-ler-avaliacoes">
+          <span class="material-icons-outlined">rate_review</span>
+          <span class="gbiz-action-label">Ler avaliação...</span>
+        </button>
+        <button class="gbiz-action">
+          <span class="material-icons-outlined">add_a_photo</span>
+          <span class="gbiz-action-label">Fotos</span>
+        </button>
+        <button class="gbiz-action">
+          <span class="material-icons-outlined">feed</span>
+          <span class="gbiz-action-label">Postagens</span>
+        </button>
+        <button class="gbiz-action">
+          <span class="material-icons-outlined">insights</span>
+          <span class="gbiz-action-label">Desempenho</span>
+        </button>
+        <button class="gbiz-action">
+          <span class="material-icons-outlined">campaign</span>
+          <span class="gbiz-action-label">Anunciar</span>
+        </button>
       </div>
+
+      <!-- Row 2 actions -->
+      <div class="gbiz-actions gbiz-actions-sec">
+        <button class="gbiz-action">
+          <span class="material-icons-outlined">inventory_2</span>
+          <span class="gbiz-action-label">Editar produ...</span>
+        </button>
+        <button class="gbiz-action">
+          <span class="material-icons-outlined">home_repair_service</span>
+          <span class="gbiz-action-label">Editar serviç...</span>
+        </button>
+        <button class="gbiz-action">
+          <span class="material-icons-outlined">calendar_month</span>
+          <span class="gbiz-action-label">Agendament...</span>
+        </button>
+        <button class="gbiz-action">
+          <span class="material-icons-outlined">reviews</span>
+          <span class="gbiz-action-label">Solicitar ava...</span>
+        </button>
+      </div>
+
+      <!-- Notification cards -->
+      <div class="gbiz-cards">
+        <div class="gbiz-card">
+          <div class="gbiz-card-title">3 novas avaliações</div>
+          <div class="gbiz-card-sub">Leia o feedback mais recente dos clientes</div>
+          <div class="gbiz-card-avatars">
+            <div class="gbiz-card-av" style="background:#1a73e8">C</div>
+            <div class="gbiz-card-av" style="background:#d93025">A</div>
+            <div class="gbiz-card-av" style="background:#188038">R</div>
+          </div>
+        </div>
+        <div class="gbiz-card">
+          <div class="gbiz-card-title">Aproveite seu crédito</div>
+          <div class="gbiz-card-sub">Resgate seu crédito de R$&nbsp;1.200 do Google Ads. Apenas para novos anunciantes.</div>
+          <div class="gbiz-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="#1a73e8"><path d="M21.35 11.1h-9.17v2.73h6.51c-.33 3.81-3.5 5.44-6.5 5.44C8.36 19.27 5 16.25 5 12c0-4.1 3.2-7.27 7.2-7.27 3.09 0 4.9 1.97 4.9 1.97L19 4.72S16.56 2 12.1 2C6.42 2 2.03 6.8 2.03 12c0 5.05 4.13 10 10.22 10 5.35 0 9.25-3.67 9.25-9.09 0-1.15-.15-1.81-.15-1.81z"/></svg></div>
+        </div>
+        <div class="gbiz-card">
+          <div class="gbiz-card-title">Complete seu perfil</div>
+          <div class="gbiz-card-sub">Adicione detalhes para que mais clientes encontrem sua empresa</div>
+          <div class="gbiz-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="#5f6368"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg></div>
+        </div>
+      </div>
+
+      <p class="gbiz-note">Só os administradores do perfil podem ver isso</p>
     </div>
 
-    <!-- 002 · 2★ · reclamação específica + valor inconsistente mencionado -->
-    <div class="review-card" data-review-id="mock-002" data-details='{"Comida":"2","Serviço":"1","Ambiente":"3","Tipo de refeição":"Jantar"}'>
-      <div class="scenario-badge">2★ · reclamação específica + valor inconsistente</div>
-      <div class="reviewer-name" data-reviewer-name>Ana Lima</div>
-      <div class="star-rating" data-star-rating="2">★★☆☆☆</div>
-      <div class="review-text" data-review-text>
-        Esperamos mais de 40 minutos e a comida chegou fria e completamente diferente do pedido.
-        Pedi a pizza de frango com catupiry e veio uma margherita. Quando reclamamos, o garçom foi
-        rude e disse que era culpa da cozinha. R$120 por pizza não combina com isso.
+    <!-- Fake SERP results -->
+    <div class="serp-item">
+      <div class="serp-src">
+        <div class="serp-favicon"><svg width="12" height="12" viewBox="0 0 24 24" fill="#ea4335"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg></div>
+        <span class="serp-domain">maps.google.com › place › Pizzaria+Dom+Carlo</span>
       </div>
-      <div class="reply-area">
-        <div class="reply-label">Sua resposta pública</div>
-        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
-      </div>
+      <div class="serp-title">Pizzaria Dom Carlo · Avaliações no Google Maps</div>
+      <div class="serp-snippet">★★★★☆ 4,6 · 127 avaliações · Pizzaria em Porto Alegre, RS · R. General Lima e Silva, 836 – Cidade Baixa · Aberto agora · Fecha às 23:00</div>
     </div>
 
-    <!-- 003 · 3★ · neutro curto · sem explicação -->
-    <div class="review-card" data-review-id="mock-003">
-      <div class="scenario-badge">3★ · neutro curto · sem explicação</div>
-      <div class="reviewer-name" data-reviewer-name>Roberto Mendes</div>
-      <div class="star-rating" data-star-rating="3">★★★☆☆</div>
-      <div class="review-text" data-review-text>
-        Lugar ok. A comida é boa mas o preço é um pouco salgado pra o tamanho das porções.
-        Atendimento tranquilo. Talvez volte.
-      </div>
-      <div class="reply-area">
-        <div class="reply-label">Sua resposta pública</div>
-        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
-      </div>
+    <div class="paa">
+      <div class="paa-title">As pessoas também perguntam</div>
+      <div class="paa-item">Como faço para responder avaliações do Google? <span>▾</span></div>
+      <div class="paa-item">Qual a importância de responder avaliações? <span>▾</span></div>
+      <div class="paa-item">Como melhorar a nota no Google Meu Negócio? <span>▾</span></div>
     </div>
 
-    <!-- 004 · 4★ · SEM TEXTO · só sub-notas -->
-    <div class="review-card" data-review-id="mock-004" data-details='{"Comida":"4","Serviço":"4","Ambiente":"5","Tipo de refeição":"Café da manhã"}'>
-      <div class="scenario-badge">4★ · SEM TEXTO · só sub-notas</div>
-      <div class="reviewer-name" data-reviewer-name>Maria Santos</div>
-      <div class="star-rating" data-star-rating="4">★★★★☆</div>
-      <div class="review-text" data-review-text></div>
-      <div class="reply-area">
-        <div class="reply-label">Sua resposta pública</div>
-        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
+    <div class="serp-item">
+      <div class="serp-src">
+        <div class="serp-favicon" style="background:#fce8e6"><svg width="12" height="12" viewBox="0 0 24 24" fill="#ea4335"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg></div>
+        <span class="serp-domain">ifood.com.br › restaurante › pizzaria-dom-carlo</span>
       </div>
-    </div>
-
-    <!-- 005 · 1★ · SEM TEXTO · pior caso possível -->
-    <div class="review-card" data-review-id="mock-005">
-      <div class="scenario-badge">1★ · SEM TEXTO</div>
-      <div class="reviewer-name" data-reviewer-name>Usuário Google</div>
-      <div class="star-rating" data-star-rating="1">★☆☆☆☆</div>
-      <div class="review-text" data-review-text></div>
-      <div class="reply-area">
-        <div class="reply-label">Sua resposta pública</div>
-        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
-      </div>
-    </div>
-
-    <!-- ══════════════════════════════════════════════════════════════
-         BARBEARIA
-    ══════════════════════════════════════════════════════════════ -->
-    <div class="section-label">Barbearia</div>
-
-    <!-- 006 · 5★ · texto curto e direto -->
-    <div class="review-card" data-review-id="mock-006">
-      <div class="scenario-badge">5★ · texto curto e direto</div>
-      <div class="reviewer-name" data-reviewer-name>Lucas Ferreira</div>
-      <div class="star-rating" data-star-rating="5">★★★★★</div>
-      <div class="review-text" data-review-text>
-        Melhor corte que tive nos últimos anos. O Marcos sabe o que faz e escuta o que o cliente quer.
-        Preço justo também.
-      </div>
-      <div class="reply-area">
-        <div class="reply-label">Sua resposta pública</div>
-        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
-      </div>
-    </div>
-
-    <!-- 007 · 4★ · elogio + ressalva (tempo de espera) -->
-    <div class="review-card" data-review-id="mock-007" data-details='{"Corte":"5","Tempo de espera":"2","Ambiente":"4"}'>
-      <div class="scenario-badge">4★ · elogio + ressalva (espera)</div>
-      <div class="reviewer-name" data-reviewer-name>Thiago Alves</div>
-      <div class="star-rating" data-star-rating="4">★★★★☆</div>
-      <div class="review-text" data-review-text>
-        O corte ficou muito bom, saí satisfeito. Só achei que a espera foi um pouco longa,
-        quase uma hora sendo que tinha agendamento. Mas o resultado compensou.
-      </div>
-      <div class="reply-area">
-        <div class="reply-label">Sua resposta pública</div>
-        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
-      </div>
-    </div>
-
-    <!-- 008 · 1★ · agressivo e vago, possível má-fé -->
-    <div class="review-card" data-review-id="mock-008">
-      <div class="scenario-badge">1★ · agressivo · vago · possível má-fé</div>
-      <div class="reviewer-name" data-reviewer-name>Felipe Costa</div>
-      <div class="star-rating" data-star-rating="1">★☆☆☆☆</div>
-      <div class="review-text" data-review-text>
-        PÉSSIMO. Lugar horrível, atendimento um lixo. Nunca mais volto e vou falar pra todo mundo
-        não ir nessa barbearia. Uma vergonha.
-      </div>
-      <div class="reply-area">
-        <div class="reply-label">Sua resposta pública</div>
-        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
-      </div>
-    </div>
-
-    <!-- 009 · 5★ · SEM TEXTO -->
-    <div class="review-card" data-review-id="mock-009">
-      <div class="scenario-badge">5★ · SEM TEXTO</div>
-      <div class="reviewer-name" data-reviewer-name>Marcos Oliveira</div>
-      <div class="star-rating" data-star-rating="5">★★★★★</div>
-      <div class="review-text" data-review-text></div>
-      <div class="reply-area">
-        <div class="reply-label">Sua resposta pública</div>
-        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
-      </div>
-    </div>
-
-    <!-- ══════════════════════════════════════════════════════════════
-         ESTÚDIO DE TATUAGEM
-    ══════════════════════════════════════════════════════════════ -->
-    <div class="section-label">Estúdio de Tatuagem</div>
-
-    <!-- 010 · 5★ · longo e detalhado · mencionou higiene e paciência -->
-    <div class="review-card" data-review-id="mock-010" data-details='{"Traço":"5","Higiene":"5","Atendimento":"5"}'>
-      <div class="scenario-badge">5★ · texto longo · detalhes específicos</div>
-      <div class="reviewer-name" data-reviewer-name>Juliana Pereira</div>
-      <div class="star-rating" data-star-rating="5">★★★★★</div>
-      <div class="review-text" data-review-text>
-        Fiz uma tatuagem no antebraço semana passada. O artista foi super paciente quando mudei
-        pequenos detalhes no desenho antes de começar. O traço ficou preciso, as linhas finas
-        que pedi saíram perfeitamente. O estúdio é limpo, material individual e o processo todo
-        foi tranquilo. Já quero marcar a próxima.
-      </div>
-      <div class="reply-area">
-        <div class="reply-label">Sua resposta pública</div>
-        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
-      </div>
-    </div>
-
-    <!-- 011 · 3★ · demorou mais do esperado, resultado ok -->
-    <div class="review-card" data-review-id="mock-011">
-      <div class="scenario-badge">3★ · demorou · resultado aceitável</div>
-      <div class="reviewer-name" data-reviewer-name>Rafael Santos</div>
-      <div class="star-rating" data-star-rating="3">★★★☆☆</div>
-      <div class="review-text" data-review-text>
-        A tatuagem ficou boa, não tenho reclamação do trabalho em si. Mas o horário não foi
-        respeitado, demorou quase duas horas além do combinado. Sem aviso, sem explicação.
-        Se melhorar nisso, a nota sobe.
-      </div>
-      <div class="reply-area">
-        <div class="reply-label">Sua resposta pública</div>
-        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
-      </div>
-    </div>
-
-    <!-- 012 · 1★ · reclamação concreta (resultado diferente do combinado) -->
-    <div class="review-card" data-review-id="mock-012">
-      <div class="scenario-badge">1★ · reclamação concreta · resultado diferente</div>
-      <div class="reviewer-name" data-reviewer-name>Amanda Rodrigues</div>
-      <div class="star-rating" data-star-rating="1">★☆☆☆☆</div>
-      <div class="review-text" data-review-text>
-        O traçado saiu completamente diferente do que foi aprovado. Aprovamos o desenho juntos,
-        tinha detalhes específicos no sombreado que sumiram na hora de executar. Quando mostrei
-        a referência original, o artista disse que "interpretou de outro jeito". Estou com
-        algo no meu corpo que não escolhi.
-      </div>
-      <div class="reply-area">
-        <div class="reply-label">Sua resposta pública</div>
-        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
-      </div>
-    </div>
-
-    <!-- ══════════════════════════════════════════════════════════════
-         ESCRITÓRIO DE ADVOCACIA
-    ══════════════════════════════════════════════════════════════ -->
-    <div class="section-label">Escritório de Advocacia</div>
-
-    <!-- 013 · 5★ · formal · resultado específico (ganhou causa) -->
-    <div class="review-card" data-review-id="mock-013">
-      <div class="scenario-badge">5★ · formal · resultado concreto</div>
-      <div class="reviewer-name" data-reviewer-name>Paulo Henrique Neves</div>
-      <div class="star-rating" data-star-rating="5">★★★★★</div>
-      <div class="review-text" data-review-text>
-        Contratei o escritório para uma ação trabalhista que durava dois anos sem andamento com
-        outro advogado. Em seis meses chegamos a acordo. A comunicação foi clara durante todo
-        o processo, sempre soube o que estava acontecendo. Recomendo sem reservas.
-      </div>
-      <div class="reply-area">
-        <div class="reply-label">Sua resposta pública</div>
-        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
-      </div>
-    </div>
-
-    <!-- 014 · 2★ · não resolveu · demora · falta de retorno -->
-    <div class="review-card" data-review-id="mock-014">
-      <div class="scenario-badge">2★ · não resolveu · sem retorno</div>
-      <div class="reviewer-name" data-reviewer-name>Cláudia Martins</div>
-      <div class="star-rating" data-star-rating="2">★★☆☆☆</div>
-      <div class="review-text" data-review-text>
-        Passei meses esperando retorno sobre meu processo e precisava ligar toda semana para ter
-        alguma informação. O caso encerrou sem o resultado esperado e a explicação foi vaga.
-        Senti que não houve o engajamento que o valor cobrado justificaria.
-      </div>
-      <div class="reply-area">
-        <div class="reply-label">Sua resposta pública</div>
-        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
-      </div>
-    </div>
-
-    <!-- ══════════════════════════════════════════════════════════════
-         CLÍNICA VETERINÁRIA
-    ══════════════════════════════════════════════════════════════ -->
-    <div class="section-label">Clínica Veterinária</div>
-
-    <!-- 015 · 5★ · texto emocional · animal doente que se recuperou -->
-    <div class="review-card" data-review-id="mock-015">
-      <div class="scenario-badge">5★ · texto emocional</div>
-      <div class="reviewer-name" data-reviewer-name>Patrícia Lima</div>
-      <div class="star-rating" data-star-rating="5">★★★★★</div>
-      <div class="review-text" data-review-text>
-        Trouxe minha cachorra com febre alta e sem comer. A Dr. Camila examinou com calma,
-        explicou cada passo do diagnóstico e ficou disponível pra tirar dúvidas mesmo fora
-        do horário. A Nina se recuperou completamente. Não tem como não agradecer.
-      </div>
-      <div class="reply-area">
-        <div class="reply-label">Sua resposta pública</div>
-        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
-      </div>
-    </div>
-
-    <!-- 016 · 1★ · animal esperou demais · atendimento ruim -->
-    <div class="review-card" data-review-id="mock-016">
-      <div class="scenario-badge">1★ · espera excessiva · atendimento ruim</div>
-      <div class="reviewer-name" data-reviewer-name>Leonardo Souza</div>
-      <div class="star-rating" data-star-rating="1">★☆☆☆☆</div>
-      <div class="review-text" data-review-text>
-        Cheguei com meu gato em crise respiratória e fiquei 50 minutos na recepção sem ninguém
-        olhar. Precisei insistir bastante para ser atendido. Quando finalmente chamaram, a
-        veterinária mal examinou o animal e já quis fazer uma bateria de exames caros sem dar
-        nenhum diagnóstico. Nunca mais.
-      </div>
-      <div class="reply-area">
-        <div class="reply-label">Sua resposta pública</div>
-        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
-      </div>
-    </div>
-
-    <!-- ══════════════════════════════════════════════════════════════
-         ACADEMIA / CROSSFIT
-    ══════════════════════════════════════════════════════════════ -->
-    <div class="section-label">Academia / CrossFit</div>
-
-    <!-- 017 · 4★ · elogio instrutores + equipamentos velhos -->
-    <div class="review-card" data-review-id="mock-017" data-details='{"Instrutores":"5","Equipamentos":"3","Limpeza":"4"}'>
-      <div class="scenario-badge">4★ · elogio + crítica objetiva</div>
-      <div class="reviewer-name" data-reviewer-name>Renata Almeida</div>
-      <div class="star-rating" data-star-rating="4">★★★★☆</div>
-      <div class="review-text" data-review-text>
-        Os professores são muito bons, isso não tenho dúvida. Mas alguns equipamentos já estão
-        precisando de manutenção, um dos remos estava com problema faz semanas. A limpeza está
-        ok. Subo a nota quando resolver o equipamento.
-      </div>
-      <div class="reply-area">
-        <div class="reply-label">Sua resposta pública</div>
-        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
-      </div>
-    </div>
-
-    <!-- 018 · 5★ · SEM TEXTO -->
-    <div class="review-card" data-review-id="mock-018">
-      <div class="scenario-badge">5★ · SEM TEXTO</div>
-      <div class="reviewer-name" data-reviewer-name>Bruno Carvalho</div>
-      <div class="star-rating" data-star-rating="5">★★★★★</div>
-      <div class="review-text" data-review-text></div>
-      <div class="reply-area">
-        <div class="reply-label">Sua resposta pública</div>
-        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
-      </div>
-    </div>
-
-    <!-- ══════════════════════════════════════════════════════════════
-         SALÃO DE BELEZA
-    ══════════════════════════════════════════════════════════════ -->
-    <div class="section-label">Salão de Beleza</div>
-
-    <!-- 019 · 5★ · longo · coloração específica -->
-    <div class="review-card" data-review-id="mock-019" data-details='{"Coloração":"5","Atendimento":"5","Resultado":"5"}'>
-      <div class="scenario-badge">5★ · texto longo · resultado específico</div>
-      <div class="reviewer-name" data-reviewer-name>Fernanda Gomes</div>
-      <div class="star-rating" data-star-rating="5">★★★★★</div>
-      <div class="review-text" data-review-text>
-        Fiz a coloração aqui depois de ter tido um resultado horrível em outro salão. A Jéssica
-        fez uma avaliação do meu cabelo antes de qualquer coisa, explicou o que era possível
-        fazer no dia e o que precisaria de mais sessões. O resultado ficou exatamente o que
-        combinamos e o cabelo não ficou ressecado. Finalmente.
-      </div>
-      <div class="reply-area">
-        <div class="reply-label">Sua resposta pública</div>
-        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
-      </div>
-    </div>
-
-    <!-- 020 · 2★ · resultado diferente do combinado -->
-    <div class="review-card" data-review-id="mock-020">
-      <div class="scenario-badge">2★ · resultado diferente · frustração</div>
-      <div class="reviewer-name" data-reviewer-name>Isabela Nascimento</div>
-      <div class="star-rating" data-star-rating="2">★★☆☆☆</div>
-      <div class="review-text" data-review-text>
-        Mostrei referências de um loiro mel e saí com um loiro quase platinado. Reclamei na hora
-        e disseram que "o cabelo puxou assim". Paguei caro por algo que não pedi e que precisei
-        refazer em outro lugar. Nenhuma proposta de solução foi oferecida.
-      </div>
-      <div class="reply-area">
-        <div class="reply-label">Sua resposta pública</div>
-        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
-      </div>
-    </div>
-
-    <!-- ══════════════════════════════════════════════════════════════
-         OFICINA MECÂNICA
-    ══════════════════════════════════════════════════════════════ -->
-    <div class="section-label">Oficina Mecânica</div>
-
-    <!-- 021 · 5★ · confiança · explicou problema · resolveu rápido -->
-    <div class="review-card" data-review-id="mock-021">
-      <div class="scenario-badge">5★ · honestidade · rapidez</div>
-      <div class="reviewer-name" data-reviewer-name>Sandro Pereira</div>
-      <div class="star-rating" data-star-rating="5">★★★★★</div>
-      <div class="review-text" data-review-text>
-        Fui com o carro fazendo um barulho estranho. O mecânico ligou antes de fazer qualquer
-        coisa, explicou o problema, mandou foto da peça desgastada e só seguiu depois da minha
-        aprovação. Ficou pronto no mesmo dia. Raro encontrar isso.
-      </div>
-      <div class="reply-area">
-        <div class="reply-label">Sua resposta pública</div>
-        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
-      </div>
-    </div>
-
-    <!-- 022 · 2★ · cobrou serviço que não foi feito -->
-    <div class="review-card" data-review-id="mock-022">
-      <div class="scenario-badge">2★ · cobrou indevido · serviço não executado</div>
-      <div class="reviewer-name" data-reviewer-name>Gustavo Lopes</div>
-      <div class="star-rating" data-star-rating="2">★★☆☆☆</div>
-      <div class="review-text" data-review-text>
-        Na nota constava troca de filtro de ar que não foi feita, verifiquei em casa e estava
-        o mesmo filtro sujo. Liguei e o atendente ficou na defensiva dizendo que "com certeza
-        foi feito". Sem evidência nenhuma. Não volto e fico desconfortável em recomendar.
-      </div>
-      <div class="reply-area">
-        <div class="reply-label">Sua resposta pública</div>
-        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
-      </div>
-    </div>
-
-    <!-- ══════════════════════════════════════════════════════════════
-         CAFETERIA
-    ══════════════════════════════════════════════════════════════ -->
-    <div class="section-label">Cafeteria</div>
-
-    <!-- 023 · 4★ · ambiente bom · café ok · wifi péssimo -->
-    <div class="review-card" data-review-id="mock-023" data-details='{"Café":"4","Ambiente":"5","Wi-fi":"1","Atendimento":"4"}'>
-      <div class="scenario-badge">4★ · misto · detalhe específico negativo</div>
-      <div class="reviewer-name" data-reviewer-name>Camila Duarte</div>
-      <div class="star-rating" data-star-rating="4">★★★★☆</div>
-      <div class="review-text" data-review-text>
-        Ambiente muito bom pra trabalhar, tranquilo e bem iluminado. O café é saboroso.
-        O único problema sério é o wi-fi, que caiu umas três vezes em duas horas.
-        Para quem vai pra trabalhar como eu, é um ponto crítico.
-      </div>
-      <div class="reply-area">
-        <div class="reply-label">Sua resposta pública</div>
-        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
-      </div>
-    </div>
-
-    <!-- 024 · 5★ · SEM TEXTO -->
-    <div class="review-card" data-review-id="mock-024">
-      <div class="scenario-badge">5★ · SEM TEXTO</div>
-      <div class="reviewer-name" data-reviewer-name>Jonas Ribeiro</div>
-      <div class="star-rating" data-star-rating="5">★★★★★</div>
-      <div class="review-text" data-review-text></div>
-      <div class="reply-area">
-        <div class="reply-label">Sua resposta pública</div>
-        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
-      </div>
-    </div>
-
-    <!-- ══════════════════════════════════════════════════════════════
-         ESCOLA DE IDIOMAS
-    ══════════════════════════════════════════════════════════════ -->
-    <div class="section-label">Escola de Idiomas</div>
-
-    <!-- 025 · 5★ · resultado concreto em pouco tempo -->
-    <div class="review-card" data-review-id="mock-025">
-      <div class="scenario-badge">5★ · resultado concreto</div>
-      <div class="reviewer-name" data-reviewer-name>Natália Costa</div>
-      <div class="star-rating" data-star-rating="5">★★★★★</div>
-      <div class="review-text" data-review-text>
-        Em três meses consegui me virar numa viagem pra Portugal sem depender de tradução.
-        A professora Ana adapta as aulas pro que você precisa de verdade, não fica só no livro.
-        Recomendo especialmente pra quem já tentou outros cursos e não evoluiu.
-      </div>
-      <div class="reply-area">
-        <div class="reply-label">Sua resposta pública</div>
-        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
-      </div>
-    </div>
-
-    <!-- 026 · 3★ · material desatualizado · professores variados -->
-    <div class="review-card" data-review-id="mock-026">
-      <div class="scenario-badge">3★ · crítica estrutural · construtivo</div>
-      <div class="reviewer-name" data-reviewer-name>Henrique Moraes</div>
-      <div class="star-rating" data-star-rating="3">★★★☆☆</div>
-      <div class="review-text" data-review-text>
-        A qualidade varia muito dependendo de qual professor pega. Com um deles a aula é dinâmica,
-        com outro é só ler apostila. O material didático parece que não é atualizado faz tempo,
-        cheio de expressões que ninguém usa mais. O método em si é bom, a execução é inconsistente.
-      </div>
-      <div class="reply-area">
-        <div class="reply-label">Sua resposta pública</div>
-        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
-      </div>
-    </div>
-
-    <!-- ══════════════════════════════════════════════════════════════
-         CLÍNICA DE PSICOLOGIA
-    ══════════════════════════════════════════════════════════════ -->
-    <div class="section-label">Clínica de Psicologia</div>
-
-    <!-- 027 · 5★ · sensível · elogio à psicóloga -->
-    <div class="review-card" data-review-id="mock-027">
-      <div class="scenario-badge">5★ · texto sensível · saúde mental</div>
-      <div class="reviewer-name" data-reviewer-name>Mariana Teixeira</div>
-      <div class="star-rating" data-star-rating="5">★★★★★</div>
-      <div class="review-text" data-review-text>
-        Estava resistente a iniciar terapia e a Dra. Vanessa deixou o processo natural, sem
-        pressão. Com o tempo percebi mudanças reais na forma como lido com situações difíceis.
-        O ambiente é acolhedor e o agendamento é fácil. Fico feliz que fui.
-      </div>
-      <div class="reply-area">
-        <div class="reply-label">Sua resposta pública</div>
-        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
-      </div>
-    </div>
-
-    <!-- 028 · 2★ · cancelamento de última hora · sem remarcação fácil -->
-    <div class="review-card" data-review-id="mock-028">
-      <div class="scenario-badge">2★ · logística ruim · cancelamento</div>
-      <div class="reviewer-name" data-reviewer-name>André Campos</div>
-      <div class="star-rating" data-star-rating="2">★★☆☆☆</div>
-      <div class="review-text" data-review-text>
-        Minha sessão foi cancelada com 30 minutos de antecedência por mensagem. Quando tentei
-        remarcar, as únicas opções disponíveis eram daqui a três semanas. Para quem está
-        em processo terapêutico, esse tipo de interrupção não é pequena. Decepcionante.
-      </div>
-      <div class="reply-area">
-        <div class="reply-label">Sua resposta pública</div>
-        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
-      </div>
-    </div>
-
-    <!-- ══════════════════════════════════════════════════════════════
-         PETSHOP / BANHO E TOSA
-    ══════════════════════════════════════════════════════════════ -->
-    <div class="section-label">Petshop / Banho e Tosa</div>
-
-    <!-- 029 · 5★ · cuidado com o animal · cliente recorrente -->
-    <div class="review-card" data-review-id="mock-029">
-      <div class="scenario-badge">5★ · cliente recorrente</div>
-      <div class="reviewer-name" data-reviewer-name>Tatiane Borges</div>
-      <div class="star-rating" data-star-rating="5">★★★★★</div>
-      <div class="review-text" data-review-text>
-        Levo minha lhasa faz uns dois anos. Ela é difícil com estranhos mas chegou a ponto
-        de entrar sozinha quando abre a porta. Isso diz tudo sobre como tratan os animais aqui.
-      </div>
-      <div class="reply-area">
-        <div class="reply-label">Sua resposta pública</div>
-        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
-      </div>
-    </div>
-
-    <!-- 030 · 1★ · animal entregue machucado -->
-    <div class="review-card" data-review-id="mock-030">
-      <div class="scenario-badge">1★ · situação grave · animal machucado</div>
-      <div class="reviewer-name" data-reviewer-name>Rodrigo Fonseca</div>
-      <div class="star-rating" data-star-rating="1">★☆☆☆☆</div>
-      <div class="review-text" data-review-text>
-        Deixei meu cachorro pra tosa e ele voltou com um corte na orelha que claramente
-        foi feito pela tesoura. Quando questionei, disseram que "já estava assim" e que
-        não sabiam de nada. O animal estava com medo e tremendo. Registrei ocorrência.
-      </div>
-      <div class="reply-area">
-        <div class="reply-label">Sua resposta pública</div>
-        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
-      </div>
-    </div>
-
-    <!-- ══════════════════════════════════════════════════════════════
-         HOTEL / POUSADA
-    ══════════════════════════════════════════════════════════════ -->
-    <div class="section-label">Hotel / Pousada</div>
-
-    <!-- 031 · 4★ · boa estada · quarto bom · café da manhã fraco -->
-    <div class="review-card" data-review-id="mock-031" data-details='{"Quarto":"5","Café da manhã":"3","Localização":"5","Atendimento":"4"}'>
-      <div class="scenario-badge">4★ · misto · ponto fraco específico</div>
-      <div class="reviewer-name" data-reviewer-name>Viviane Assis</div>
-      <div class="star-rating" data-star-rating="4">★★★★☆</div>
-      <div class="review-text" data-review-text>
-        Quarto limpo, cama boa, localização ótima. Só achei o café da manhã bem abaixo do
-        que o preço sugere — poucas opções e o suco era de caixinha. Não é um problema
-        grave mas dá pra melhorar sem muito esforço.
-      </div>
-      <div class="reply-area">
-        <div class="reply-label">Sua resposta pública</div>
-        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
-      </div>
-    </div>
-
-    <!-- 032 · 2★ · ar condicionado quebrado · sem solução -->
-    <div class="review-card" data-review-id="mock-032">
-      <div class="scenario-badge">2★ · problema técnico · sem solução na hora</div>
-      <div class="reviewer-name" data-reviewer-name>Eduardo Melo</div>
-      <div class="star-rating" data-star-rating="2">★★☆☆☆</div>
-      <div class="review-text" data-review-text>
-        O ar condicionado do quarto não funcionava e reportei na chegada. Me disseram que
-        iam resolver e nunca resolveram. Fiz check-out depois de duas noites com calor
-        numa cidade quente. Propuseram desconto no bar, que eu nem uso. A troca de quarto
-        "não estava disponível" mas na saída vi que havia quartos livres.
-      </div>
-      <div class="reply-area">
-        <div class="reply-label">Sua resposta pública</div>
-        <textarea class="reply-input" data-reply-field placeholder="Escreva uma resposta..."></textarea>
-      </div>
+      <div class="serp-title">Pizzaria Dom Carlo no iFood — Peça agora com entrega</div>
+      <div class="serp-snippet">Pizzaria Dom Carlo em Porto Alegre. Peça pelo iFood e receba em casa. Mais de 40 sabores de pizza. Entrega em até 40 min. Aberto agora.</div>
     </div>
 
   </div>
 
+  <!-- RIGHT COLUMN -->
+  <div class="g-right">
+    <div class="info-card">
+      <!-- Map SVG -->
+      <div class="info-map">
+        <svg width="100%" height="100%" viewBox="0 0 368 196" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+          <rect width="368" height="196" fill="#e5e3df"/>
+          <!-- Streets horizontal -->
+          <rect x="0" y="82" width="368" height="11" fill="#fff" opacity=".75"/>
+          <rect x="0" y="134" width="368" height="8" fill="#fff" opacity=".65"/>
+          <rect x="0" y="38" width="368" height="7" fill="#fff" opacity=".6"/>
+          <!-- Streets vertical -->
+          <rect x="96" y="0" width="11" height="196" fill="#fff" opacity=".75"/>
+          <rect x="214" y="0" width="8" height="196" fill="#fff" opacity=".65"/>
+          <rect x="320" y="0" width="7" height="196" fill="#fff" opacity=".6"/>
+          <!-- Blocks -->
+          <rect x="0" y="0" width="94" height="80" fill="#f2f0ec"/>
+          <rect x="109" y="0" width="103" height="80" fill="#f2f0ec"/>
+          <rect x="224" y="0" width="94" height="80" fill="#f2f0ec"/>
+          <rect x="0" y="95" width="94" height="37" fill="#f2f0ec"/>
+          <rect x="109" y="95" width="103" height="37" fill="#f2f0ec"/>
+          <rect x="224" y="95" width="94" height="37" fill="#f2f0ec"/>
+          <rect x="0" y="144" width="94" height="52" fill="#f2f0ec"/>
+          <rect x="109" y="144" width="103" height="52" fill="#f2f0ec"/>
+          <rect x="224" y="144" width="94" height="52" fill="#f2f0ec"/>
+          <!-- Park -->
+          <rect x="330" y="95" width="38" height="37" fill="#c8e6c9" opacity=".8"/>
+          <!-- Pin -->
+          <g transform="translate(161,50)">
+            <circle cx="0" cy="0" r="15" fill="#d93025"/>
+            <circle cx="0" cy="0" r="6" fill="#fff"/>
+            <path d="M0 30 L-9 10 L9 10 Z" fill="#b71c1c"/>
+          </g>
+        </svg>
+      </div>
+
+      <div class="info-name">Pizzaria Dom Carlo</div>
+
+      <div class="info-rating">
+        <span class="info-rating-num" id="info-avg">4,6</span>
+        <span class="info-stars">★★★★★</span>
+        <span class="info-count" id="btn-info-avaliacoes">127 avaliações no Google</span>
+        <span class="info-kebab">⋮</span>
+      </div>
+
+      <div class="info-type">Pizzaria em Porto Alegre, Rio Grande do Sul</div>
+
+      <div class="info-managed">
+        <div class="info-verified">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="#fff"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+        </div>
+        Você gerencia este Perfil da Empresa
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="#5f6368" style="margin-left:3px;cursor:pointer"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+      </div>
+
+      <div class="info-ctas">
+        <button class="info-cta"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg> Site</button>
+        <button class="info-cta"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg> Rotas</button>
+        <button class="info-cta">+2</button>
+      </div>
+
+      <div class="info-div"></div>
+      <div class="info-row">
+        <div class="info-row-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg></div>
+        <div>R. General Lima e Silva, 836 - Cidade Baixa, Porto Alegre - RS, 90050-100</div>
+      </div>
+      <div class="info-div"></div>
+      <div class="info-row">
+        <div class="info-row-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg></div>
+        <div><span class="info-open">Aberto</span> · Fecha às 23:00 ▾</div>
+      </div>
+      <div class="info-div"></div>
+      <div class="info-row">
+        <div class="info-row-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg></div>
+        <div>(51) 3226-8400</div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ── REVIEWS OVERLAY ─────────────────────────────────────────────────────── -->
+<div id="reviews-overlay" class="rv-overlay">
+  <div class="rv-backdrop" id="rv-backdrop"></div>
+  <div class="rv-panel">
+
+    <div class="rv-header">
+      <button class="rv-icon-btn" id="rv-back">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+      </button>
+      <span class="rv-header-title">Avaliações</span>
+      <button class="rv-icon-btn">⋮</button>
+      <button class="rv-icon-btn" id="rv-close">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+      </button>
+    </div>
+
+    <div class="rv-body">
+      <div class="rv-summary">
+        <div class="rv-score-row">
+          <span class="rv-score-num" id="rv-avg">4,6</span>
+          <span class="rv-score-stars" id="rv-stars">★★★★★</span>
+          <span class="rv-score-count" id="rv-count">(32 avaliações)</span>
+          <span class="rv-info-i">i</span>
+        </div>
+        <div class="rv-ctas">
+          <button class="rv-cta rv-cta-primary">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
+            Responder às avaliações
+          </button>
+          <button class="rv-cta rv-cta-secondary">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 6v3l4-4-4-4v3c-4.42 0-8 3.58-8 8 0 1.57.46 3.03 1.24 4.26L6.7 14.8c-.45-.83-.7-1.79-.7-2.8 0-3.31 2.69-6 6-6zm6.76 1.74L17.3 9.2c.44.84.7 1.79.7 2.8 0 3.31-2.69 6-6 6v-3l-4 4 4 4v-3c4.42 0 8-3.58 8-8 0-1.57-.46-3.03-1.24-4.26z"/></svg>
+            Receba mais avaliações
+          </button>
+        </div>
+      </div>
+
+      <div class="rv-tabs">
+        <button class="rv-tab active">Todas</button>
+        <button class="rv-tab">Respondidas</button>
+        <button class="rv-tab">Não respondido</button>
+      </div>
+
+      <div class="rv-sort">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z"/></svg>
+        Mais novo
+      </div>
+
+      <div id="reviews-list"></div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  // ─── Reviews data ────────────────────────────────────────────────────────
+  const REVIEWS = [
+    { id:'mock-001', name:'Carlos Silva',      meta:'12 avaliações · 5 fotos', rating:5, date:'há 3 dias',
+      details:{ Comida:'5', Serviço:'5', Ambiente:'5', 'Tipo de refeição':'Jantar', 'Preço por pessoa':'R$ 40–60' },
+      text:'Fui jantar ontem e foi uma boa surpresa. A pizza de calabresa estava crocante do jeito certo e o garçom, acho que era o Rodrigo, foi muito atencioso sem ficar em cima. Ambiente agradável e a conta fechou dentro do que esperava. Já indiquei pra uns amigos.' },
+    { id:'mock-002', name:'Ana Lima',          meta:'34 avaliações', rating:2, date:'há 1 semana',
+      details:{ Comida:'2', Serviço:'1', Ambiente:'3', 'Tipo de refeição':'Jantar' },
+      text:'Vim com minha família no sábado e foi uma decepção. A massa estava crua no meio, parecia que a pizza saiu do forno antes da hora. Reclamei com a atendente e ela disse que era assim mesmo, que a massa era "artesanal". Pagamos caro e voltamos pra casa com fome. Não recomendo.' },
+    { id:'mock-003', name:'Roberto Mendes',    meta:'8 avaliações', rating:1, date:'há 2 semanas',
+      details:null, text:'Encontrei cabelo no espaguete carbonara e quando reclamei o atendente riu na minha cara. O lugar cheira a mofo e as cadeiras estavam quebradas. Já registrei reclamação no Procon. Cuidado com esse estabelecimento.' },
+    { id:'mock-004', name:'Maria Santos',      meta:'21 avaliações · 2 fotos', rating:4, date:'há 2 semanas',
+      details:{ Comida:'4', Serviço:'4', Ambiente:'5', 'Tipo de refeição':'Jantar' }, text:'' },
+    { id:'mock-005', name:'Usuário do Google', meta:'3 avaliações', rating:1, date:'há 3 semanas',
+      details:null, text:'' },
+    { id:'mock-006', name:'Lucas Ferreira',    meta:'47 avaliações · 1 foto', rating:5, date:'há 4 dias',
+      details:null, text:'Melhor corte que tive nos últimos anos. O Marcos sabe o que faz e escuta o que o cliente quer. Preço justo também.' },
+    { id:'mock-007', name:'Thiago Alves',      meta:'15 avaliações', rating:4, date:'há 1 semana',
+      details:{ Corte:'5', 'Tempo de espera':'2', Ambiente:'4' },
+      text:'O corte ficou muito bom, saí satisfeito. Só achei que a espera foi um pouco longa, quase uma hora sendo que tinha agendamento. Mas o resultado compensou.' },
+    { id:'mock-008', name:'Felipe Costa',      meta:'2 avaliações', rating:1, date:'há 2 semanas',
+      details:null, text:'PÉSSIMO. Lugar horrível, atendimento um lixo. Nunca mais volto e vou falar pra todo mundo não ir nessa barbearia. Uma vergonha.' },
+    { id:'mock-009', name:'Marcos Oliveira',   meta:'9 avaliações', rating:5, date:'há 3 semanas',
+      details:null, text:'' },
+    { id:'mock-010', name:'Juliana Pereira',   meta:'28 avaliações · 12 fotos', rating:5, date:'há 5 dias',
+      details:{ Traço:'5', Higiene:'5', Atendimento:'5' },
+      text:'Fiz uma tatuagem no antebraço semana passada. O artista foi super paciente quando mudei pequenos detalhes no desenho antes de começar. O traço ficou preciso, as linhas finas que pedi saíram perfeitamente. O estúdio é limpo, material individual e o processo todo foi tranquilo. Já quero marcar a próxima.' },
+    { id:'mock-011', name:'Rafael Santos',     meta:'6 avaliações', rating:3, date:'há 1 semana',
+      details:null, text:'A tatuagem ficou boa, não tenho reclamação do trabalho em si. Mas o horário não foi respeitado, demorou quase duas horas além do combinado. Sem aviso, sem explicação. Se melhorar nisso, a nota sobe.' },
+    { id:'mock-012', name:'Amanda Rodrigues',  meta:'11 avaliações', rating:1, date:'há 2 semanas',
+      details:null, text:'O traçado saiu completamente diferente do que foi aprovado. Aprovamos o desenho juntos, tinha detalhes específicos no sombreado que sumiram na hora de executar. Quando mostrei a referência original, o artista disse que "interpretou de outro jeito". Estou com algo no meu corpo que não escolhi.' },
+    { id:'mock-013', name:'Paulo Henrique Neves', meta:'19 avaliações', rating:5, date:'há 6 dias',
+      details:null, text:'Contratei o escritório para uma ação trabalhista que durava dois anos sem andamento com outro advogado. Em seis meses chegamos a acordo. A comunicação foi clara durante todo o processo, sempre soube o que estava acontecendo. Recomendo sem reservas.' },
+    { id:'mock-014', name:'Cláudia Martins',   meta:'5 avaliações', rating:2, date:'há 2 semanas',
+      details:null, text:'Passei meses esperando retorno sobre meu processo e precisava ligar toda semana para ter alguma informação. O caso encerrou sem o resultado esperado e a explicação foi vaga. Senti que não houve o engajamento que o valor cobrado justificaria.' },
+    { id:'mock-015', name:'Patrícia Lima',     meta:'23 avaliações · 4 fotos', rating:5, date:'há 1 semana',
+      details:null, text:'Trouxe minha cachorra com febre alta e sem comer. A Dr. Camila examinou com calma, explicou cada passo do diagnóstico e ficou disponível pra tirar dúvidas mesmo fora do horário. A Nina se recuperou completamente. Não tem como não agradecer.' },
+    { id:'mock-016', name:'Leonardo Souza',    meta:'7 avaliações', rating:1, date:'há 2 semanas',
+      details:null, text:'Cheguei com meu gato em crise respiratória e fiquei 50 minutos na recepção sem ninguém olhar. Precisei insistir bastante para ser atendido. Quando finalmente chamaram, a veterinária mal examinou o animal e já quis fazer uma bateria de exames caros sem dar nenhum diagnóstico. Nunca mais.' },
+    { id:'mock-017', name:'Renata Almeida',    meta:'31 avaliações', rating:4, date:'há 5 dias',
+      details:{ Instrutores:'5', Equipamentos:'3', Limpeza:'4' },
+      text:'Os professores são muito bons, isso não tenho dúvida. Mas alguns equipamentos já estão precisando de manutenção, um dos remos estava com problema faz semanas. A limpeza está ok. Subo a nota quando resolver o equipamento.' },
+    { id:'mock-018', name:'Bruno Carvalho',    meta:'14 avaliações', rating:5, date:'há 3 semanas',
+      details:null, text:'' },
+    { id:'mock-019', name:'Fernanda Gomes',    meta:'26 avaliações · 8 fotos', rating:5, date:'há 4 dias',
+      details:{ Coloração:'5', Atendimento:'5', Resultado:'5' },
+      text:'Fiz a coloração aqui depois de ter tido um resultado horrível em outro salão. A Jéssica fez uma avaliação do meu cabelo antes de qualquer coisa, explicou o que era possível fazer no dia e o que precisaria de mais sessões. O resultado ficou exatamente o que combinamos e o cabelo não ficou ressecado. Finalmente.' },
+    { id:'mock-020', name:'Isabela Nascimento',meta:'10 avaliações', rating:2, date:'há 1 semana',
+      details:null, text:'Mostrei referências de um loiro mel e saí com um loiro quase platinado. Reclamei na hora e disseram que "o cabelo puxou assim". Paguei caro por algo que não pedi e que precisei refazer em outro lugar. Nenhuma proposta de solução foi oferecida.' },
+    { id:'mock-021', name:'Sandro Pereira',    meta:'17 avaliações', rating:5, date:'há 6 dias',
+      details:null, text:'Fui com o carro fazendo um barulho estranho. O mecânico ligou antes de fazer qualquer coisa, explicou o problema, mandou foto da peça desgastada e só seguiu depois da minha aprovação. Ficou pronto no mesmo dia. Raro encontrar isso.' },
+    { id:'mock-022', name:'Gustavo Lopes',     meta:'4 avaliações', rating:2, date:'há 2 semanas',
+      details:null, text:'Na nota constava troca de filtro de ar que não foi feita, verifiquei em casa e estava o mesmo filtro sujo. Liguei e o atendente ficou na defensiva dizendo que "com certeza foi feito". Sem evidência nenhuma. Não volto e fico desconfortável em recomendar.' },
+    { id:'mock-023', name:'Camila Duarte',     meta:'38 avaliações · 6 fotos', rating:4, date:'há 5 dias',
+      details:{ Café:'4', Ambiente:'5', 'Wi-fi':'1', Atendimento:'4' },
+      text:'Ambiente muito bom pra trabalhar, tranquilo e bem iluminado. O café é saboroso. O único problema sério é o wi-fi, que caiu umas três vezes em duas horas. Para quem vai pra trabalhar como eu, é um ponto crítico.' },
+    { id:'mock-024', name:'Jonas Ribeiro',     meta:'13 avaliações', rating:5, date:'há 3 semanas',
+      details:null, text:'' },
+    { id:'mock-025', name:'Natália Costa',     meta:'20 avaliações', rating:5, date:'há 1 semana',
+      details:null, text:'Em três meses consegui me virar numa viagem pra Portugal sem depender de tradução. A professora Ana adapta as aulas pro que você precisa de verdade, não fica só no livro. Recomendo especialmente pra quem já tentou outros cursos e não evoluiu.' },
+    { id:'mock-026', name:'Henrique Moraes',   meta:'9 avaliações', rating:3, date:'há 2 semanas',
+      details:null, text:'A qualidade varia muito dependendo de qual professor pega. Com um deles a aula é dinâmica, com outro é só ler apostila. O material didático parece que não é atualizado faz tempo, cheio de expressões que ninguém usa mais. O método em si é bom, a execução é inconsistente.' },
+    { id:'mock-027', name:'Mariana Teixeira',  meta:'16 avaliações', rating:5, date:'há 1 semana',
+      details:null, text:'Estava resistente a iniciar terapia e a Dra. Vanessa deixou o processo natural, sem pressão. Com o tempo percebi mudanças reais na forma como lido com situações difíceis. O ambiente é acolhedor e o agendamento é fácil. Fico feliz que fui.' },
+    { id:'mock-028', name:'André Campos',      meta:'5 avaliações', rating:2, date:'há 2 semanas',
+      details:null, text:'Minha sessão foi cancelada com 30 minutos de antecedência por mensagem. Quando tentei remarcar, as únicas opções disponíveis eram daqui a três semanas. Para quem está em processo terapêutico, esse tipo de interrupção não é pequena. Decepcionante.' },
+    { id:'mock-029', name:'Tatiane Borges',    meta:'22 avaliações · 3 fotos', rating:5, date:'há 6 dias',
+      details:null, text:'Levo minha lhasa faz uns dois anos. Ela é difícil com estranhos mas chegou a ponto de entrar sozinha quando abre a porta. Isso diz tudo sobre como tratam os animais aqui.' },
+    { id:'mock-030', name:'Rodrigo Fonseca',   meta:'8 avaliações', rating:1, date:'há 2 semanas',
+      details:null, text:'Deixei meu cachorro pra tosa e ele voltou com um corte na orelha que claramente foi feito pela tesoura. Quando questionei, disseram que "já estava assim" e que não sabiam de nada. O animal estava com medo e tremendo. Registrei ocorrência.' },
+    { id:'mock-031', name:'Viviane Assis',     meta:'41 avaliações · 15 fotos', rating:4, date:'há 1 semana',
+      details:{ Quarto:'5', 'Café da manhã':'3', Localização:'5', Atendimento:'4' },
+      text:'Quarto limpo, cama boa, localização ótima. Só achei o café da manhã bem abaixo do que o preço sugere, poucas opções e o suco era de caixinha. Não é um problema grave mas dá pra melhorar sem muito esforço.' },
+    { id:'mock-032', name:'Eduardo Melo',      meta:'12 avaliações', rating:2, date:'há 3 semanas',
+      details:null, text:'O ar condicionado do quarto não funcionava e reportei na chegada. Me disseram que iam resolver e nunca resolveram. Fiz check-out depois de duas noites com calor numa cidade quente. Propuseram desconto no bar, que eu nem uso. A troca de quarto "não estava disponível" mas na saída vi que havia quartos livres.' },
+  ];
+
+  // ─── Helpers ──────────────────────────────────────────────────────────────
+  const AVATAR_COLORS = ['#1a73e8','#d93025','#188038','#e37400','#9334e6','#12806a','#c5221f','#1967d2','#a8328e','#b06000'];
+  function avatarColor(name) {
+    let h = 0;
+    for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
+    return AVATAR_COLORS[h % AVATAR_COLORS.length];
+  }
+  function starsHTML(r) {
+    let s = '';
+    for (let i = 1; i <= 5; i++) s += '<span class="' + (i <= r ? 'star-on' : 'star-off') + '">★</span>';
+    return s;
+  }
+  function esc(str) {
+    return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function subratingsHTML(d) {
+    if (!d) return '';
+    const chips = Object.entries(d).map(([k, v]) => {
+      const num = /^[1-5]$/.test(String(v));
+      const val = num ? '<b>' + v + '</b><span class="cs">★</span>' : '<b>' + esc(v) + '</b>';
+      return '<span class="rv-chip">' + esc(k) + ' ' + val + '</span>';
+    }).join('');
+    return '<div class="rv-subratings">' + chips + '</div>';
+  }
+  function cardHTML(r) {
+    const init = r.name.trim().charAt(0).toUpperCase();
+    const det = r.details ? " data-details='" + esc(JSON.stringify(r.details)) + "'" : '';
+    return (
+      '<div class="review-card" data-review-id="' + r.id + '"' + det + '>' +
+        '<article class="VaHEVc" aria-label="Avaliação de ' + esc(r.name) + '">' +
+          '<div class="rv-head">' +
+            '<div class="rv-avatar" style="background:' + avatarColor(r.name) + '">' + esc(init) + '</div>' +
+            '<div class="rv-head-info">' +
+              '<a class="rv-name" data-reviewer-name href="https://www.google.com/maps/contrib/000000000000000000000" onclick="return false">' + esc(r.name) + '</a>' +
+              '<div class="rv-meta">' + esc(r.meta) + '</div>' +
+            '</div>' +
+            '<div class="rv-kebab">⋮</div>' +
+          '</div>' +
+          '<div class="rv-stars-row">' +
+            '<span class="rv-stars" role="img" data-star-rating="' + r.rating + '" aria-label="' + r.rating + ' de 5 estrelas">' + starsHTML(r.rating) + '</span>' +
+            '<span class="rv-date">' + esc(r.date) + '</span>' +
+            '<span class="rv-new">NOVO</span>' +
+          '</div>' +
+          subratingsHTML(r.details) +
+          '<div class="rv-text" data-review-text>' + esc(r.text) + '</div>' +
+        '</article>' +
+        '<div class="rv-actions">' +
+          '<button class="rv-respond-btn" type="button" aria-label="Responder">' +
+            '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M10 9V5l-7 7 7 7v-4.1c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11z"/></svg>' +
+            'Responder' +
+          '</button>' +
+        '</div>' +
+      '</div>'
+    );
+  }
+
+  // ─── Render reviews ────────────────────────────────────────────────────────
+  (function render() {
+    const list = document.getElementById('reviews-list');
+    list.innerHTML = REVIEWS.map(cardHTML).join('');
+
+    // Summary stats — hardcoded to match the business card
+    document.getElementById('rv-avg').textContent = '4,6';
+    document.getElementById('rv-count').textContent = '(127 avaliações)';
+    document.getElementById('rv-stars').innerHTML =
+      '<span style="font-size:20px">' + starsHTML(5) + '</span>';
+  })();
+
+  // ─── Overlay open/close ────────────────────────────────────────────────────
+  function openOverlay() {
+    const o = document.getElementById('reviews-overlay');
+    o.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeOverlay() {
+    const o = document.getElementById('reviews-overlay');
+    o.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  document.getElementById('btn-ler-avaliacoes').addEventListener('click', openOverlay);
+  document.getElementById('btn-info-avaliacoes').addEventListener('click', openOverlay);
+  document.getElementById('rv-close').addEventListener('click', closeOverlay);
+  document.getElementById('rv-back').addEventListener('click', closeOverlay);
+  document.getElementById('rv-backdrop').addEventListener('click', closeOverlay);
+
+  // ─── Responder button → opens reply form ──────────────────────────────────
+  document.getElementById('reviews-list').addEventListener('click', (e) => {
+    const btn = e.target.closest('.rv-respond-btn');
+    if (!btn) return;
+    const card = btn.closest('.review-card');
+    if (card.querySelector('[data-reply-field]')) {
+      card.querySelector('[data-reply-field]').focus();
+      return;
+    }
+    const form = document.createElement('div');
+    form.className = 'rv-reply-form';
+    form.innerHTML =
+      '<div class="rv-reply-box">' +
+        '<div class="rv-reply-owner">Responder publicamente como Pizzaria Dom Carlo</div>' +
+        '<textarea class="rv-reply-input" data-reply-field aria-label="Sua resposta pública" placeholder="Escreva uma resposta..."></textarea>' +
+      '</div>' +
+      '<div class="rv-reply-actions">' +
+        '<button class="rv-btn-txt muted" type="button" data-cancel>Cancelar</button>' +
+        '<button class="rv-btn-txt" type="button">Responder</button>' +
+      '</div>';
+    card.appendChild(form);
+    form.querySelector('[data-cancel]').addEventListener('click', () => form.remove());
+    form.querySelector('textarea').focus();
+  });
+
+  // ─── Tabs (visual only) ───────────────────────────────────────────────────
+  document.querySelectorAll('.rv-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.rv-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+</script>
 </body>
 </html>

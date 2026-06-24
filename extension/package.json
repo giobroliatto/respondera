@@ -8,7 +8,7 @@
     "build:dev": "webpack --mode=development",
     "build": "webpack --mode=production",
     "icons": "node scripts/generate-icons.js",
-    "mock": "npx serve mock -p 8080 --no-clipboard"
+    "mock": "npx serve mock -p 8081 --no-clipboard"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.300",
