@@ -126,6 +126,14 @@ export async function register(email: string, password: string): Promise<AuthRes
   );
 }
 
+export async function forgotPassword(email: string): Promise<void> {
+  await apiFetch<{ message: string }>(
+    '/auth/forgot-password',
+    { method: 'POST', body: JSON.stringify({ email }) },
+    false,
+  );
+}
+
 export async function getMe(): Promise<AuthResponse['user']> {
   return apiFetch<AuthResponse['user']>('/auth/me', { method: 'GET' });
 }

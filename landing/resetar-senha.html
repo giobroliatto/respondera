@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Redefinir senha · Respondera</title>
+  <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png" />
+  <link rel="apple-touch-icon" href="/favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg:         #0A0A0A;
+      --bg-card:    #141414;
+      --bg-input:   #1A1A1A;
+      --border:     rgba(255,255,255,0.08);
+      --border-mid: rgba(255,255,255,0.14);
+      --text:       #F0F0F0;
+      --text-muted: #6B6B6B;
+      --text-mid:   #9CA3AF;
+      --accent:     #10B981;
+      --accent-dim: rgba(16,185,129,0.12);
+      --accent-glow:rgba(16,185,129,0.25);
+      --red:        #EF4444;
+      --font-display:'Bebas Neue', sans-serif;
+      --font-body:  'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --radius:     12px;
+      --max-w:      420px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 1rem;
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.025;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 1.25rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(10,10,10,0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      letter-spacing: 0.04em;
+      color: var(--text);
+    }
+    .nav-logo span { color: var(--accent); }
+
+    .nav-back {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: color 0.2s;
+    }
+    .nav-back:hover { color: var(--text); }
+
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 120px 1.5rem 60px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .wrap {
+      width: 100%;
+      max-width: var(--max-w);
+    }
+
+    /* ─── Card ────────────────────────────────────────────────────── */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2.5rem 2rem;
+    }
+
+    .card-icon {
+      font-size: 2.4rem;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    .card-title {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      letter-spacing: 0.03em;
+      text-align: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .card-subtitle {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      text-align: center;
+      line-height: 1.55;
+      margin-bottom: 2rem;
+    }
+
+    /* ─── Form ────────────────────────────────────────────────────── */
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--text-mid);
+      margin-bottom: 0.4rem;
+    }
+
+    input[type="password"] {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      padding: 0.7rem 0.9rem;
+      outline: none;
+      transition: border-color 0.18s;
+    }
+
+    input[type="password"]:focus {
+      border-color: var(--accent);
+    }
+
+    input[type="password"]::placeholder {
+      color: var(--text-muted);
+    }
+
+    .btn-primary {
+      display: block;
+      width: 100%;
+      background: var(--accent);
+      color: #000;
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 8px;
+      padding: 0.8rem 1rem;
+      cursor: pointer;
+      margin-top: 1.5rem;
+      transition: opacity 0.18s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .btn-primary:hover:not(:disabled) { opacity: 0.88; }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ─── Estados ─────────────────────────────────────────────────── */
+    .msg-error {
+      display: none;
+      background: rgba(239,68,68,0.1);
+      border: 1px solid rgba(239,68,68,0.3);
+      color: #fca5a5;
+      font-size: 0.85rem;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      margin-top: 1rem;
+      text-align: center;
+    }
+
+    .msg-error.visible { display: block; }
+
+    .state-success, .state-invalid, .state-expired {
+      display: none;
+      text-align: center;
+    }
+
+    .state-icon {
+      font-size: 2.8rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .state-title {
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      letter-spacing: 0.03em;
+      margin-bottom: 0.5rem;
+    }
+
+    .state-text {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+    }
+
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 1.5rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .back-link a {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .back-link a:hover {
+      text-decoration: underline;
+    }
+
+    /* ─── Spinner ─────────────────────────────────────────────────── */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      width: 15px;
+      height: 15px;
+      border: 2px solid rgba(0,0,0,0.25);
+      border-top-color: #000;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="/" class="nav-logo">RESPOND<span>ERA</span></a>
+    <a href="/" class="nav-back">
+      <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 12H5m7-7-7 7 7 7"/></svg>
+      Início
+    </a>
+  </nav>
+
+  <main>
+    <div class="wrap">
+      <div class="card" id="card-form">
+        <div class="card-icon">🔑</div>
+        <h1 class="card-title">Nova senha</h1>
+        <p class="card-subtitle">Escolha uma senha com pelo menos 8 caracteres.</p>
+
+        <form id="reset-form" novalidate>
+          <div class="form-group">
+            <label for="input-password">Nova senha</label>
+            <input type="password" id="input-password" placeholder="Mínimo 8 caracteres" autocomplete="new-password" />
+          </div>
+          <div class="form-group">
+            <label for="input-confirm">Confirmar nova senha</label>
+            <input type="password" id="input-confirm" placeholder="Repita a senha" autocomplete="new-password" />
+          </div>
+          <p class="msg-error" id="form-error"></p>
+          <button type="submit" class="btn-primary" id="btn-submit">Redefinir senha</button>
+        </form>
+      </div>
+
+      <!-- Estado: sucesso -->
+      <div class="card state-success" id="state-success">
+        <div class="state-icon">✅</div>
+        <p class="state-title">Senha redefinida</p>
+        <p class="state-text">Sua senha foi alterada com sucesso. Abra a extensão Respondera e faça login com a nova senha.</p>
+      </div>
+
+      <!-- Estado: token expirado -->
+      <div class="card state-expired" id="state-expired">
+        <div class="state-icon">⏱</div>
+        <p class="state-title">Link expirado</p>
+        <p class="state-text">Este link de redefinição expirou. Abra a extensão e solicite um novo link.</p>
+      </div>
+
+      <!-- Estado: token inválido -->
+      <div class="card state-invalid" id="state-invalid">
+        <div class="state-icon">❌</div>
+        <p class="state-title">Link inválido</p>
+        <p class="state-text">Este link é inválido ou já foi utilizado. Abra a extensão e solicite um novo link, se necessário.</p>
+      </div>
+
+      <p class="back-link"><a href="/">Voltar para a página inicial</a></p>
+    </div>
+  </main>
+
+  <script>
+    const API_URL = 'https://api.respondera.com.br';
+
+    const params   = new URLSearchParams(window.location.search);
+    const token    = params.get('token') || '';
+
+    const cardForm     = document.getElementById('card-form');
+    const stateSuccess = document.getElementById('state-success');
+    const stateExpired = document.getElementById('state-expired');
+    const stateInvalid = document.getElementById('state-invalid');
+
+    if (!token) {
+      cardForm.style.display = 'none';
+      stateInvalid.style.display = 'block';
+    }
+
+    const form      = document.getElementById('reset-form');
+    const inputPwd  = document.getElementById('input-password');
+    const inputConf = document.getElementById('input-confirm');
+    const errEl     = document.getElementById('form-error');
+    const submitBtn = document.getElementById('btn-submit');
+
+    function showError(msg) {
+      errEl.textContent = msg;
+      errEl.classList.add('visible');
+    }
+
+    function hideError() {
+      errEl.textContent = '';
+      errEl.classList.remove('visible');
+    }
+
+    function showState(el) {
+      cardForm.style.display = 'none';
+      el.style.display = 'block';
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideError();
+
+      const password = inputPwd.value;
+      const confirm  = inputConf.value;
+
+      if (password.length < 8) {
+        showError('A senha precisa ter no mínimo 8 caracteres.');
+        return;
+      }
+
+      if (password !== confirm) {
+        showError('As senhas não coincidem.');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<div class="spinner"></div> Salvando...';
+
+      try {
+        const res = await fetch(`${API_URL}/auth/reset-password`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token, password }),
+        });
+
+        const data = await res.json().catch(() => ({}));
+
+        if (res.ok) {
+          showState(stateSuccess);
+          return;
+        }
+
+        const msg = data.error || '';
+        if (res.status === 400 && msg.toLowerCase().includes('expirou')) {
+          showState(stateExpired);
+        } else if (res.status === 400) {
+          showState(stateInvalid);
+        } else {
+          showError(data.error || 'Erro ao redefinir senha. Tente novamente.');
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Redefinir senha';
+        }
+      } catch {
+        showError('Erro de conexão. Verifique sua internet e tente novamente.');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Redefinir senha';
+      }
+    });
+  </script>
+</body>
+</html>

@@ -30,6 +30,46 @@
       </form>
       <p id="login-error" class="error hidden"></p>
       <p class="switch-link">Não tem conta? <a href="#" id="link-to-register">Criar conta</a></p>
+      <p class="forgot-link"><a href="#" id="link-to-forgot">Esqueceu sua senha?</a></p>
+    </div>
+
+    <!-- Tela: esqueceu a senha -->
+    <div id="screen-forgot" class="screen hidden">
+      <div class="forgot-header">
+        <div class="forgot-icon-wrap">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="11" width="18" height="11" rx="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+        </div>
+        <p class="forgot-title">ESQUECEU A SENHA</p>
+        <p class="forgot-subtitle">Informe seu e-mail e receberá um link para criar uma nova senha.</p>
+      </div>
+      <form id="form-forgot" class="forgot-form" novalidate>
+        <input type="email" id="input-forgot-email" placeholder="seu@email.com" autocomplete="email" required />
+        <button type="submit" id="btn-forgot">Enviar link</button>
+      </form>
+      <p id="forgot-error" class="error hidden"></p>
+      <div class="forgot-footer">
+        <button type="button" id="link-forgot-back" class="btn-link">← Voltar ao login</button>
+      </div>
+    </div>
+
+    <!-- Tela: link enviado -->
+    <div id="screen-forgot-sent" class="screen hidden">
+      <div class="forgot-header">
+        <div class="forgot-sent-icon-wrap">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+            <polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+        </div>
+        <p class="forgot-title">LINK ENVIADO</p>
+        <p class="forgot-subtitle">Se o e-mail estiver cadastrado, você receberá o link em instantes. Verifique também a caixa de spam.</p>
+      </div>
+      <div class="forgot-footer">
+        <button type="button" id="link-sent-back" class="btn-link">← Voltar ao login</button>
+      </div>
     </div>
 
     <!-- Tela: verificação por código -->

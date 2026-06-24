@@ -11,6 +11,7 @@ import {
   createSubscription,
   getCustomTones,
   clearClientCaches,
+  forgotPassword as apiForgotPassword,
 } from '../shared/api';
 import { AuthResponse, ToneOption, SavedTone } from '../shared/types';
 
@@ -38,16 +39,22 @@ async function init(): Promise<void> {
 
 // ─── Tela de login ────────────────────────────────────────────────────────────
 
+function hideAllScreens(): void {
+  ['screen-loading', 'screen-login', 'screen-register', 'screen-home', 'screen-verify', 'screen-forgot', 'screen-forgot-sent']
+    .forEach(id => document.getElementById(id)!.classList.add('hidden'));
+}
+
 function showLogin(): void {
-  document.getElementById('screen-loading')!.classList.add('hidden');
-  document.getElementById('screen-login')!.classList.add('hidden');
-  document.getElementById('screen-register')!.classList.add('hidden');
-  document.getElementById('screen-home')!.classList.add('hidden');
-  document.getElementById('screen-verify')!.classList.add('hidden');
+  hideAllScreens();
 
   document.getElementById('link-to-register')!.onclick = (e) => {
     e.preventDefault();
     showRegister();
+  };
+
+  document.getElementById('link-to-forgot')!.onclick = (e) => {
+    e.preventDefault();
+    showForgot();
   };
 
   const form = document.getElementById('form-login') as HTMLFormElement;
@@ -92,11 +99,7 @@ function showLogin(): void {
 // ─── Tela de registro ─────────────────────────────────────────────────────────
 
 function showRegister(): void {
-  document.getElementById('screen-loading')!.classList.add('hidden');
-  document.getElementById('screen-login')!.classList.add('hidden');
-  document.getElementById('screen-register')!.classList.add('hidden');
-  document.getElementById('screen-home')!.classList.add('hidden');
-  document.getElementById('screen-verify')!.classList.add('hidden');
+  hideAllScreens();
 
   document.getElementById('link-to-login')!.onclick = (e) => {
     e.preventDefault();
@@ -148,13 +151,62 @@ function showRegister(): void {
   void fadeScreenIn(document.getElementById('screen-register')!);
 }
 
+// ─── Tela de esqueceu a senha ─────────────────────────────────────────────────
+
+function showForgot(): void {
+  hideAllScreens();
+
+  document.getElementById('link-forgot-back')!.onclick = (e) => {
+    e.preventDefault();
+    showLogin();
+  };
+
+  const form = document.getElementById('form-forgot') as HTMLFormElement;
+  const freshForm = form.cloneNode(true) as HTMLFormElement;
+  form.replaceWith(freshForm);
+  freshForm.reset();
+
+  freshForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = (freshForm.querySelector('#input-forgot-email') as HTMLInputElement).value.trim();
+    const errEl = document.getElementById('forgot-error')!;
+    errEl.classList.add('hidden');
+    errEl.classList.remove('error-visible');
+    errEl.textContent = '';
+
+    const btn = freshForm.querySelector('#btn-forgot') as HTMLButtonElement;
+    btn.disabled = true;
+    btn.innerHTML = '<svg class="btn-spinner" width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="3" opacity="0.3"/><path d="M21 12A9 9 0 0 0 12 3" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg> Enviando...';
+
+    try {
+      await apiForgotPassword(email);
+      showForgotSent();
+    } catch {
+      showForgotSent(); // não revela se email existe — vai pra tela de confirmação de qualquer jeito
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = 'Enviar link';
+    }
+  });
+
+  void fadeScreenIn(document.getElementById('screen-forgot')!);
+}
+
+function showForgotSent(): void {
+  hideAllScreens();
+
+  document.getElementById('link-sent-back')!.onclick = (e) => {
+    e.preventDefault();
+    showLogin();
+  };
+
+  void fadeScreenIn(document.getElementById('screen-forgot-sent')!);
+}
+
 // ─── Tela de verificação por código ──────────────────────────────────────────
 
 function showVerify(email: string): void {
-  document.getElementById('screen-loading')!.classList.add('hidden');
-  document.getElementById('screen-login')!.classList.add('hidden');
-  document.getElementById('screen-register')!.classList.add('hidden');
-  document.getElementById('screen-home')!.classList.add('hidden');
+  hideAllScreens();
   const verifyScreen = document.getElementById('screen-verify')!;
 
   // Preenche e-mail

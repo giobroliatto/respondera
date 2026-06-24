@@ -13,6 +13,10 @@ import {
   verifyEmailToken,
   verifyEmailCode,
 } from '../services/emailVerificationService';
+import {
+  createAndSendPasswordReset,
+  resetPassword,
+} from '../services/passwordResetService';
 
 const router = Router();
 const SALT_ROUNDS = 12;
@@ -348,6 +352,51 @@ router.post('/resend-verification', authMiddleware, emailVerificationLimiter, as
       error: err.message?.slice(0, 200),
     });
     res.status(500).json({ error: 'Erro ao reenviar confirmação. Tente novamente.' });
+  }
+});
+
+// POST /auth/forgot-password
+router.post('/forgot-password', authLimiter, async (req: Request, res: Response) => {
+  const { email } = req.body ?? {};
+  if (!email || typeof email !== 'string') {
+    res.status(400).json({ error: 'E-mail obrigatório.' });
+    return;
+  }
+
+  try {
+    await createAndSendPasswordReset(sanitizeEmail(email));
+  } catch (err: any) {
+    logger.error('Password reset send failed', { error: err.message?.slice(0, 200) });
+  }
+
+  // Resposta sempre igual para não revelar se o email existe
+  res.json({ message: 'Se o e-mail estiver cadastrado, você receberá um link em breve.' });
+});
+
+// POST /auth/reset-password
+router.post('/reset-password', async (req: Request, res: Response) => {
+  const { token, password } = req.body ?? {};
+  if (!token || typeof token !== 'string') {
+    res.status(400).json({ error: 'Token inválido.' });
+    return;
+  }
+  if (!password || typeof password !== 'string' || password.length < 8) {
+    res.status(400).json({ error: 'A senha precisa ter no mínimo 8 caracteres.' });
+    return;
+  }
+
+  try {
+    const result = await resetPassword(token, password);
+    if (result === 'ok') {
+      res.json({ message: 'Senha redefinida com sucesso.' });
+    } else if (result === 'expired') {
+      res.status(400).json({ error: 'O link expirou. Solicite um novo.' });
+    } else {
+      res.status(400).json({ error: 'Link inválido ou já utilizado.' });
+    }
+  } catch (err: any) {
+    logger.error('Password reset failed', { error: err.message?.slice(0, 200) });
+    res.status(500).json({ error: 'Erro ao redefinir senha. Tente novamente.' });
   }
 });
 

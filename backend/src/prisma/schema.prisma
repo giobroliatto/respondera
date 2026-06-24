@@ -21,6 +21,8 @@ model User {
   emailVerificationTokenHash  String?
   emailVerificationExpiresAt  DateTime?
   emailVerificationAttempts   Int          @default(0)
+  passwordResetTokenHash      String?
+  passwordResetExpiresAt      DateTime?
   tokenInvalidatedAt          DateTime?
   createdAt                   DateTime     @default(now())
   subscriptionId              String?
