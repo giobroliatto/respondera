@@ -1,6 +1,7 @@
 {
   "rewrites": [
     { "source": "/pro", "destination": "/pro.html" },
-    { "source": "/privacidade", "destination": "/privacidade.html" }
+    { "source": "/privacidade", "destination": "/privacidade.html" },
+    { "source": "/resetar-senha", "destination": "/resetar-senha.html" }
   ]
 }
