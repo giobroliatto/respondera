@@ -20,7 +20,7 @@
 
 </div>
 
-**Português** · [English](README.en.md)
+[English](README.md) · **Português**
 
 > [!NOTE]
 > O Respondera foi um SaaS que idealizei, desenvolvi e coloquei no ar: a extensão chegou à [Chrome Web Store](https://chromewebstore.google.com/detail/respondera/jjoaagmkfjgncaflfdjaeahfpabefibb), com backend em produção, landing page e assinatura paga via Stripe. Hoje o produto está descontinuado e o código fica aberto como portfólio. A extensão ainda aparece na loja, mas o servidor foi desligado, então ela não funciona mais depois de instalada. Para testar, siga as instruções de [como rodar localmente](#rodando-localmente).
