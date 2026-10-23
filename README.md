@@ -1,374 +1,260 @@
+<div align="center">
+
+<img src="extension/public/icons/icon128.png" width="72" alt="Logo da Respondera" />
+
 # Respondera
 
-Extensão Chrome que gera respostas profissionais para avaliações do Google Perfil de Empresas usando IA (Claude Haiku).
+**Extensão do Chrome que escreve respostas para avaliações do Google Perfil de Empresas usando IA.**
 
-## Pré-requisitos
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
+![Node.js](https://img.shields.io/badge/Node.js-339933?logo=nodedotjs&logoColor=white)
+![Express](https://img.shields.io/badge/Express-000000?logo=express&logoColor=white)
+![Prisma](https://img.shields.io/badge/Prisma-2D3748?logo=prisma&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?logo=postgresql&logoColor=white)
+![Chrome MV3](https://img.shields.io/badge/Chrome_Extension-MV3-4285F4?logo=googlechrome&logoColor=white)
+![Claude API](https://img.shields.io/badge/Claude_API-D97757?logo=anthropic&logoColor=white)
+![Stripe](https://img.shields.io/badge/Stripe-635BFF?logo=stripe&logoColor=white)
 
-- [Node.js](https://nodejs.org/) v20+
-- [pnpm](https://pnpm.io/) v9+ (`npm install -g pnpm`)
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (para o PostgreSQL)
-- Google Chrome
+</div>
+
+> [!NOTE]
+> A Respondera foi um SaaS que construí e lancei sozinho em 2026: extensão publicada na Chrome Web Store, backend em produção, landing page e assinatura paga via Stripe. O produto foi descontinuado e o código está aberto como portfólio.
+
+![Landing page da Respondera](docs/landing.png)
 
 ---
 
-## 1. Banco de dados (PostgreSQL via Docker)
+## O problema
 
-```bash
-docker run -d \
-  --name respondera \
-  -e POSTGRES_USER=respondera \
-  -e POSTGRES_PASSWORD=respondera \
-  -e POSTGRES_DB=respondera \
-  -p 5432:5432 \
-  postgres:16
+Responder avaliações no Google melhora o posicionamento do negócio no Maps e mostra para quem está pesquisando que existe alguém do outro lado. Mesmo assim, a maioria dos pequenos negócios deixa avaliações sem resposta. Escrever uma resposta é fácil. Escrever cinquenta, sem soar robótico e sem perder a calma com uma avaliação injusta, já é outra história.
+
+## A solução
+
+A Respondera coloca um botão **"Responder com IA"** direto na tela de avaliações do Google Perfil de Empresas. O dono do negócio clica, escolhe o tom e recebe uma resposta pronta para revisar e publicar. Não precisa copiar e colar nem trocar de aba.
+
+<table>
+<tr>
+<td width="55%" valign="top">
+
+### Como funciona
+
+1. A extensão detecta cada avaliação na página do Google e injeta o botão ao lado de "Responder".
+2. Ao clicar, abre um painel lateral com o texto, a nota e o nome de quem avaliou, extraídos da página.
+3. O usuário escolhe entre **gerar do zero** ou **melhorar um rascunho** que ele mesmo escreveu.
+4. Escolhe o tom (Amigável, Formal, Empático, Direto, Descontraído, Assertivo ou um tom personalizado) e, se quiser, dá um contexto extra ("já resolvemos isso por telefone").
+5. A resposta aparece em segundos. Com **"Usar esta resposta"**, o texto vai direto para o campo de resposta do Google.
+
+### Planos
+
+| | Free | Pro (R$ 29,90/mês) |
+|---|---|---|
+| Respostas por mês | 10 | Ilimitadas |
+| Tons | 3 | 6 + tons personalizados |
+| Gerar ou melhorar rascunho | ✅ | ✅ |
+| Perfil do negócio no prompt (nome, segmento, diferenciais, ticket médio) | | ✅ |
+| Voz de profissional autônomo (1ª pessoa do singular, masc./fem.) | | ✅ |
+| Contexto adicional por avaliação | | ✅ |
+
+</td>
+<td width="45%" valign="top">
+
+<img src="docs/painel.png" alt="Painel lateral da extensão com uma resposta gerada" />
+
+<sub>Painel lateral da extensão. A avaliação e a resposta são um exemplo ilustrativo.</sub>
+
+</td>
+</tr>
+</table>
+
+---
+
+## Arquitetura
+
+```mermaid
+flowchart LR
+    subgraph Chrome["Chrome (extensão MV3)"]
+        CS["content script<br/>(página do Google)"]
+        PN["painel<br/>(iframe)"]
+        PP["popup<br/>(conta, negócio, plano)"]
+        BG["service worker"]
+    end
+
+    subgraph API["Backend (Node + Express)"]
+        R["rotas<br/>auth · business · reply<br/>custom-tones · payments"]
+        DB[(PostgreSQL<br/>via Prisma)]
+    end
+
+    LP["Landing<br/>(Vercel)"]
+
+    CS -- abre --> PN
+    PN -- "pedido de geração" --> BG
+    BG -- "HTTPS + JWT" --> R
+    PP -- "HTTPS + JWT" --> R
+    PN -- "tons e conta" --> R
+    R --> DB
+    R -- gera resposta --> CL["Claude API"]
+    R -- checkout e webhooks --> ST["Stripe"]
+    R -- e-mails transacionais --> RS["Resend"]
+    LP -- "checkout PRO, reset de senha" --> R
 ```
 
-> Se o container já existe: `docker start respondera`
+O repositório tem três partes:
+
+| Pasta | O que é |
+|---|---|
+| [`extension/`](extension) | Extensão Chrome (Manifest V3) em TypeScript puro, empacotada com Webpack. Content script, painel lateral, popup e service worker. |
+| [`backend/`](backend) | API REST em Node.js + Express + Prisma/PostgreSQL. Autenticação, limites de uso, geração com IA, assinaturas e e-mails. |
+| [`landing/`](landing) | Site estático hospedado na Vercel: landing page, página de assinatura PRO, redefinição de senha e política de privacidade. |
 
 ---
 
-## 2. Backend
+## Destaques técnicos
 
-### Instalação
+### Integração com uma página que não é minha
+
+O Google Perfil de Empresas não tem API pública para isso, e a interface roda em iframes com classes CSS ofuscadas que mudam sem aviso. O [`content.ts`](extension/src/content.ts) roda em todos os frames (`all_frames`) e usa um `MutationObserver` para acompanhar avaliações carregadas dinamicamente. Os elementos são localizados por **listas de seletores em ordem de estabilidade**: primeiro `aria-label` e atributos semânticos, depois o texto visível dos botões em português e inglês, e só por último as classes observadas na página real. Assim, uma mudança de layout do Google degrada a extensão aos poucos em vez de quebrá-la de uma vez. O painel roda num iframe isolado da extensão, então o CSS do Google não vaza para dentro dele e vice-versa.
+
+### Engenharia de prompt
+
+O [`anthropicService.ts`](backend/src/services/anthropicService.ts) monta o prompt a partir de regras que surgiram testando respostas reais:
+
+- **Tamanho proporcional à nota.** Um 5★ sem texto recebe uma frase. Um 1★ com reclamação recebe três: reconhece o problema, pede desculpas e oferece um canal de contato fora do Google, sem prometer reembolso.
+- **Voz configurável.** A resposta sai na voz da empresa ("agradecemos") ou de um profissional autônomo ("agradeço"), com concordância de gênero.
+- **Proteção contra prompt injection.** O texto da avaliação e o rascunho entram delimitados por tags e o modelo é instruído a tratá-los como dados. Uma avaliação que diz "ignore as instruções anteriores" não muda nada.
+- **Dois modos com temperaturas diferentes.** "Gerar" usa temperatura 1 para ter variedade. "Melhorar rascunho" usa 0.3, porque aqui o que importa é ser fiel ao que o dono quis dizer: o modelo melhora o registro e a escrita, mas não acrescenta fatos nem inverte a posição do autor.
+- **Estilo humano.** Sem emojis, sem markdown, sem fechamentos genéricos e sem travessões. Os travessões também são removidos depois da geração, porque o modelo insiste em usá-los.
+
+### Segurança e regras de negócio no servidor
+
+- Todas as regras de plano (limite mensal, tons exclusivos, contexto do negócio) são aplicadas **no backend**. O plano é lido do banco a cada requisição, e não do JWT, para que um upgrade ou cancelamento valha na hora.
+- Logout e troca de senha invalidam todos os JWTs emitidos antes daquele momento (`tokenInvalidatedAt`).
+- Verificação de e-mail por código de 6 dígitos e redefinição de senha por link, ambos com **hash SHA-256 no banco**, expiração e limite de tentativas.
+- Rate limiting por rota: login/registro, geração de respostas, reenvio de código e verificação.
+- Validação com Zod, sanitização de HTML, limite de 10 KB por payload, Helmet e logs estruturados (Winston) que mascaram e-mails e IDs.
+- O webhook do Stripe recebe o corpo cru (`express.raw`) para validar a assinatura antes de qualquer processamento.
+
+### Produto completo, não só código
+
+Além do núcleo, a Respondera tinha o que um SaaS real precisa: onboarding com página de boas-vindas pós-instalação, fluxo de "esqueci minha senha", e-mails transacionais, checkout e gerenciamento de assinatura (cancelar e reativar), landing com vídeo demonstrativo, analytics e política de privacidade (LGPD).
+
+---
+
+## Stack
+
+| Camada | Tecnologias |
+|---|---|
+| Extensão | TypeScript, Chrome Extensions Manifest V3, Webpack, `chrome.storage` |
+| Backend | Node.js 20, Express, Prisma, PostgreSQL, Zod, JWT, bcrypt, Helmet, express-rate-limit, Winston |
+| IA | Claude API (Anthropic SDK) |
+| Pagamentos e e-mail | Stripe (Checkout + Webhooks), Resend |
+| Landing | HTML/CSS/JS estático, Vercel, Vercel Analytics |
+
+---
+
+## Rodando localmente
+
+> O código continua funcional, mas o backend de produção (`api.respondera.com.br`) foi desligado. Para testar, rode o backend local e use a página de mock incluída no repositório.
+
+**Pré-requisitos:** Node.js 20+, pnpm 9+, Docker e Google Chrome. Você vai precisar de uma chave da [API da Anthropic](https://console.anthropic.com). Stripe e Resend são opcionais em desenvolvimento: sem a chave do Resend, os códigos de verificação aparecem no console.
+
+### 1. Banco de dados
+
+```bash
+cd backend
+docker compose up -d
+```
+
+### 2. Backend
 
 ```bash
 cd backend
 pnpm install
-```
-
-### Variáveis de ambiente
-
-Copie `.env.example` para `.env` e preencha:
-
-```bash
-cp .env.example .env
-```
-
-```env
-DATABASE_URL="postgresql://respondera:respondera@localhost:5432/respondera"
-JWT_SECRET="string-longa-e-aleatoria-aqui"
-ANTHROPIC_API_KEY="sk-ant-..."
-PORT=3333
-CORS_ORIGIN="*"
-```
-
-### Migrations
-
-```bash
+cp .env.example .env    # preencha DATABASE_URL, JWT_SECRET e ANTHROPIC_API_KEY
 pnpm prisma:migrate
+pnpm dev                # http://localhost:3333 (GET /health para conferir)
 ```
 
-### Rodar em desenvolvimento
+Com o `docker-compose.yml` incluído, a connection string é `postgresql://respondera:respondera@localhost:5432/respondera`.
 
-```bash
-pnpm dev
-```
-
-O backend sobe na porta **3333**. Confirme com:
-```
-GET http://localhost:3333/health
-```
-
----
-
-## 3. Extensão Chrome
-
-### Instalação
+### 3. Extensão
 
 ```bash
 cd extension
 pnpm install
+pnpm build:dev          # build apontando para localhost:3333 (ou `pnpm dev` para watch)
 ```
 
-### Build para desenvolvimento (aponta para localhost:3333)
+1. Abra `chrome://extensions` e ative o **Modo do desenvolvedor**.
+2. Clique em **Carregar sem compactação** e selecione `extension/dist/`.
+3. Nos detalhes da extensão, ative **Permitir acesso a URLs de arquivo**.
 
-```bash
-pnpm build:dev
-```
+### 4. Testando sem um Perfil de Empresa
 
-> Use `pnpm dev` para recompilar automaticamente ao salvar.  
-> Use `pnpm build` apenas para produção (aponta para `https://api.respondera.com.br`).
+O arquivo [`extension/mock/mock-reviews.html`](extension/mock/mock-reviews.html) imita a tela de avaliações do Google. Para a extensão rodar nele, adicione o caminho do mock (por exemplo `file:///*` ou `http://localhost:8081/*`, se usar `pnpm mock`) às `matches` do content script em `extension/manifest.json` e recompile.
 
-### Carregar no Chrome
+Depois, crie uma conta pelo popup da extensão, confirme o código de verificação que aparece no console do backend e clique em **"Responder com IA"** em qualquer avaliação do mock.
 
-1. Abra `chrome://extensions`
-2. Ative o **Modo do desenvolvedor** (canto superior direito)
-3. Clique em **"Carregar sem compactação"**
-4. Selecione a pasta `extension/dist/`
-5. Nos **Detalhes** da extensão, ative **"Permitir acesso a URLs de arquivo"**
+<details>
+<summary><strong>Variáveis de ambiente do backend</strong></summary>
 
-> Sempre que recompilar, clique em **↺ Atualizar** na extensão (ou remova e adicione novamente se o `manifest.json` mudou).
+| Variável | Obrigatória | Descrição |
+|---|---|---|
+| `DATABASE_URL` | Sim | Connection string do PostgreSQL |
+| `JWT_SECRET` | Sim | Segredo para assinar os JWTs (`openssl rand -base64 32`) |
+| `ANTHROPIC_API_KEY` | Sim | Chave da API da Anthropic |
+| `PORT` | Não | Porta do servidor (padrão `3333`) |
+| `CORS_ORIGIN` | Não | Origens permitidas, separadas por vírgula (padrão `*`) |
+| `PUBLIC_API_URL` | Em produção | URL pública da API, usada nos links de e-mail |
+| `RESEND_API_KEY`, `EMAIL_FROM` | Em produção | Envio de e-mails transacionais |
+| `STRIPE_SECRET_KEY`, `STRIPE_PRICE_ID`, `STRIPE_WEBHOOK_SECRET` | Em produção | Assinatura PRO |
 
-### Testar com o mock local
+</details>
 
-Abra o arquivo `extension/mock/mock-reviews.html` diretamente no Chrome (`Ctrl+O`).
+<details>
+<summary><strong>Scripts disponíveis</strong></summary>
 
-Alternativamente, sirva via HTTP (evita restrições de `file://`):
-
-```bash
-pnpm mock   # sobe em http://localhost:8080
-```
-
-Para que o content script injete no mock via HTTP, adicione temporariamente `http://localhost:8080/*` às `matches` em `manifest.json` e recompile.
-
----
-
-## 4. Fluxo de teste completo
-
-### a. Criar conta
-1. Clique no ícone da Respondera na barra do Chrome
-2. Clique em **"Criar conta"** → preencha email e senha → **"Criar conta"**
-
-### b. Verificar injeção do botão
-1. Abra o mock (`mock-reviews.html`) no Chrome
-2. Cada avaliação deve exibir o botão **"✨ Responder com IA"**
-
-### c. Gerar resposta
-1. Clique no botão de uma avaliação → painel abre à direita
-2. Selecione o tom desejado (Amigável / Formal / Empático)
-3. Clique **"Gerar resposta"**
-4. Aguarde a resposta aparecer no textarea
-
-### d. Usar resposta
-1. Edite o texto se necessário
-2. Clique **"✓ Usar esta resposta"**
-3. O texto é inserido no campo da avaliação e o painel fecha
-
-### e. Testar limite (plano FREE)
-- O plano FREE permite **10 respostas por mês**
-- Na 11ª tentativa o painel mostra: "Você atingiu o limite de respostas deste mês"
-
----
-
-## 5. Estrutura do projeto
-
-```
-respondera/
-├── backend/                  # API Node.js + Express
-│   ├── src/
-│   │   ├── index.ts          # Entrada Express
-│   │   ├── routes/           # auth, business, reply
-│   │   ├── middlewares/      # authMiddleware, usageLimitMiddleware
-│   │   ├── services/         # anthropicService, usageService
-│   │   └── prisma/           # schema.prisma + migrations
-│   ├── .env                  # NÃO versionado
-│   └── .env.example
-│
-└── extension/                # Extensão Chrome (Manifest V3)
-    ├── src/
-    │   ├── content.ts        # Injetado nas páginas — detecta cards e injecta botão
-    │   ├── background.ts     # Service worker — chama API e responde ao painel
-    │   ├── panel/            # Painel lateral (iframe overlay)
-    │   │   ├── panel.ts
-    │   │   ├── panel.html
-    │   │   └── panel.css
-    │   ├── popup/            # Popup do ícone da extensão
-    │   │   ├── popup.ts
-    │   │   ├── popup.html
-    │   │   └── popup.css
-    │   └── shared/
-    │       ├── api.ts        # Camada de comunicação com o backend
-    │       ├── storage.ts    # Wrapper tipado para chrome.storage.local
-    │       └── types.ts      # Tipos compartilhados
-    ├── mock/
-    │   └── mock-reviews.html # Página de teste local
-    ├── manifest.json
-    └── webpack.config.js
-```
-
----
-
-## 6. Scripts disponíveis
-
-### Backend (`cd backend`)
+**Backend**
 
 | Script | Descrição |
 |---|---|
 | `pnpm dev` | Servidor em modo watch (tsx) |
-| `pnpm build` | Compila TypeScript |
-| `pnpm start` | Roda build de produção |
+| `pnpm build` / `pnpm start` | Compila e roda o build de produção |
 | `pnpm prisma:migrate` | Cria e aplica migrations |
-| `pnpm prisma:migrate:deploy` | Aplica migrations (produção) |
-| `pnpm prisma:studio` | Abre Prisma Studio |
+| `pnpm prisma:migrate:deploy` | Aplica migrations em produção |
+| `pnpm prisma:studio` | Abre o Prisma Studio |
 
-### Extensão (`cd extension`)
+**Extensão**
 
 | Script | Descrição |
 |---|---|
-| `pnpm dev` | Build em watch (localhost:3333) |
-| `pnpm build:dev` | Build único para desenvolvimento |
-| `pnpm build` | Build de produção (api.respondera.com.br) |
-| `pnpm mock` | Serve o mock em http://localhost:8080 |
+| `pnpm dev` | Build em watch apontando para localhost |
+| `pnpm build:dev` | Build único de desenvolvimento |
+| `pnpm build` | Build de produção |
+| `pnpm mock` | Serve o mock em http://localhost:8081 |
+| `pnpm icons` | Gera os ícones a partir do SVG |
 
----
+</details>
 
-## 7. Variáveis de ambiente do backend
+<details>
+<summary><strong>Endpoints da API</strong></summary>
 
-| Variável | Obrigatória | Descrição |
+| Método | Rota | Descrição |
 |---|---|---|
-| `DATABASE_URL` | ✅ | Connection string PostgreSQL |
-| `JWT_SECRET` | ✅ | Secret para assinar tokens JWT |
-| `ANTHROPIC_API_KEY` | ✅ | Chave da API Anthropic |
-| `PORT` | ❌ | Porta do servidor (padrão: 3333) |
-| `CORS_ORIGIN` | ❌ | Origem permitida no CORS (padrão: `*`) |
+| `POST` | `/auth/register`, `/auth/login`, `/auth/logout` | Conta e sessão |
+| `GET` | `/auth/me` | Dados da conta, plano e uso |
+| `POST` | `/auth/verify-email-code`, `/auth/resend-verification` | Verificação de e-mail |
+| `POST` | `/auth/forgot-password`, `/auth/reset-password` | Redefinição de senha |
+| `GET` / `POST` | `/business` | Perfil do negócio |
+| `GET` / `POST` / `PUT` / `DELETE` | `/custom-tones` | Tons personalizados (PRO) |
+| `POST` | `/reply/generate` | Gera ou melhora uma resposta |
+| `POST` | `/payments/create-subscription`, `/payments/cancel-subscription`, `/payments/resume-subscription` | Assinatura |
+| `POST` | `/payments/webhook` | Webhook do Stripe |
+| `GET` | `/health` | Health check |
+
+</details>
 
 ---
 
-## 8. Planos
+## Autor
 
-| Plano | Respostas/mês |
-|---|---|
-| FREE | 10 |
-| PRO | 200 |
-
-O contador reseta no início de cada mês.
-
----
-
-## 9. Segurança
-
-### Validação de entrada
-
-- Todos os endpoints validam entrada com **Zod** antes de processar
-- Tamanho máximo de `reviewText`: 2000 caracteres
-- Tamanho máximo de `additionalContext`: 300 caracteres
-- Senhas mínimo 6 caracteres (em produção, aumentar para 12+)
-
-### Rate limiting
-
-- **Login/Registro**: 10 requisições por IP por 15 minutos
-- **Geração de resposta**: 30 requisições por usuário por hora
-
-### Sanitização
-
-- HTML tags removidas de inputs (especialmente `reviewText` e `additionalContext`)
-- Email validado conforme RFC 5321
-- Senhas comparadas com tempo-constante (bcrypt)
-
-### Logging e auditoria
-
-- Senhas **nunca** são logadas (descartadas após hash)
-- Tokens JWT **nunca** são logadas
-- Logs estruturados com Winston incluem:
-  - Falhas de autenticação (email mascarado: primeiros 3 chars + `***`)
-  - Erros de geração de IA (mensagem truncada a 200 chars, sem tokens)
-  - Acesso autorizado (userId mascarado: primeiros 8 chars)
-- Todos os logs em **JSON** para facilitar monitoramento
-
-### Middleware de segurança
-
-- **Helmet.js**: Headers HTTP de segurança
-- **CORS**: Configurável via `CORS_ORIGIN`
-- **Limite de payload**: Máximo 10KB por requisição
-- **Erro handler global**: Expõe apenas mensagens genéricas em produção
-
----
-
-## 10. Deployment
-
-### Opções de hospedagem
-
-#### Backend — Railway / Render
-
-1. **Railway** (recomendado para iniciar)
-   - Conecte seu repositório GitHub
-   - Selecione Branch `master`
-   - Configure variáveis de ambiente: `JWT_SECRET`, `ANTHROPIC_API_KEY`, `CORS_ORIGIN`
-   - Railway gerencia `PORT` automaticamente
-   - PostgreSQL: use provisionado no Railway ou Supabase (free tier 500MB)
-
-2. **Render**
-   - Similar ao Railway
-   - Free tier: 750h/mês (sempre ativo, não dorme como Heroku)
-   - Database: Supabase (PostgreSQL free tier)
-
-#### Banco de dados — Supabase vs Railway
-
-| Supabase | Railway |
-|---|---|
-| **Free**: 500MB, 2 query/s | **Free**: incluído no plano |
-| Auto-backup | Backups automáticos |
-| Perfeito para MVP | Simples integração com Railway |
-
-**Recomendado para iniciar**: Railway Backend + Supabase Database
-
-#### Extensão — Chrome Web Store
-
-1. Crie uma conta no [Chrome Web Store](https://chrome.google.com/webstore/devconsole/)
-2. **Taxa única**: $5 USD
-3. Faça build para produção:
-   ```bash
-   cd extension
-   pnpm build  # Aponta para api.respondera.com.br (ou seu domínio)
-   ```
-4. Zipifique `extension/dist/`
-5. Upload na console do Web Store
-
-### Checklist de produção
-
-- [ ] `JWT_SECRET` gerado com 32+ caracteres aleatórios (`openssl rand -base64 32`)
-- [ ] `CORS_ORIGIN` restrito a domínio da extensão (não `*`)
-- [ ] `ANTHROPIC_API_KEY` nunca commitado (verificar `.gitignore`)
-- [ ] Migração de banco de dados rodada no Supabase/Railway
-- [ ] Logs monitorados (verificar Winston logs para erros)
-- [ ] Rate limiting testado (tentar 11 requisições rapidamente)
-- [ ] Sanitização testada (tentar injetar HTML no review, verificar se é removido)
-- [ ] Endpoint de health check rodando: `GET /health`
-- [ ] Cache de distribuição (CDN) ativado se disponível
-
-### Comando para gerar secrets seguros
-
-```bash
-# JWT_SECRET (32 chars, base64)
-openssl rand -base64 32
-
-# Ou via Node.js
-node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
-```
-
-### Variáveis de ambiente para produção
-
-```env
-DATABASE_URL="postgresql://user:pass@host:5432/db"
-JWT_SECRET="<gerado-com-openssl>"
-ANTHROPIC_API_KEY="sk-ant-<sua-chave>"
-PORT="3000"
-CORS_ORIGIN="https://api.respondera.com.br"
-NODE_ENV="production"
-```
-
----
-
-## 11. Monitoração e manutenção
-
-### Logs
-
-- Winston salva em `logs/` (configure em `logger.ts`)
-- Integre com serviço como Sentry, Loggly, ou Datadog em produção
-
-### Métricas
-
-- Monitore:
-  - Taxa de requisições (rate limit hits)
-  - Taxa de erro (ZodError, API errors)
-  - Latência de geração de IA (tempo com Claude)
-  - Taxa de uso por plano (para upsell)
-
-### Pagamento (Mercado Pago — futuro)
-
-- Campo `plan` já existe no schema `User` (valores: `FREE`, `PRO`)
-- Integrar webhook de Mercado Pago para atualizar `plan` após pagamento
-- Validar `remainingUsage` antes de gerar resposta
-
----
-
-## 12. Troubleshooting
-
-| Problema | Solução |
-|---|---|
-| "Cannot find module 'redis'" | Rate limiter usa memória local. Em produção, remova importações de Redis. ✅ Já feito. |
-| Extensão não injecta botão | Verifique `content.ts` está compilado em `dist/content.js`. Recarge extensão (↺). |
-| Painel não carrega | Inspecionar DevTools da extensão (`chrome://extensions/` → Detalhes → Errors). |
-| API retorna 401 | Token expirado (30 dias). Faça login novamente. |
-| "rate limit exceeded" | Aguarde 15min (login) ou 1h (geração). |
-
+Feito por **Giovani Broliatto**: produto, design, código e o que mais fosse preciso.
