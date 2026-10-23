@@ -1,10 +1,10 @@
 <div align="center">
 
-<img src="extension/public/icons/icon128.png" width="72" alt="Logo do Respondera" />
+<img src="extension/public/icons/icon128.png" width="72" alt="Respondera logo" />
 
 # Respondera
 
-**Extensão do Chrome que escreve respostas para avaliações do Google Perfil de Empresas usando IA.**
+**A Chrome extension that writes replies to Google Business Profile reviews using AI.**
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
 ![Node.js](https://img.shields.io/badge/Node.js-339933?logo=nodedotjs&logoColor=white)
@@ -16,56 +16,58 @@
 ![Stripe](https://img.shields.io/badge/Stripe-635BFF?logo=stripe&logoColor=white)
 
 [![CI](https://github.com/giobroliatto/respondera/actions/workflows/ci.yml/badge.svg)](https://github.com/giobroliatto/respondera/actions/workflows/ci.yml)
-[![Licença MIT](https://img.shields.io/badge/licen%C3%A7a-MIT-green)](LICENSE)
+[![MIT License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 </div>
 
-**Português** · [English](README.en.md)
+[Português](README.md) · **English**
 
 > [!NOTE]
-> O Respondera foi um SaaS que idealizei, desenvolvi e coloquei no ar: a extensão chegou à [Chrome Web Store](https://chromewebstore.google.com/detail/respondera/jjoaagmkfjgncaflfdjaeahfpabefibb), com backend em produção, landing page e assinatura paga via Stripe. Hoje o produto está descontinuado e o código fica aberto como portfólio. A extensão ainda aparece na loja, mas o servidor foi desligado, então ela não funciona mais depois de instalada. Para testar, siga as instruções de [como rodar localmente](#rodando-localmente).
+> Respondera was a SaaS I designed, built and took to market: the extension went live on the [Chrome Web Store](https://chromewebstore.google.com/detail/respondera/jjoaagmkfjgncaflfdjaeahfpabefibb), backed by a production API, a landing page and paid subscriptions through Stripe. The product has since been discontinued and the code is open as a portfolio project. The extension is still listed on the store, but the server has been shut down, so it no longer works once installed. To try it, follow the [running locally](#running-locally) instructions.
+>
+> The product was built for the Brazilian market, so the UI, the prompts and the code comments are in Portuguese.
 
-![Landing page do Respondera](docs/landing.png)
+![Respondera landing page](docs/landing.png)
 
 ---
 
-## O problema
+## The problem
 
-Responder avaliações no Google melhora o posicionamento do negócio no Maps e mostra para quem está pesquisando que existe alguém do outro lado. Mesmo assim, a maioria dos pequenos negócios deixa avaliações sem resposta. Escrever uma resposta é fácil. Escrever cinquenta, sem soar robótico e sem perder a calma com uma avaliação injusta, já é outra história.
+Replying to Google reviews improves a business's ranking on Maps and shows people searching that someone is on the other side. Even so, most small businesses leave reviews unanswered. Writing one reply is easy. Writing fifty, without sounding robotic and without losing your temper over an unfair review, is a different story.
 
-## A solução
+## The solution
 
-O Respondera coloca um botão **"Responder com IA"** direto na tela de avaliações do Google Perfil de Empresas. O dono do negócio clica, escolhe o tom e recebe uma resposta pronta para revisar e publicar. Não precisa copiar e colar nem trocar de aba.
+Respondera adds a **"Reply with AI"** button right on the Google Business Profile reviews screen. The owner clicks it, picks a tone and gets a ready reply to review and publish. No copy and paste, no switching tabs.
 
 <table>
 <tr>
 <td width="55%" valign="top">
 
-### Como funciona
+### How it works
 
-1. A extensão detecta cada avaliação na página do Google e injeta o botão ao lado de "Responder".
-2. Ao clicar, abre um painel lateral com o texto, a nota e o nome de quem avaliou, extraídos da página.
-3. O usuário escolhe entre **gerar do zero** ou **melhorar um rascunho** que ele mesmo escreveu.
-4. Escolhe o tom (Amigável, Formal, Empático, Direto, Descontraído, Assertivo ou um tom personalizado) e, se quiser, dá um contexto extra ("já resolvemos isso por telefone").
-5. A resposta aparece em segundos. Com **"Usar esta resposta"**, o texto vai direto para o campo de resposta do Google.
+1. The extension detects each review on the Google page and injects its button next to "Reply".
+2. Clicking it opens a side panel with the review text, rating and reviewer name, extracted from the page.
+3. The user chooses between **generating from scratch** or **improving a draft** they wrote themselves.
+4. They pick a tone (Friendly, Formal, Empathetic, Direct, Casual, Assertive or a custom tone) and can add extra context ("we already sorted this out over the phone").
+5. The reply shows up in seconds. **"Use this reply"** puts the text straight into Google's reply field.
 
-### Planos
+### Plans
 
-| | Free | Pro (R$ 29,90/mês) |
+| | Free | Pro (R$ 29.90/month) |
 |---|---|---|
-| Respostas por mês | 10 | Ilimitadas |
-| Tons | 3 | 6 + tons personalizados |
-| Gerar ou melhorar rascunho | ✅ | ✅ |
-| Perfil do negócio no prompt (nome, segmento, diferenciais, ticket médio) | | ✅ |
-| Voz de profissional autônomo (1ª pessoa do singular, masc./fem.) | | ✅ |
-| Contexto adicional por avaliação | | ✅ |
+| Replies per month | 10 | Unlimited |
+| Tones | 3 | 6 + custom tones |
+| Generate or improve a draft | ✅ | ✅ |
+| Business profile in the prompt (name, segment, highlights, average ticket) | | ✅ |
+| Solo professional voice (first person singular, male/female) | | ✅ |
+| Extra context per review | | ✅ |
 
 </td>
 <td width="45%" valign="top">
 
-<img src="docs/painel.png" alt="Painel lateral da extensão com uma resposta gerada" />
+<img src="docs/painel.png" alt="Extension side panel with a generated reply" />
 
-<sub>Painel lateral da extensão. A avaliação e a resposta são um exemplo ilustrativo.</sub>
+<sub>The extension's side panel. The review and the reply are an illustrative example.</sub>
 
 </td>
 </tr>
@@ -73,103 +75,103 @@ O Respondera coloca um botão **"Responder com IA"** direto na tela de avaliaç�
 
 ---
 
-## Arquitetura
+## Architecture
 
 ```mermaid
 flowchart LR
-    subgraph Chrome["Chrome (extensão MV3)"]
-        CS["content script<br/>(página do Google)"]
-        PN["painel<br/>(iframe)"]
-        PP["popup<br/>(conta, negócio, plano)"]
+    subgraph Chrome["Chrome (MV3 extension)"]
+        CS["content script<br/>(Google page)"]
+        PN["panel<br/>(iframe)"]
+        PP["popup<br/>(account, business, plan)"]
         BG["service worker"]
     end
 
     subgraph API["Backend (Node + Express)"]
-        R["rotas<br/>auth · business · reply<br/>custom-tones · payments"]
+        R["routes<br/>auth · business · reply<br/>custom-tones · payments"]
         DB[(PostgreSQL<br/>via Prisma)]
     end
 
     LP["Landing<br/>(Vercel)"]
 
-    CS -- abre --> PN
-    PN -- "pedido de geração" --> BG
+    CS -- opens --> PN
+    PN -- "generation request" --> BG
     BG -- "HTTPS + JWT" --> R
     PP -- "HTTPS + JWT" --> R
-    PN -- "tons e conta" --> R
+    PN -- "tones and account" --> R
     R --> DB
-    R -- gera resposta --> CL["Claude API"]
-    R -- checkout e webhooks --> ST["Stripe"]
-    R -- e-mails transacionais --> RS["Resend"]
-    LP -- "checkout PRO, reset de senha" --> R
+    R -- generates reply --> CL["Claude API"]
+    R -- checkout and webhooks --> ST["Stripe"]
+    R -- transactional email --> RS["Resend"]
+    LP -- "PRO checkout, password reset" --> R
 ```
 
-O repositório tem três partes:
+The repository has three parts:
 
-| Pasta | O que é |
+| Folder | What it is |
 |---|---|
-| [`extension/`](extension) | Extensão Chrome (Manifest V3) em TypeScript puro, empacotada com Webpack. Content script, painel lateral, popup e service worker. |
-| [`backend/`](backend) | API REST em Node.js + Express + Prisma/PostgreSQL. Autenticação, limites de uso, geração com IA, assinaturas e e-mails. |
-| [`landing/`](landing) | Site estático hospedado na Vercel: landing page, página de assinatura PRO, redefinição de senha e política de privacidade. |
+| [`extension/`](extension) | Chrome extension (Manifest V3) in plain TypeScript, bundled with Webpack. Content script, side panel, popup and service worker. |
+| [`backend/`](backend) | REST API in Node.js + Express + Prisma/PostgreSQL. Authentication, usage limits, AI generation, subscriptions and email. |
+| [`landing/`](landing) | Static site hosted on Vercel: landing page, PRO subscription page, password reset and privacy policy. |
 
 ---
 
-## Destaques técnicos
+## Technical highlights
 
-### Integração com uma página que não é minha
+### Integrating with a page I don't control
 
-O Google Perfil de Empresas não tem API pública para isso, e a interface roda em iframes com classes CSS ofuscadas que mudam sem aviso. O [`content.ts`](extension/src/content.ts) roda em todos os frames (`all_frames`) e usa um `MutationObserver` para acompanhar avaliações carregadas dinamicamente. Os elementos são localizados por **listas de seletores em ordem de estabilidade**: primeiro `aria-label` e atributos semânticos, depois o texto visível dos botões em português e inglês, e só por último as classes observadas na página real. Assim, uma mudança de layout do Google degrada a extensão aos poucos em vez de quebrá-la de uma vez. O painel roda num iframe isolado da extensão, então o CSS do Google não vaza para dentro dele e vice-versa.
+Google Business Profile has no public API for this, and its interface runs inside iframes with obfuscated CSS classes that change without notice. [`content.ts`](extension/src/content.ts) runs in every frame (`all_frames`) and uses a `MutationObserver` to keep up with reviews loaded dynamically. Elements are found through **selector lists ordered by stability**: `aria-label` and semantic attributes first, then the visible button text in Portuguese and English, and only last the class names observed on the live page. That way, a layout change on Google's side degrades the extension gradually instead of breaking it all at once. The panel runs in the extension's own isolated iframe, so Google's CSS doesn't leak into it and vice versa.
 
-### Engenharia de prompt
+### Prompt engineering
 
-O [`anthropicService.ts`](backend/src/services/anthropicService.ts) monta o prompt a partir de regras que surgiram testando respostas reais:
+[`anthropicService.ts`](backend/src/services/anthropicService.ts) builds the prompt from rules that came out of testing real replies:
 
-- **Tamanho proporcional à nota.** Um 5★ sem texto recebe uma frase. Um 1★ com reclamação recebe três: reconhece o problema, pede desculpas e oferece um canal de contato fora do Google, sem prometer reembolso.
-- **Voz configurável.** A resposta sai na voz da empresa ("agradecemos") ou de um profissional autônomo ("agradeço"), com concordância de gênero.
-- **Proteção contra prompt injection.** O texto da avaliação e o rascunho entram delimitados por tags e o modelo é instruído a tratá-los como dados. Uma avaliação que diz "ignore as instruções anteriores" não muda nada.
-- **Dois modos com temperaturas diferentes.** "Gerar" usa temperatura 1 para ter variedade. "Melhorar rascunho" usa 0.3, porque aqui o que importa é ser fiel ao que o dono quis dizer: o modelo melhora o registro e a escrita, mas não acrescenta fatos nem inverte a posição do autor.
-- **Estilo humano.** Sem emojis, sem markdown, sem fechamentos genéricos e sem travessões. Os travessões também são removidos depois da geração, porque o modelo insiste em usá-los.
+- **Length proportional to the rating.** A 5★ review with no text gets one sentence. A 1★ complaint gets three: acknowledge the problem, apologize and offer a contact channel outside Google, without promising a refund.
+- **Configurable voice.** The reply is written in the company's voice ("we appreciate") or a solo professional's ("I appreciate"), with the right grammatical gender.
+- **Prompt injection protection.** The review text and the draft are wrapped in tags and the model is told to treat them as data. A review saying "ignore previous instructions" changes nothing.
+- **Two modes with different temperatures.** "Generate" uses temperature 1 for variety. "Improve draft" uses 0.3, because what matters there is staying faithful to what the owner meant: the model fixes the tone and the writing, but doesn't add facts or flip the author's position.
+- **Human style.** No emojis, no markdown, no generic sign-offs and no em dashes. Em dashes are also stripped after generation, because the model keeps using them anyway.
 
-### Segurança e regras de negócio no servidor
+### Security and business rules on the server
 
-- Todas as regras de plano (limite mensal, tons exclusivos, contexto do negócio) são aplicadas **no backend**. O plano é lido do banco a cada requisição, e não do JWT, para que um upgrade ou cancelamento valha na hora.
-- Logout e troca de senha invalidam todos os JWTs emitidos antes daquele momento (`tokenInvalidatedAt`).
-- Verificação de e-mail por código de 6 dígitos e redefinição de senha por link, ambos com **hash SHA-256 no banco**, expiração e limite de tentativas.
-- Rate limiting por rota: login/registro, geração de respostas, reenvio de código e verificação.
-- Validação com Zod, sanitização de HTML, limite de 10 KB por payload, Helmet e logs estruturados (Winston) que mascaram e-mails e IDs.
-- O webhook do Stripe recebe o corpo cru (`express.raw`) para validar a assinatura antes de qualquer processamento.
+- Every plan rule (monthly limit, exclusive tones, business context) is enforced **on the backend**. The plan is read from the database on every request, not from the JWT, so an upgrade or cancellation takes effect immediately.
+- Logout and password changes invalidate every JWT issued before that moment (`tokenInvalidatedAt`).
+- Email verification with a 6-digit code and password reset by link, both **stored as SHA-256 hashes**, with expiration and attempt limits.
+- Per-route rate limiting: login/sign-up, reply generation, code resend and code verification.
+- Zod validation, HTML sanitization, a 10 KB payload limit, Helmet and structured logs (Winston) that mask emails and IDs.
+- The Stripe webhook receives the raw body (`express.raw`) so the signature is verified before anything is processed.
 
-### Testes automatizados
+### Automated tests
 
-- **Backend:** testes com Vitest e Supertest cobrem a montagem do prompt, a sanitização e validação de entrada, os middlewares de autenticação e de limite de uso e a rota de geração de ponta a ponta. O banco e a API da Anthropic são simulados, então dá para conferir, por exemplo, que um usuário FREE nunca manda o perfil do negócio para o modelo.
-- **Extensão:** o content script roda de verdade sobre a página de mock em jsdom. Os testes conferem a injeção dos botões, a extração dos dados de cada avaliação, a inserção da resposta no campo certo e que mensagens vindas de fora do painel são ignoradas.
-- **CI:** o GitHub Actions roda typecheck, testes e build das duas partes a cada push.
+- **Backend:** Vitest and Supertest tests cover prompt building, input sanitization and validation, the authentication and usage-limit middlewares, and the reply generation route end to end. The database and the Anthropic API are mocked, so the tests can check, for example, that a FREE user never sends the business profile to the model.
+- **Extension:** the real content script runs against the mock page in jsdom. The tests check button injection, data extraction for each review, inserting the reply into the right field, and that messages coming from outside the panel are ignored.
+- **CI:** GitHub Actions runs type checking, tests and the build for both parts on every push.
 
-### Produto completo, não só código
+### A complete product, not just code
 
-Além do núcleo, o Respondera tinha o que um SaaS real precisa: onboarding com página de boas-vindas pós-instalação, fluxo de "esqueci minha senha", e-mails transacionais, checkout e gerenciamento de assinatura (cancelar e reativar), landing com vídeo demonstrativo, analytics e política de privacidade (LGPD).
+Beyond the core, Respondera had what a real SaaS needs: onboarding with a post-install welcome page, a "forgot password" flow, transactional emails, checkout and subscription management (cancel and resume), a landing page with a demo video, analytics and a privacy policy (LGPD, Brazil's data protection law).
 
 ---
 
 ## Stack
 
-| Camada | Tecnologias |
+| Layer | Technologies |
 |---|---|
-| Extensão | TypeScript, Chrome Extensions Manifest V3, Webpack, `chrome.storage` |
+| Extension | TypeScript, Chrome Extensions Manifest V3, Webpack, `chrome.storage` |
 | Backend | Node.js 22, Express, Prisma, PostgreSQL, Zod, JWT, bcrypt, Helmet, express-rate-limit, Winston |
-| IA | Claude API (Anthropic SDK) |
-| Pagamentos e e-mail | Stripe (Checkout + Webhooks), Resend |
-| Landing | HTML/CSS/JS estático, Vercel, Vercel Analytics |
-| Testes e CI | Vitest, Supertest, jsdom, GitHub Actions |
+| AI | Claude API (Anthropic SDK) |
+| Payments and email | Stripe (Checkout + Webhooks), Resend |
+| Landing | Static HTML/CSS/JS, Vercel, Vercel Analytics |
+| Tests and CI | Vitest, Supertest, jsdom, GitHub Actions |
 
 ---
 
-## Rodando localmente
+## Running locally
 
-> O código continua funcional, mas o backend de produção (`api.respondera.com.br`) foi desligado, então a versão da Chrome Web Store não consegue gerar respostas. Para testar, rode o backend local e use a página de mock incluída no repositório.
+> The code still works, but the production backend (`api.respondera.com.br`) has been shut down, so the Chrome Web Store version can't generate replies. To try it, run the backend locally and use the mock page included in the repository.
 
-**Pré-requisitos:** Node.js 22+, pnpm 9+, Docker e Google Chrome. Você vai precisar de uma chave da [API da Anthropic](https://console.anthropic.com). Stripe e Resend são opcionais em desenvolvimento: sem a chave do Resend, os códigos de verificação aparecem no console.
+**Requirements:** Node.js 22+, pnpm 9+, Docker and Google Chrome. You'll need an [Anthropic API](https://console.anthropic.com) key. Stripe and Resend are optional in development: without a Resend key, verification codes are printed to the console.
 
-### 1. Banco de dados
+### 1. Database
 
 ```bash
 cd backend
@@ -181,115 +183,115 @@ docker compose up -d
 ```bash
 cd backend
 pnpm install
-cp .env.example .env    # preencha DATABASE_URL, JWT_SECRET e ANTHROPIC_API_KEY
+cp .env.example .env    # fill in DATABASE_URL, JWT_SECRET and ANTHROPIC_API_KEY
 pnpm prisma:migrate
-pnpm dev                # http://localhost:3333 (GET /health para conferir)
+pnpm dev                # http://localhost:3333 (GET /health to check)
 ```
 
-Com o `docker-compose.yml` incluído, a connection string é `postgresql://respondera:respondera@localhost:5432/respondera`.
+With the included `docker-compose.yml`, the connection string is `postgresql://respondera:respondera@localhost:5432/respondera`.
 
-### 3. Extensão
+### 3. Extension
 
 ```bash
 cd extension
 pnpm install
-pnpm build:dev          # build apontando para localhost:3333 (ou `pnpm dev` para watch)
+pnpm build:dev          # build pointing to localhost:3333 (or `pnpm dev` to watch)
 ```
 
-1. Abra `chrome://extensions` e ative o **Modo do desenvolvedor**.
-2. Clique em **Carregar sem compactação** e selecione `extension/dist/`.
+1. Open `chrome://extensions` and turn on **Developer mode**.
+2. Click **Load unpacked** and select `extension/dist/`.
 
-### 4. Testando sem um Perfil de Empresa
+### 4. Testing without a Business Profile
 
-O arquivo [`extension/mock/mock-reviews.html`](extension/mock/mock-reviews.html) imita a tela de avaliações do Google. O build de desenvolvimento já libera a extensão em `localhost:8081`, então basta servir o mock:
+[`extension/mock/mock-reviews.html`](extension/mock/mock-reviews.html) imitates Google's reviews screen. The development build already allows the extension on `localhost:8081`, so you only need to serve the mock:
 
 ```bash
 cd extension
-pnpm mock               # abra http://localhost:8081/mock-reviews.html
+pnpm mock               # open http://localhost:8081/mock-reviews.html
 ```
 
-Depois, crie uma conta pelo popup da extensão, confirme o código de verificação que aparece no console do backend e clique em **"Responder com IA"** em qualquer avaliação do mock.
+Then create an account from the extension popup, enter the verification code printed in the backend console and click **"Responder com IA"** on any review in the mock.
 
-### 5. Testes
+### 5. Tests
 
 ```bash
-cd backend && pnpm test      # não precisa de banco nem de chave da Anthropic
+cd backend && pnpm test         # no database or Anthropic key needed
 cd ../extension && pnpm test
 ```
 
 <details>
-<summary><strong>Variáveis de ambiente do backend</strong></summary>
+<summary><strong>Backend environment variables</strong></summary>
 
-| Variável | Obrigatória | Descrição |
+| Variable | Required | Description |
 |---|---|---|
-| `DATABASE_URL` | Sim | Connection string do PostgreSQL |
-| `JWT_SECRET` | Sim | Segredo para assinar os JWTs (`openssl rand -base64 32`) |
-| `ANTHROPIC_API_KEY` | Sim | Chave da API da Anthropic |
-| `PORT` | Não | Porta do servidor (padrão `3333`) |
-| `CORS_ORIGIN` | Não | Origens permitidas, separadas por vírgula (padrão `*`) |
-| `PUBLIC_API_URL` | Em produção | URL pública da API, usada nos links de e-mail |
-| `RESEND_API_KEY`, `EMAIL_FROM` | Em produção | Envio de e-mails transacionais |
-| `STRIPE_SECRET_KEY`, `STRIPE_PRICE_ID`, `STRIPE_WEBHOOK_SECRET` | Em produção | Assinatura PRO |
+| `DATABASE_URL` | Yes | PostgreSQL connection string |
+| `JWT_SECRET` | Yes | Secret used to sign JWTs (`openssl rand -base64 32`) |
+| `ANTHROPIC_API_KEY` | Yes | Anthropic API key |
+| `PORT` | No | Server port (default `3333`) |
+| `CORS_ORIGIN` | No | Allowed origins, comma-separated (default `*`) |
+| `PUBLIC_API_URL` | In production | Public API URL, used in email links |
+| `RESEND_API_KEY`, `EMAIL_FROM` | In production | Transactional email |
+| `STRIPE_SECRET_KEY`, `STRIPE_PRICE_ID`, `STRIPE_WEBHOOK_SECRET` | In production | PRO subscription |
 
 </details>
 
 <details>
-<summary><strong>Scripts disponíveis</strong></summary>
+<summary><strong>Available scripts</strong></summary>
 
 **Backend**
 
-| Script | Descrição |
+| Script | Description |
 |---|---|
-| `pnpm dev` | Servidor em modo watch (tsx) |
-| `pnpm build` / `pnpm start` | Compila e roda o build de produção |
-| `pnpm prisma:migrate` | Cria e aplica migrations |
-| `pnpm prisma:migrate:deploy` | Aplica migrations em produção |
-| `pnpm prisma:studio` | Abre o Prisma Studio |
-| `pnpm test` / `pnpm test:watch` | Roda os testes |
-| `pnpm typecheck` | Checa os tipos sem compilar |
+| `pnpm dev` | Server in watch mode (tsx) |
+| `pnpm build` / `pnpm start` | Compile and run the production build |
+| `pnpm prisma:migrate` | Create and apply migrations |
+| `pnpm prisma:migrate:deploy` | Apply migrations in production |
+| `pnpm prisma:studio` | Open Prisma Studio |
+| `pnpm test` / `pnpm test:watch` | Run the tests |
+| `pnpm typecheck` | Type-check without compiling |
 
-**Extensão**
+**Extension**
 
-| Script | Descrição |
+| Script | Description |
 |---|---|
-| `pnpm dev` | Build em watch apontando para localhost |
-| `pnpm build:dev` | Build único de desenvolvimento |
-| `pnpm build` | Build de produção |
-| `pnpm mock` | Serve o mock em http://localhost:8081 |
-| `pnpm icons` | Gera os ícones a partir do SVG |
-| `pnpm test` / `pnpm test:watch` | Roda os testes |
-| `pnpm typecheck` | Checa os tipos sem compilar |
+| `pnpm dev` | Watch build pointing to localhost |
+| `pnpm build:dev` | One-off development build |
+| `pnpm build` | Production build |
+| `pnpm mock` | Serve the mock at http://localhost:8081 |
+| `pnpm icons` | Generate the icons from the SVG |
+| `pnpm test` / `pnpm test:watch` | Run the tests |
+| `pnpm typecheck` | Type-check without compiling |
 
 </details>
 
 <details>
-<summary><strong>Endpoints da API</strong></summary>
+<summary><strong>API endpoints</strong></summary>
 
-| Método | Rota | Descrição |
+| Method | Route | Description |
 |---|---|---|
-| `POST` | `/auth/register`, `/auth/login`, `/auth/logout` | Conta e sessão |
-| `GET` | `/auth/me` | Dados da conta, plano e uso |
-| `POST` | `/auth/verify-email-code`, `/auth/resend-verification` | Verificação de e-mail |
-| `POST` | `/auth/forgot-password`, `/auth/reset-password` | Redefinição de senha |
-| `GET` / `POST` | `/business` | Perfil do negócio |
-| `GET` / `POST` / `PUT` / `DELETE` | `/custom-tones` | Tons personalizados (PRO) |
-| `POST` | `/reply/generate` | Gera ou melhora uma resposta |
-| `POST` | `/payments/create-subscription`, `/payments/cancel-subscription`, `/payments/resume-subscription` | Assinatura |
-| `POST` | `/payments/webhook` | Webhook do Stripe |
+| `POST` | `/auth/register`, `/auth/login`, `/auth/logout` | Account and session |
+| `GET` | `/auth/me` | Account data, plan and usage |
+| `POST` | `/auth/verify-email-code`, `/auth/resend-verification` | Email verification |
+| `POST` | `/auth/forgot-password`, `/auth/reset-password` | Password reset |
+| `GET` / `POST` | `/business` | Business profile |
+| `GET` / `POST` / `PUT` / `DELETE` | `/custom-tones` | Custom tones (PRO) |
+| `POST` | `/reply/generate` | Generate or improve a reply |
+| `POST` | `/payments/create-subscription`, `/payments/cancel-subscription`, `/payments/resume-subscription` | Subscription |
+| `POST` | `/payments/webhook` | Stripe webhook |
 | `GET` | `/health` | Health check |
 
 </details>
 
 ---
 
-## Licença
+## License
 
 [MIT](LICENSE)
 
 ---
 
-## Autor
+## Author
 
-Feito por **Giovani Broliatto**: produto, design, código e o que mais fosse preciso.
+Built by **Giovani Broliatto**: product, design, code and whatever else it took.
 
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-giobroliatto-0A66C2?logo=linkedin&logoColor=white)](https://www.linkedin.com/in/giobroliatto/)
