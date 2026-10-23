@@ -20,7 +20,7 @@
 
 </div>
 
-[Português](README.md) · **English**
+**English** · [Português](README.pt-BR.md)
 
 > [!NOTE]
 > Respondera was a SaaS I designed, built and took to market: the extension went live on the [Chrome Web Store](https://chromewebstore.google.com/detail/respondera/jjoaagmkfjgncaflfdjaeahfpabefibb), backed by a production API, a landing page and paid subscriptions through Stripe. The product has since been discontinued and the code is open as a portfolio project. The extension is still listed on the store, but the server has been shut down, so it no longer works once installed. To try it, follow the [running locally](#running-locally) instructions.
