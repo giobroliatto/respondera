@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="extension/public/icons/icon128.png" width="72" alt="Logo da Respondera" />
+<img src="extension/public/icons/icon128.png" width="72" alt="Logo do Respondera" />
 
 # Respondera
 
@@ -15,14 +15,17 @@
 ![Claude API](https://img.shields.io/badge/Claude_API-D97757?logo=anthropic&logoColor=white)
 ![Stripe](https://img.shields.io/badge/Stripe-635BFF?logo=stripe&logoColor=white)
 
+[![CI](https://github.com/giobroliatto/respondera/actions/workflows/ci.yml/badge.svg)](https://github.com/giobroliatto/respondera/actions/workflows/ci.yml)
+[![Licença MIT](https://img.shields.io/badge/licen%C3%A7a-MIT-green)](LICENSE)
+
 </div>
 
 **Português** · [English](README.en.md)
 
 > [!NOTE]
-> A Respondera foi um SaaS que construí e lancei sozinho em 2026: extensão publicada na [Chrome Web Store](https://chromewebstore.google.com/detail/respondera/jjoaagmkfjgncaflfdjaeahfpabefibb), backend em produção, landing page e assinatura paga via Stripe. O produto foi descontinuado e o código está aberto como portfólio. A extensão ainda aparece na loja, mas o servidor foi desligado, então ela não funciona mais depois de instalada. Para testar, siga as instruções de [como rodar localmente](#rodando-localmente).
+> O Respondera foi um SaaS que idealizei, desenvolvi e coloquei no ar: a extensão chegou à [Chrome Web Store](https://chromewebstore.google.com/detail/respondera/jjoaagmkfjgncaflfdjaeahfpabefibb), com backend em produção, landing page e assinatura paga via Stripe. Hoje o produto está descontinuado e o código fica aberto como portfólio. A extensão ainda aparece na loja, mas o servidor foi desligado, então ela não funciona mais depois de instalada. Para testar, siga as instruções de [como rodar localmente](#rodando-localmente).
 
-![Landing page da Respondera](docs/landing.png)
+![Landing page do Respondera](docs/landing.png)
 
 ---
 
@@ -32,7 +35,7 @@ Responder avaliações no Google melhora o posicionamento do negócio no Maps e 
 
 ## A solução
 
-A Respondera coloca um botão **"Responder com IA"** direto na tela de avaliações do Google Perfil de Empresas. O dono do negócio clica, escolhe o tom e recebe uma resposta pronta para revisar e publicar. Não precisa copiar e colar nem trocar de aba.
+O Respondera coloca um botão **"Responder com IA"** direto na tela de avaliações do Google Perfil de Empresas. O dono do negócio clica, escolhe o tom e recebe uma resposta pronta para revisar e publicar. Não precisa copiar e colar nem trocar de aba.
 
 <table>
 <tr>
@@ -135,9 +138,15 @@ O [`anthropicService.ts`](backend/src/services/anthropicService.ts) monta o prom
 - Validação com Zod, sanitização de HTML, limite de 10 KB por payload, Helmet e logs estruturados (Winston) que mascaram e-mails e IDs.
 - O webhook do Stripe recebe o corpo cru (`express.raw`) para validar a assinatura antes de qualquer processamento.
 
+### Testes automatizados
+
+- **Backend:** testes com Vitest e Supertest cobrem a montagem do prompt, a sanitização e validação de entrada, os middlewares de autenticação e de limite de uso e a rota de geração de ponta a ponta. O banco e a API da Anthropic são simulados, então dá para conferir, por exemplo, que um usuário FREE nunca manda o perfil do negócio para o modelo.
+- **Extensão:** o content script roda de verdade sobre a página de mock em jsdom. Os testes conferem a injeção dos botões, a extração dos dados de cada avaliação, a inserção da resposta no campo certo e que mensagens vindas de fora do painel são ignoradas.
+- **CI:** o GitHub Actions roda typecheck, testes e build das duas partes a cada push.
+
 ### Produto completo, não só código
 
-Além do núcleo, a Respondera tinha o que um SaaS real precisa: onboarding com página de boas-vindas pós-instalação, fluxo de "esqueci minha senha", e-mails transacionais, checkout e gerenciamento de assinatura (cancelar e reativar), landing com vídeo demonstrativo, analytics e política de privacidade (LGPD).
+Além do núcleo, o Respondera tinha o que um SaaS real precisa: onboarding com página de boas-vindas pós-instalação, fluxo de "esqueci minha senha", e-mails transacionais, checkout e gerenciamento de assinatura (cancelar e reativar), landing com vídeo demonstrativo, analytics e política de privacidade (LGPD).
 
 ---
 
@@ -146,10 +155,11 @@ Além do núcleo, a Respondera tinha o que um SaaS real precisa: onboarding com 
 | Camada | Tecnologias |
 |---|---|
 | Extensão | TypeScript, Chrome Extensions Manifest V3, Webpack, `chrome.storage` |
-| Backend | Node.js 20, Express, Prisma, PostgreSQL, Zod, JWT, bcrypt, Helmet, express-rate-limit, Winston |
+| Backend | Node.js 22, Express, Prisma, PostgreSQL, Zod, JWT, bcrypt, Helmet, express-rate-limit, Winston |
 | IA | Claude API (Anthropic SDK) |
 | Pagamentos e e-mail | Stripe (Checkout + Webhooks), Resend |
 | Landing | HTML/CSS/JS estático, Vercel, Vercel Analytics |
+| Testes e CI | Vitest, Supertest, jsdom, GitHub Actions |
 
 ---
 
@@ -157,7 +167,7 @@ Além do núcleo, a Respondera tinha o que um SaaS real precisa: onboarding com 
 
 > O código continua funcional, mas o backend de produção (`api.respondera.com.br`) foi desligado, então a versão da Chrome Web Store não consegue gerar respostas. Para testar, rode o backend local e use a página de mock incluída no repositório.
 
-**Pré-requisitos:** Node.js 20+, pnpm 9+, Docker e Google Chrome. Você vai precisar de uma chave da [API da Anthropic](https://console.anthropic.com). Stripe e Resend são opcionais em desenvolvimento: sem a chave do Resend, os códigos de verificação aparecem no console.
+**Pré-requisitos:** Node.js 22+, pnpm 9+, Docker e Google Chrome. Você vai precisar de uma chave da [API da Anthropic](https://console.anthropic.com). Stripe e Resend são opcionais em desenvolvimento: sem a chave do Resend, os códigos de verificação aparecem no console.
 
 ### 1. Banco de dados
 
@@ -188,13 +198,24 @@ pnpm build:dev          # build apontando para localhost:3333 (ou `pnpm dev` par
 
 1. Abra `chrome://extensions` e ative o **Modo do desenvolvedor**.
 2. Clique em **Carregar sem compactação** e selecione `extension/dist/`.
-3. Nos detalhes da extensão, ative **Permitir acesso a URLs de arquivo**.
 
 ### 4. Testando sem um Perfil de Empresa
 
-O arquivo [`extension/mock/mock-reviews.html`](extension/mock/mock-reviews.html) imita a tela de avaliações do Google. Para a extensão rodar nele, adicione o caminho do mock (por exemplo `file:///*` ou `http://localhost:8081/*`, se usar `pnpm mock`) às `matches` do content script em `extension/manifest.json` e recompile.
+O arquivo [`extension/mock/mock-reviews.html`](extension/mock/mock-reviews.html) imita a tela de avaliações do Google. O build de desenvolvimento já libera a extensão em `localhost:8081`, então basta servir o mock:
+
+```bash
+cd extension
+pnpm mock               # abra http://localhost:8081/mock-reviews.html
+```
 
 Depois, crie uma conta pelo popup da extensão, confirme o código de verificação que aparece no console do backend e clique em **"Responder com IA"** em qualquer avaliação do mock.
+
+### 5. Testes
+
+```bash
+cd backend && pnpm test      # não precisa de banco nem de chave da Anthropic
+cd ../extension && pnpm test
+```
 
 <details>
 <summary><strong>Variáveis de ambiente do backend</strong></summary>
@@ -224,6 +245,8 @@ Depois, crie uma conta pelo popup da extensão, confirme o código de verificaç
 | `pnpm prisma:migrate` | Cria e aplica migrations |
 | `pnpm prisma:migrate:deploy` | Aplica migrations em produção |
 | `pnpm prisma:studio` | Abre o Prisma Studio |
+| `pnpm test` / `pnpm test:watch` | Roda os testes |
+| `pnpm typecheck` | Checa os tipos sem compilar |
 
 **Extensão**
 
@@ -234,6 +257,8 @@ Depois, crie uma conta pelo popup da extensão, confirme o código de verificaç
 | `pnpm build` | Build de produção |
 | `pnpm mock` | Serve o mock em http://localhost:8081 |
 | `pnpm icons` | Gera os ícones a partir do SVG |
+| `pnpm test` / `pnpm test:watch` | Roda os testes |
+| `pnpm typecheck` | Checa os tipos sem compilar |
 
 </details>
 
@@ -254,6 +279,12 @@ Depois, crie uma conta pelo popup da extensão, confirme o código de verificaç
 | `GET` | `/health` | Health check |
 
 </details>
+
+---
+
+## Licença
+
+[MIT](LICENSE)
 
 ---
 
