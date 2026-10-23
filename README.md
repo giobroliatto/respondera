@@ -17,8 +17,10 @@
 
 </div>
 
+**Português** · [English](README.en.md)
+
 > [!NOTE]
-> A Respondera foi um SaaS que construí e lancei sozinho em 2026: extensão publicada na Chrome Web Store, backend em produção, landing page e assinatura paga via Stripe. O produto foi descontinuado e o código está aberto como portfólio.
+> A Respondera foi um SaaS que construí e lancei sozinho em 2026: extensão publicada na [Chrome Web Store](https://chromewebstore.google.com/detail/respondera/jjoaagmkfjgncaflfdjaeahfpabefibb), backend em produção, landing page e assinatura paga via Stripe. O produto foi descontinuado e o código está aberto como portfólio. A extensão ainda aparece na loja, mas o servidor foi desligado, então ela não funciona mais depois de instalada. Para testar, siga as instruções de [como rodar localmente](#rodando-localmente).
 
 ![Landing page da Respondera](docs/landing.png)
 
@@ -153,7 +155,7 @@ Além do núcleo, a Respondera tinha o que um SaaS real precisa: onboarding com 
 
 ## Rodando localmente
 
-> O código continua funcional, mas o backend de produção (`api.respondera.com.br`) foi desligado. Para testar, rode o backend local e use a página de mock incluída no repositório.
+> O código continua funcional, mas o backend de produção (`api.respondera.com.br`) foi desligado, então a versão da Chrome Web Store não consegue gerar respostas. Para testar, rode o backend local e use a página de mock incluída no repositório.
 
 **Pré-requisitos:** Node.js 20+, pnpm 9+, Docker e Google Chrome. Você vai precisar de uma chave da [API da Anthropic](https://console.anthropic.com). Stripe e Resend são opcionais em desenvolvimento: sem a chave do Resend, os códigos de verificação aparecem no console.
 
@@ -258,3 +260,5 @@ Depois, crie uma conta pelo popup da extensão, confirme o código de verificaç
 ## Autor
 
 Feito por **Giovani Broliatto**: produto, design, código e o que mais fosse preciso.
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-giobroliatto-0A66C2?logo=linkedin&logoColor=white)](https://www.linkedin.com/in/giobroliatto/)
