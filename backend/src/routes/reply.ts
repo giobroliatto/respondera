@@ -2,7 +2,7 @@
 import { authMiddleware, AuthRequest } from '../middlewares/authMiddleware';
 import { usageLimitMiddleware } from '../middlewares/usageLimitMiddleware';
 import { replyGenerationLimiter } from '../middlewares/rateLimitMiddleware';
-import { generateReply } from '../services/anthropicService';
+import { generateReply, removeDashes } from '../services/anthropicService';
 import { incrementUsage } from '../services/usageService';
 import { GenerateReplySchema } from '../utils/validationSchemas';
 import { sanitizeReviewText, sanitizeAdditionalContext, sanitizeText } from '../utils/sanitization';
@@ -79,11 +79,7 @@ router.post('/generate', replyGenerationLimiter, usageLimitMiddleware, async (re
       tokensUsed,
     });
 
-    // Remove travessões que o modelo insiste em usar apesar do prompt
-    const cleanReply = reply
-      .replace(/\s*—\s*/g, ', ')
-      .replace(/\s*–\s*/g, ', ')
-      .trim();
+    const cleanReply = removeDashes(reply);
 
     res.json({
       reply: cleanReply,
