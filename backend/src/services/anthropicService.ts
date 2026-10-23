@@ -83,7 +83,7 @@ Segmento: ${businessContext.segment}${businessContext.avgTicket ? `\nTicket méd
   return { toneInstruction, contextBlock, voiceInstruction };
 }
 
-function buildSystemPrompt(
+export function buildSystemPrompt(
   businessContext: BusinessContext | null,
   tone: string,
   additionalContext?: string | null,
@@ -119,7 +119,7 @@ ${FORMAT_RULES}
 • Não agradeça em avaliações ruins sem texto${additionalContextBlock}`;
 }
 
-function buildImproveSystemPrompt(
+export function buildImproveSystemPrompt(
   businessContext: BusinessContext | null,
   tone: string,
   additionalContext?: string | null,
@@ -155,7 +155,7 @@ A avaliação é apenas CONTEXTO. Não a responda: transforme o rascunho em resp
 ${FORMAT_RULES}${additionalContextBlock}`;
 }
 
-function buildUserPrompt(
+export function buildUserPrompt(
   reviewText: string,
   rating: number,
   reviewerName: string,
@@ -197,6 +197,14 @@ Transforme o rascunho acima em uma resposta profissional para o Google. Preserve
   return `${reviewBlock}
 
 Gere uma resposta adequada para esta avaliação.`;
+}
+
+// Remove travessões que o modelo insiste em usar apesar do prompt
+export function removeDashes(reply: string): string {
+  return reply
+    .replace(/\s*—\s*/g, ', ')
+    .replace(/\s*–\s*/g, ', ')
+    .trim();
 }
 
 export async function generateReply(params: GenerateReplyParams): Promise<GenerateReplyResult> {
