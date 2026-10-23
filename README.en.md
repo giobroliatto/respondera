@@ -15,12 +15,15 @@
 ![Claude API](https://img.shields.io/badge/Claude_API-D97757?logo=anthropic&logoColor=white)
 ![Stripe](https://img.shields.io/badge/Stripe-635BFF?logo=stripe&logoColor=white)
 
+[![CI](https://github.com/giobroliatto/respondera/actions/workflows/ci.yml/badge.svg)](https://github.com/giobroliatto/respondera/actions/workflows/ci.yml)
+[![MIT License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+
 </div>
 
 [Português](README.md) · **English**
 
 > [!NOTE]
-> Respondera was a SaaS I built and launched on my own in 2026: an extension published on the [Chrome Web Store](https://chromewebstore.google.com/detail/respondera/jjoaagmkfjgncaflfdjaeahfpabefibb), a production backend, a landing page and paid subscriptions through Stripe. The product has been discontinued and the code is open as a portfolio project. The extension is still listed on the store, but the server has been shut down, so it no longer works once installed. To try it, follow the [running locally](#running-locally) instructions.
+> Respondera was a SaaS I designed, built and took to market: the extension went live on the [Chrome Web Store](https://chromewebstore.google.com/detail/respondera/jjoaagmkfjgncaflfdjaeahfpabefibb), backed by a production API, a landing page and paid subscriptions through Stripe. The product has since been discontinued and the code is open as a portfolio project. The extension is still listed on the store, but the server has been shut down, so it no longer works once installed. To try it, follow the [running locally](#running-locally) instructions.
 >
 > The product was built for the Brazilian market, so the UI, the prompts and the code comments are in Portuguese.
 
@@ -137,6 +140,12 @@ Google Business Profile has no public API for this, and its interface runs insid
 - Zod validation, HTML sanitization, a 10 KB payload limit, Helmet and structured logs (Winston) that mask emails and IDs.
 - The Stripe webhook receives the raw body (`express.raw`) so the signature is verified before anything is processed.
 
+### Automated tests
+
+- **Backend:** Vitest and Supertest tests cover prompt building, input sanitization and validation, the authentication and usage-limit middlewares, and the reply generation route end to end. The database and the Anthropic API are mocked, so the tests can check, for example, that a FREE user never sends the business profile to the model.
+- **Extension:** the real content script runs against the mock page in jsdom. The tests check button injection, data extraction for each review, inserting the reply into the right field, and that messages coming from outside the panel are ignored.
+- **CI:** GitHub Actions runs type checking, tests and the build for both parts on every push.
+
 ### A complete product, not just code
 
 Beyond the core, Respondera had what a real SaaS needs: onboarding with a post-install welcome page, a "forgot password" flow, transactional emails, checkout and subscription management (cancel and resume), a landing page with a demo video, analytics and a privacy policy (LGPD, Brazil's data protection law).
@@ -148,10 +157,11 @@ Beyond the core, Respondera had what a real SaaS needs: onboarding with a post-i
 | Layer | Technologies |
 |---|---|
 | Extension | TypeScript, Chrome Extensions Manifest V3, Webpack, `chrome.storage` |
-| Backend | Node.js 20, Express, Prisma, PostgreSQL, Zod, JWT, bcrypt, Helmet, express-rate-limit, Winston |
+| Backend | Node.js 22, Express, Prisma, PostgreSQL, Zod, JWT, bcrypt, Helmet, express-rate-limit, Winston |
 | AI | Claude API (Anthropic SDK) |
 | Payments and email | Stripe (Checkout + Webhooks), Resend |
 | Landing | Static HTML/CSS/JS, Vercel, Vercel Analytics |
+| Tests and CI | Vitest, Supertest, jsdom, GitHub Actions |
 
 ---
 
@@ -159,7 +169,7 @@ Beyond the core, Respondera had what a real SaaS needs: onboarding with a post-i
 
 > The code still works, but the production backend (`api.respondera.com.br`) has been shut down, so the Chrome Web Store version can't generate replies. To try it, run the backend locally and use the mock page included in the repository.
 
-**Requirements:** Node.js 20+, pnpm 9+, Docker and Google Chrome. You'll need an [Anthropic API](https://console.anthropic.com) key. Stripe and Resend are optional in development: without a Resend key, verification codes are printed to the console.
+**Requirements:** Node.js 22+, pnpm 9+, Docker and Google Chrome. You'll need an [Anthropic API](https://console.anthropic.com) key. Stripe and Resend are optional in development: without a Resend key, verification codes are printed to the console.
 
 ### 1. Database
 
@@ -190,13 +200,24 @@ pnpm build:dev          # build pointing to localhost:3333 (or `pnpm dev` to wat
 
 1. Open `chrome://extensions` and turn on **Developer mode**.
 2. Click **Load unpacked** and select `extension/dist/`.
-3. In the extension details, turn on **Allow access to file URLs**.
 
 ### 4. Testing without a Business Profile
 
-[`extension/mock/mock-reviews.html`](extension/mock/mock-reviews.html) imitates Google's reviews screen. For the extension to run on it, add the mock's path (for example `file:///*`, or `http://localhost:8081/*` if you use `pnpm mock`) to the content script `matches` in `extension/manifest.json` and rebuild.
+[`extension/mock/mock-reviews.html`](extension/mock/mock-reviews.html) imitates Google's reviews screen. The development build already allows the extension on `localhost:8081`, so you only need to serve the mock:
+
+```bash
+cd extension
+pnpm mock               # open http://localhost:8081/mock-reviews.html
+```
 
 Then create an account from the extension popup, enter the verification code printed in the backend console and click **"Responder com IA"** on any review in the mock.
+
+### 5. Tests
+
+```bash
+cd backend && pnpm test         # no database or Anthropic key needed
+cd ../extension && pnpm test
+```
 
 <details>
 <summary><strong>Backend environment variables</strong></summary>
@@ -226,6 +247,8 @@ Then create an account from the extension popup, enter the verification code pri
 | `pnpm prisma:migrate` | Create and apply migrations |
 | `pnpm prisma:migrate:deploy` | Apply migrations in production |
 | `pnpm prisma:studio` | Open Prisma Studio |
+| `pnpm test` / `pnpm test:watch` | Run the tests |
+| `pnpm typecheck` | Type-check without compiling |
 
 **Extension**
 
@@ -236,6 +259,8 @@ Then create an account from the extension popup, enter the verification code pri
 | `pnpm build` | Production build |
 | `pnpm mock` | Serve the mock at http://localhost:8081 |
 | `pnpm icons` | Generate the icons from the SVG |
+| `pnpm test` / `pnpm test:watch` | Run the tests |
+| `pnpm typecheck` | Type-check without compiling |
 
 </details>
 
@@ -256,6 +281,12 @@ Then create an account from the extension popup, enter the verification code pri
 | `GET` | `/health` | Health check |
 
 </details>
+
+---
+
+## License
+
+[MIT](LICENSE)
 
 ---
 
