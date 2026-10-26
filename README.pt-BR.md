@@ -23,7 +23,7 @@
 [English](README.md) · **Português**
 
 > [!NOTE]
-> O Respondera foi um SaaS que idealizei, desenvolvi e coloquei no ar: a extensão chegou à [Chrome Web Store](https://chromewebstore.google.com/detail/respondera/jjoaagmkfjgncaflfdjaeahfpabefibb), com backend em produção, landing page e assinatura paga via Stripe. Hoje o produto está descontinuado e o código fica aberto como portfólio. A extensão ainda aparece na loja, mas o servidor foi desligado, então ela não funciona mais depois de instalada. Para testar, siga as instruções de [como rodar localmente](#rodando-localmente).
+> Extensão do Chrome com IA para responder avaliações do Google. Antes um SaaS, agora open source. A extensão ainda aparece na [Chrome Web Store](https://chromewebstore.google.com/detail/respondera/jjoaagmkfjgncaflfdjaeahfpabefibb), mas o servidor foi desligado, então ela não funciona mais depois de instalada. Para testar, siga as instruções de [como rodar localmente](#rodando-localmente).
 
 ![Landing page do Respondera](docs/landing.png)
 
