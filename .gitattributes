@@ -1,0 +1,3 @@
+# Keep the GitHub language bar about the extension and API code
+landing/** linguist-vendored
+extension/mock/** linguist-vendored
